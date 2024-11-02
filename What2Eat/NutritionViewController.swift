@@ -27,8 +27,7 @@ class NutritionViewController: UIViewController,UITableViewDelegate, UITableView
         cell.NutrientLabel.text = nutritionFact.name
         cell.NutrientGrams.text = nutritionFact.amount
 
-           // Set the progress bar value
-           cell.NutrientPercentage.progress = nutritionFact.percentage
+        cell.NutritionProgress.progress = nutritionFact.percentage
 
            return cell
     }
