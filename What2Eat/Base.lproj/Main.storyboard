@@ -249,16 +249,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Log in" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iuG-Oc-A5B">
-                                <rect key="frame" x="146" y="107" width="101" height="62"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Log in" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iuG-Oc-A5B">
+                                <rect key="frame" x="152.33333333333334" y="107" width="97.666666666666657" height="62"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="62" id="OLg-CK-Zr9"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="36"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Email or Phone Number" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Zjq-hL-xeg">
                                 <rect key="frame" x="36" y="252" width="320" height="34"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.90196078431372551" green="0.90196078431372551" blue="0.90196078431372551" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <color key="textColor" red="0.38039215686274508" green="0.33725490196078434" blue="0.34509803921568627" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -296,6 +297,12 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="M32-qG-EXX"/>
                         <color key="backgroundColor" red="0.94117647059999998" green="0.91372549020000005" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="iuG-Oc-A5B" firstAttribute="leading" secondItem="M32-qG-EXX" secondAttribute="leading" constant="152.33333333333337" id="07c-eT-6f8"/>
+                            <constraint firstItem="Zjq-hL-xeg" firstAttribute="top" secondItem="iuG-Oc-A5B" secondAttribute="bottom" constant="83" id="NEC-PU-i1M"/>
+                            <constraint firstItem="iuG-Oc-A5B" firstAttribute="top" secondItem="M32-qG-EXX" secondAttribute="top" constant="45" id="RUY-O8-EBU"/>
+                            <constraint firstItem="iuG-Oc-A5B" firstAttribute="centerX" secondItem="YdM-bo-lb6" secondAttribute="centerX" id="VlL-xk-7tZ"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="HPQ-iN-a76"/>
                 </viewController>
@@ -344,9 +351,8 @@
                                     <color key="baseBackgroundColor" red="0.96078431369999995" green="0.41176470590000003" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </buttonConfiguration>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Sign Up" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Khy-L7-l8S">
-                                <rect key="frame" x="132" y="99" width="128" height="62"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Sign Up" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Khy-L7-l8S">
+                                <rect key="frame" x="137" y="99" width="128" height="62"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="36"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -354,6 +360,9 @@
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Nz9-yO-1kq"/>
                         <color key="backgroundColor" red="0.94117647059999998" green="0.91372549020000005" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="Khy-L7-l8S" firstAttribute="centerX" secondItem="Atq-qK-i6Z" secondAttribute="centerX" id="4MB-Ye-aN7"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="gTg-zo-ZTz"/>
                 </viewController>
