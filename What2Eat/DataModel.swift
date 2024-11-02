@@ -111,3 +111,22 @@ let nutritionFacts: [NutritionFact] = [
     NutritionFact(name: "Iron", amount: "7.5 mg", percentage: 0.2),
     NutritionFact(name: "Vitamin A", amount: "44 mg", percentage: 0.9)
 ]
+
+struct Category {
+    let name: String
+    let imageName: String
+}
+
+let categories = [
+        Category(name: "Bakery", imageName: "bakeryImage"),
+        Category(name: "Juices", imageName: "juicesImage"),
+        Category(name: "Dairy", imageName: "dairyImage"),
+        Category(name: "Breakfast", imageName: "breakfastImage"),
+        Category(name: "Frozen Food", imageName: "frozenfoodImage"),
+        Category(name: "Cereal Bars", imageName: "cerealBarsImage"),
+        Category(name: "Sauces", imageName: "saucesImage"),
+        Category(name: "Bakery", imageName: "bakeryImage"),
+        Category(name: "Juices", imageName: "juicesImage"),
+        Category(name: "Desserts", imageName: "dessertsImage")
+    ]
+
