@@ -35,6 +35,8 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         cell.accessoryView = infoButton
         return cell
     }
+    
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
         let verticalPadding: CGFloat = 8

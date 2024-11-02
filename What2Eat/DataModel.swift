@@ -102,7 +102,7 @@ struct NutritionFact {
     let percentage: Float
 }
 let nutritionFacts: [NutritionFact] = [
-    NutritionFact(name: "Total Fat", amount: "3.5 g", percentage: 0.5),
+    NutritionFact(name: "Total Fat", amount: "3.5 g", percentage: 0.35),
     NutritionFact(name: "Saturated Fat", amount: "3.5 g", percentage: 0.7),
     NutritionFact(name: "Cholesterol", amount: "10 mg", percentage: 0.1),
     NutritionFact(name: "Carbohydrates", amount: "15 g", percentage: 0.6),
