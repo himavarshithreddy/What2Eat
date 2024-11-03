@@ -9,4 +9,5 @@ import UIKit
 
 class ExploreHeaderView: UICollectionReusableView {
         
+    @IBOutlet weak var SearchBar: UISearchBar!
 }

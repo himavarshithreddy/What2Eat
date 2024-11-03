@@ -130,3 +130,23 @@ let categories = [
         Category(name: "Desserts", imageName: "dessertsImage")
     ]
 
+
+struct AlertModel {
+    let text: String
+}
+let  alerts = [
+    AlertModel(text: "Contains Milk and Soy"),
+    AlertModel(text: "Non Vegetarian")
+]
+var userRating: Float = 3.5
+struct NutritionModel {
+    let text: String
+    let icon: UIImage
+    let iconColor: UIColor
+}
+let NutritionFacts = [
+            NutritionModel(text: "High Sugar", icon: UIImage(systemName: "exclamationmark.triangle.fill")!, iconColor: .red),
+            NutritionModel(text: "Contains Essential Vitamins Minerals", icon: UIImage(systemName: "checkmark.shield.fill")!, iconColor: .systemGreen),
+            NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.shield.fill")!, iconColor: .systemGreen),
+            NutritionModel(text: "Contains Iron", icon: UIImage(systemName: "checkmark.shield.fill")!, iconColor: .systemGreen)
+        ]
