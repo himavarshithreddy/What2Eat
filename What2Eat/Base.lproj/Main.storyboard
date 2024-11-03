@@ -172,7 +172,7 @@
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="pgn-SG-rM4">
                                                     <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
                                                 </imageView>
-                                                <view clipsSubviews="YES" alpha="0.33000000000000002" contentMode="scaleAspectFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wXI-lG-PDZ">
+                                                <view clipsSubviews="YES" alpha="0.28000000000000003" contentMode="scaleAspectFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wXI-lG-PDZ">
                                                     <rect key="frame" x="-61" y="-0.66666666666674246" width="240" height="128"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -229,6 +229,9 @@
                                         <constraint firstItem="gZj-Jw-deG" firstAttribute="leading" secondItem="DnR-0B-ItH" secondAttribute="leading" constant="-6" id="r4g-x8-4kJ"/>
                                         <constraint firstItem="JX2-sG-7o0" firstAttribute="top" secondItem="gZj-Jw-deG" secondAttribute="bottom" constant="10" id="yPv-L4-9wt"/>
                                     </constraints>
+                                    <connections>
+                                        <outlet property="SearchBar" destination="gZj-Jw-deG" id="mEU-gw-7yK"/>
+                                    </connections>
                                 </collectionReusableView>
                             </collectionView>
                         </subviews>
@@ -546,6 +549,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="cpE-yI-ZsE">
                         <rect key="frame" x="0.0" y="62" width="402" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <color key="barTintColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -555,22 +559,75 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Pwk-rn-cHz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5801.4925373134329" y="1126.5446224256293"/>
+            <point key="canvasLocation" x="5725" y="1127"/>
         </scene>
         <!--Summary-->
         <scene sceneID="RJF-JQ-dh2">
             <objects>
-                <viewController title="Summary" id="Eyb-eY-FJl" sceneMemberID="viewController">
+                <viewController title="Summary" id="Eyb-eY-FJl" customClass="SummaryViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="YnV-LU-jRL">
                         <rect key="frame" x="0.0" y="0.0" width="362" height="350"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="eX5-P6-er3">
+                                <rect key="frame" x="0.0" y="0.0" width="362" height="350"/>
+                                <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="HighlightsCell" rowHeight="31" id="LPB-wE-7uT" customClass="HighlightsCell" customModule="What2Eat" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="50" width="362" height="31"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="LPB-wE-7uT" id="7Hn-Fb-p1D">
+                                            <rect key="frame" x="0.0" y="0.0" width="362" height="31"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="EHk-gR-Jpf">
+                                                    <rect key="frame" x="0.0" y="1.9999999999999982" width="30" height="27.666666666666664"/>
+                                                    <color key="tintColor" systemColor="systemRedColor"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="30" id="jZ8-w2-1NZ"/>
+                                                        <constraint firstAttribute="height" constant="30" id="s1M-jn-B8h"/>
+                                                    </constraints>
+                                                    <imageReference key="image" image="exclamationmark.triangle.fill" catalog="system" symbolScale="medium"/>
+                                                </imageView>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qTD-Ul-8nO">
+                                                    <rect key="frame" x="40" y="4.6666666666666661" width="45" height="21.666666666666671"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="qTD-Ul-8nO" firstAttribute="centerY" secondItem="7Hn-Fb-p1D" secondAttribute="centerY" id="FVk-GS-WKI"/>
+                                                <constraint firstItem="EHk-gR-Jpf" firstAttribute="leading" secondItem="7Hn-Fb-p1D" secondAttribute="leading" id="ISy-sE-BDt"/>
+                                                <constraint firstItem="EHk-gR-Jpf" firstAttribute="centerY" secondItem="7Hn-Fb-p1D" secondAttribute="centerY" id="ZQe-cb-HIv"/>
+                                                <constraint firstItem="qTD-Ul-8nO" firstAttribute="leading" secondItem="EHk-gR-Jpf" secondAttribute="trailing" constant="10" id="yfr-sA-VM1"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <connections>
+                                            <outlet property="HighlightText" destination="qTD-Ul-8nO" id="Pv9-Hk-lOR"/>
+                                            <outlet property="iconImage" destination="EHk-gR-Jpf" id="oTs-m1-Lvh"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="sCA-t3-E35"/>
                         <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                        <constraints>
+                            <constraint firstItem="eX5-P6-er3" firstAttribute="trailing" secondItem="sCA-t3-E35" secondAttribute="trailing" id="4dD-2p-pLg"/>
+                            <constraint firstAttribute="bottom" secondItem="eX5-P6-er3" secondAttribute="bottom" id="oGT-9t-J6L"/>
+                            <constraint firstItem="eX5-P6-er3" firstAttribute="leading" secondItem="sCA-t3-E35" secondAttribute="leading" id="tb4-Dx-K1u"/>
+                            <constraint firstItem="eX5-P6-er3" firstAttribute="top" secondItem="YnV-LU-jRL" secondAttribute="top" id="wMQ-HF-GIH"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="SummaryTableView" destination="eX5-P6-er3" id="wfi-Je-12W"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EHR-Gb-aLV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="7550.746268656716" y="847.48283752860402"/>
+            <point key="canvasLocation" x="7550.746268656716" y="847.13958810068641"/>
         </scene>
         <!--Ingredients-->
         <scene sceneID="chy-o4-wtR">
@@ -746,7 +803,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MhR-o5-UBj" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="8434.3283582089553" y="1704.5766590389014"/>
+            <point key="canvasLocation" x="7551" y="1665"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="UNZ-Rv-MyC">
@@ -759,7 +816,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="selectedImageTintColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                        <tabBarAppearance key="scrollEdgeAppearance">
+                        <tabBarAppearance key="scrollEdgeAppearance" backgroundEffect="systemThickMaterial">
                             <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             <color key="selectionIndicatorTintColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         </tabBarAppearance>
@@ -821,6 +878,7 @@
         <image name="barcode.viewfinder" catalog="system" width="128" height="115"/>
         <image name="bookmark" catalog="system" width="110" height="128"/>
         <image name="bookmark.fill" catalog="system" width="110" height="128"/>
+        <image name="exclamationmark.triangle.fill" catalog="system" width="128" height="109"/>
         <image name="eye.fill" catalog="system" width="128" height="80"/>
         <image name="heart.text.square" catalog="system" width="128" height="114"/>
         <image name="mail.and.text.magnifyingglass" catalog="system" width="128" height="109"/>
@@ -832,6 +890,9 @@
         </systemColor>
         <systemColor name="systemGrayColor">
             <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
