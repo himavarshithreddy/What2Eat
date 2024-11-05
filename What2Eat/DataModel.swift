@@ -167,3 +167,4 @@ let randomlistImages = [
                "cross.case", "pills", "figure.walk", "figure.walk.circle",
                "figure.run", "figure.strengthtraining.traditional", "bandage"
 ]
+

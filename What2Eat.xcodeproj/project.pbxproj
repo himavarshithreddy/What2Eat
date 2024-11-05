@@ -145,7 +145,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DQ35AQ3U75;
+				DEVELOPMENT_TEAM = F64K86LK5G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = What2Eat/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to scan barcodes and ingredients";
@@ -175,7 +175,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DQ35AQ3U75;
+				DEVELOPMENT_TEAM = F64K86LK5G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = What2Eat/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to scan barcodes and ingredients";
