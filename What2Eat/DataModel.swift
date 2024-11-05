@@ -136,7 +136,8 @@ struct AlertModel {
 }
 let alerts = [
     AlertModel(text: "Contains Milk and Soy"),
-    AlertModel(text: "Non Vegetarian")
+    AlertModel(text: "Non Vegetarian"),
+   
 ]
 var userRating: Float = 3.5
 struct NutritionModel {
@@ -147,8 +148,9 @@ struct NutritionModel {
 let NutritionFacts = [
             NutritionModel(text: "High Sugar", icon: UIImage(systemName: "exclamationmark.triangle.fill")!, iconColor: .systemRed),
             NutritionModel(text: "Contains Essential Vitamins Minerals", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),
-            NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),
-            NutritionModel(text: "Contains Iron", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen)
+            NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),
+            NutritionModel(text: "Containsssssss Iron", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen)
+           
         ]
 struct Saved{
     let name:String
