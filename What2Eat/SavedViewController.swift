@@ -34,6 +34,7 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
             let saved = Savedlists[indexPath.row]
             cell.SavedLabel.text = saved.name
             cell.SavedIcon.image = saved.icon
+            cell.accessoryType = .disclosureIndicator
         }
         return cell
         
