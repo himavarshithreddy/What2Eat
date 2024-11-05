@@ -10,6 +10,8 @@ import UIKit
 class AlertCell: UITableViewCell {
 
     
-
     @IBOutlet weak var AlertText: UILabel!
+    
+    
+    
 }

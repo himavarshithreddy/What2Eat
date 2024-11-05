@@ -24,7 +24,7 @@ class ProductDetailsViewController: UIViewController {
        override func viewDidLoad() {
            super.viewDidLoad()
            setupCircularProgressBar()
-           setProgress(to: 0.75)
+           setProgress(to: 0.55)
            self.view.bringSubviewToFront(SummarySegmentView)
        }
 
