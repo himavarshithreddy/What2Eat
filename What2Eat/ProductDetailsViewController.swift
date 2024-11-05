@@ -85,4 +85,23 @@ class ProductDetailsViewController: UIViewController {
            
            
        }
-   }
+    @IBAction func SavedButtonTapped(_ sender: Any) {
+        let actionSheet = UIAlertController(title: "Select a List to add to", message:nil, preferredStyle: .actionSheet)
+        for list in Savedlists {
+            let action = UIAlertAction(title: list.name, style: .default) { _ in
+                print("Selected list: \(list)")
+            }
+            //actionSheet.view.backgroundColor = UIColor(red: 221, green: 215, blue: 205, alpha: 1)
+            actionSheet.view.tintColor = .systemOrange
+            actionSheet.view.layer.cornerRadius = 14
+            actionSheet.view.layer.masksToBounds = true
+            actionSheet.addAction(action)
+            
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+                actionSheet.addAction(cancelAction)
+
+                // Present the action sheet
+                present(actionSheet, animated: true, completion: nil)
+    }
+}

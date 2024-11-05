@@ -7,7 +7,10 @@
 
 import UIKit
 
-class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout {
+class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UISearchBarDelegate {
+    
+    
+    var filteredCategories: [Category] = []
     
     @IBOutlet weak var CollectionView: UICollectionView!
     override func viewDidLoad() {
@@ -17,20 +20,18 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
                }
         CollectionView.delegate = self
         CollectionView.dataSource = self
-       
-    
-               
+        filteredCategories = categories
         
         // Do any additional setup after loading the view.
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        categories.count
+        return filteredCategories.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
          let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath)
         cell.layer.cornerRadius = 8
-        let category = categories[indexPath.row]
+        let category = filteredCategories[indexPath.item]
         
         if let CategoryCell = cell as? CategoryCollectionViewCell {
             CategoryCell.CategoryName.text = category.name
@@ -41,16 +42,28 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
         
               return cell
      }
+    
+    
+    
+    
+    
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
          if kind == UICollectionView.elementKindSectionHeader {
              let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "ExploreHeaderView", for: indexPath) as! ExploreHeaderView
-        
+             headerView.SearchBar.delegate=self
              
              return headerView
          }
          return UICollectionReusableView()
      }
      
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredCategories = searchText.isEmpty ? categories : categories.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+                
+                // Reload the collection view
+                CollectionView.reloadData()
+    }
      // Header Size
      func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
          return CGSize(width: collectionView.frame.width, height: 100) // Adjust height as needed

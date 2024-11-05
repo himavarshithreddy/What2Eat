@@ -11,18 +11,20 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     
     @IBOutlet weak var AlertView: UIView!
     @IBOutlet weak var AlertTableView: UITableView!
-    @IBOutlet weak var SummaryTableView: UITableView!
+  @IBOutlet weak var SummaryTableView: UITableView!
+    @IBOutlet weak var AlertViewHeight: NSLayoutConstraint!
+   
     override func viewDidLoad() {
         super.viewDidLoad()
-        SummaryTableView.dataSource = self
-        SummaryTableView.delegate = self
+       SummaryTableView.dataSource = self
+     SummaryTableView.delegate = self
         AlertTableView.dataSource = self
         AlertTableView.delegate = self
         
-        let AlertViewHeight = CGFloat(alerts.count*25+38)
-        var redViewFrame = AlertView.frame
-        redViewFrame.size.height = AlertViewHeight
-        AlertView.frame = redViewFrame
+        let VarAlertViewHeight = CGFloat(alerts.count*25+42)
+        AlertViewHeight.constant = VarAlertViewHeight
+       
+      
         
 
         
@@ -43,7 +45,7 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView.tag == 1 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightsCell", for: indexPath) as! HighlightsCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightCell", for: indexPath) as! HighlightsCell
             let highlights = NutritionFacts[indexPath.row]
             cell.HighlightText.text = highlights.text
             cell.iconImage.image = highlights.icon
