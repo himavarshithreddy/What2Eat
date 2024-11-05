@@ -63,7 +63,21 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
      }
      
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showExploreProducts",
+           let destination = segue.destination as? ExploreProductsViewController,
+           let indexPaths = CollectionView.indexPathsForSelectedItems,
+           let indexPath = indexPaths.first {
+            
+            let categoryName = categories[indexPath.row].name
+            destination.titletext = categoryName
+        }
+    }
 
+            
+            
+        }
+    
 
     
 
@@ -77,4 +91,4 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
     }
     */
 
-}
+

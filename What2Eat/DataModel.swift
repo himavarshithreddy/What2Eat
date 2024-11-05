@@ -167,4 +167,16 @@ let randomlistImages = [
                "cross.case", "pills", "figure.walk", "figure.walk.circle",
                "figure.run", "figure.strengthtraining.traditional", "bandage"
 ]
+struct ExploreProducts{
+    let name:String
+    let image:String
+    let score:Int
+}
+var ExploreProductslist = [
+    ExploreProducts(name: "Butter", image: "Frame 2145", score: 10),
+    ExploreProducts(name: "Heritage Curd", image: "Frame 2145", score: 90),
+    ExploreProducts(name: "Arokya Milk", image: "Frame 2145", score: 60),
+    ExploreProducts(name: "Ghee", image: "Frame 2145", score: 55)]
 
+
+    
