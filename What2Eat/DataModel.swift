@@ -167,4 +167,12 @@ let randomlistImages = [
                "cross.case", "pills", "figure.walk", "figure.walk.circle",
                "figure.run", "figure.strengthtraining.traditional", "bandage"
 ]
-
+struct SavedProducts{
+    let name:String
+    let image:String
+    let score:Int
+}
+var SavedProductsList = [
+    SavedProducts(name: "Boost", image: "Frame 2146",score: 55),
+    SavedProducts(name: "Good Day Chunkies", image: "Frame 2193",score: 16),
+    SavedProducts(name: "Lays", image: "Frame 2197",score: 78)]
