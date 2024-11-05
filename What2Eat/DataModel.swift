@@ -145,8 +145,25 @@ struct NutritionModel {
     let iconColor: UIColor
 }
 let NutritionFacts = [
-            NutritionModel(text: "High Sugar", icon: UIImage(systemName: "exclamationmark.triangle.fill")!, iconColor: .red),
-            NutritionModel(text: "Contains Essential Vitamins Minerals", icon: UIImage(systemName: "checkmark.shield.fill")!, iconColor: .systemGreen),
-            NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.shield.fill")!, iconColor: .systemGreen),
-            NutritionModel(text: "Contains Iron", icon: UIImage(systemName: "checkmark.shield.fill")!, iconColor: .systemGreen)
+            NutritionModel(text: "High Sugar", icon: UIImage(systemName: "exclamationmark.triangle.fill")!, iconColor: .systemRed),
+            NutritionModel(text: "Contains Essential Vitamins Minerals", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),
+            NutritionModel(text: "High Protein", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen),
+            NutritionModel(text: "Contains Iron", icon: UIImage(systemName: "checkmark.square.fill")!, iconColor: .systemGreen)
         ]
+struct Saved{
+    let name:String
+    let icon:UIImage
+}
+var Savedlists = [
+    Saved(name: "Snacks", icon: UIImage(systemName: "popcorn")!),
+    Saved(name: "Healthy choices", icon: UIImage(systemName: "heart")!),
+    Saved(name: "Workout", icon: UIImage(systemName: "figure.run")!),
+    Saved(name: "Kids", icon: UIImage(systemName: "figure.2.and.child.holdinghands")!),
+    ]
+let randomlistImages = [
+    "leaf", "carrot", "fork.knife", "cart", "cup.and.saucer",
+               "takeoutbag.and.cup.and.straw", "popcorn", "flame", "applelogo",
+               "fork.knife.circle", "heart", "heart.circle", "staroflife",
+               "cross.case", "pills", "figure.walk", "figure.walk.circle",
+               "figure.run", "figure.strengthtraining.traditional", "bandage"
+]
