@@ -134,7 +134,7 @@ let categories = [
 struct AlertModel {
     let text: String
 }
-let  alerts = [
+let alerts = [
     AlertModel(text: "Contains Milk and Soy"),
     AlertModel(text: "Non Vegetarian")
 ]
@@ -176,3 +176,14 @@ var SavedProductsList = [
     SavedProducts(name: "Boost", image: "Frame 2146",score: 55),
     SavedProducts(name: "Good Day Chunkies", image: "Frame 2193",score: 16),
     SavedProducts(name: "Lays", image: "Frame 2197",score: 78)]
+
+struct ExploreProducts{
+    let name:String
+    let image:String
+    let score:Int
+}
+var ExploreProductslist = [
+    ExploreProducts(name: "Butter", image: "Frame 2145", score: 10),
+    ExploreProducts(name: "Heritage Curd", image: "Frame 2145", score: 90),
+    ExploreProducts(name: "Arokya Milk", image: "Frame 2145", score: 60),
+    ExploreProducts(name: "Ghee", image: "Frame 2145", score: 55)]
