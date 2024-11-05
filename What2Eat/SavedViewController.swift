@@ -72,4 +72,14 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
         Savedlists.append(Saved(name: name, icon: randomImageName))
         SavedTableView.reloadData()
        }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showSavedProduct",
+           let destinationVC = segue.destination as? SavedProductsViewController,
+           let indexPath = SavedTableView.indexPathForSelectedRow {
+            
+            // Get the title of the selected item from your data source (e.g., savedItems array)
+            let selectedTitle = Savedlists[indexPath.row].name // Replace savedItems with your actual data source
+            destinationVC.titleText = selectedTitle
+        }
+    }
 }
