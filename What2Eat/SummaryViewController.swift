@@ -32,6 +32,11 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
             cell.HighlightText.text = highlights.text
             cell.iconImage.image = highlights.icon
             cell.iconImage.tintColor = highlights.iconColor
+        if highlights.iconColor == .systemRed {
+            cell.HighlightText.textColor = highlights.iconColor
+        }
+
+        
             return cell
            
             

@@ -30,9 +30,10 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
                 cell.ingredientLabel.text = ingredient.name
                 cell.riskLevelLabel.text = ingredient.riskLevel
                 cell.riskLevelLabel.textColor = ingredient.riskColor
-        let infoButton = UIButton(type: .infoLight)
-       
-        cell.accessoryView = infoButton
+        let accessoryImageView = UIImageView(image: UIImage(systemName: "info.circle"))
+                accessoryImageView.tintColor = .systemGray
+                accessoryImageView.frame = CGRect(x: 0, y: 0, width: 20 , height: 20) //
+                cell.accessoryView = accessoryImageView
         return cell
     }
     
