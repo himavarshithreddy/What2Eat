@@ -11,7 +11,9 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
     
     
     var filteredCategories: [Category] = []
+    private var searchBar: UISearchBar?
     
+    @IBOutlet weak var SearchBar: UISearchBar!
     @IBOutlet weak var CollectionView: UICollectionView!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,6 +22,7 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
                }
         CollectionView.delegate = self
         CollectionView.dataSource = self
+        SearchBar.delegate=self
         filteredCategories = categories
         
         // Do any additional setup after loading the view.
@@ -50,8 +53,7 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
          if kind == UICollectionView.elementKindSectionHeader {
              let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "ExploreHeaderView", for: indexPath) as! ExploreHeaderView
-             headerView.SearchBar.delegate=self
-             
+           
              return headerView
          }
          return UICollectionReusableView()
@@ -59,16 +61,19 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
      
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filteredCategories = searchText.isEmpty ? categories : categories.filter { $0.name.lowercased().contains(searchText.lowercased()) }
-                
-                // Reload the collection view
-                CollectionView.reloadData()
-    }
-     // Header Size
+          filteredCategories = searchText.isEmpty ? categories : categories.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+       
+        CollectionView.reloadData()
+      }
+      
+      func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+          searchBar.resignFirstResponder()
+      }
+    
      func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-         return CGSize(width: collectionView.frame.width, height: 100) // Adjust height as needed
+         return CGSize(width: collectionView.frame.width, height: 25) // Adjust height as needed
      }
-     // MARK: - UICollectionViewDelegateFlowLayout
+    
      
      func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
          let width = (collectionView.frame.width-10) / 2
@@ -95,7 +100,7 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
                let indexPaths = CollectionView.indexPathsForSelectedItems,
                let indexPath = indexPaths.first {
                 
-                let categoryName = categories[indexPath.row].name
+                let categoryName = filteredCategories[indexPath.row].name
                 destination.titletext = categoryName
             }
         }
