@@ -1,9 +1,3 @@
-//
-//  SavedViewController.swift
-//  What2Eat
-//
-//  Created by admin68 on 04/11/24.
-//
 
 import UIKit
 

@@ -1,9 +1,3 @@
-//
-//  ProductDetailsViewController.swift
-//  What2Eat
-//
-//  Created by admin68 on 01/11/24.
-//
 
 import UIKit
 
