@@ -35,12 +35,9 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
          let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath)
         cell.layer.cornerRadius = 8
         let category = filteredCategories[indexPath.item]
-        
         if let CategoryCell = cell as? CategoryCollectionViewCell {
             CategoryCell.CategoryName.text = category.name
             CategoryCell.CategoryImage.image = UIImage(named: category.imageName)
-       
-        
         }
         
               return cell

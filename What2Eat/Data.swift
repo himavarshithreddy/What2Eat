@@ -11,7 +11,7 @@
 //struct Product {
 //    let id: UUID
 //    let name: String
-//    let imageURL: URL
+//    let imageURL: String
 //    let healthScore: Int
 //    var ingredients: [Ingredient]
 //    var allergens: [Allergen]
@@ -27,8 +27,8 @@
 //    let id: UUID
 //    let name: String
 //    var products: [Product]
-//    let iconName: String
-//    
+//    let iconName: UIImage
+//
 //    }
 //struct Category {
 //    let id: UUID
@@ -37,11 +37,16 @@
 //    
 //}
 //let Categories: [Category] = [
-//    Category(id: UUID(), name: "Bread", imageName: "bread"),
-//    Category(id: UUID(), name: "Nut Butter", imageName: "nutbutter"),
-//    Category(id: UUID(), name: "Oil", imageName: "oil"),
-//    Category(id: UUID(), name: "Snacks", imageName: "snacks"),
-//    Category(id: UUID(), name: "Dairy", imageName: "dairy")
+//    Category(id: UUID(), name: "Bakery", imageName: "bakeryImage"),
+//    Category(id: UUID(), name: "Juices", imageName: "juicesImage"),
+//    Category(id: UUID(), name: "Dairy", imageName: "dairyImage"),
+//    Category(id: UUID(), name: "Breakfast", imageName: "breakfastImage"),
+//    Category(id: UUID(), name: "Frozen Food", imageName: "frozenfoodImage"),
+//    Category(id: UUID(), name: "Cereal Bars", imageName: "cerealBarsImage"),
+//    Category(id: UUID(), name: "Sauces", imageName: "saucesImage"),
+//    Category(id: UUID(), name: "Bakery", imageName: "bakeryImage"),
+//    Category(id: UUID(), name: "Juices", imageName: "juicesImage"),
+//    Category(id: UUID(), name: "Desserts", imageName: "dessertsImage"),
 //]
 //struct NutritionInfo {
 //    let calories: Int
@@ -138,7 +143,7 @@
 //    Product(
 //        id: UUID(),
 //        name: "Organic Whole Wheat Bread",
-//        imageURL: URL(string: "https://via.placeholder.com/300x200")!,
+//        imageURL: "Frame 2145",
 //        healthScore: 80,
 //        ingredients: [Ingredients["Whole Wheat Flour"]!, Ingredients["Yeast"]!, Ingredients["Salt"]!],
 //        allergens: [.wheat],
@@ -169,12 +174,12 @@
 //         cons: [
 //             "Contains tree nuts (almonds), which are a common allergen",
 //             "Relatively high in natural sugars from dates"
-//         ]// Bread
+//         ]
 //    ),
 //    Product(
 //        id: UUID(),
 //        name: "Organic Crunchy Peanut Butter",
-//        imageURL: URL(string: "https://via.placeholder.com/300x200")!,
+//        imageURL: "Frame 2145",
 //        healthScore: 75,
 //        ingredients: [Ingredients["Sugar"]!, Ingredients["Salt"]!, Ingredients["Peanuts"]!],
 //        allergens: [.peanuts],
@@ -204,12 +209,12 @@
 //         cons: [
 //             "Contains tree nuts (almonds), which are a common allergen",
 //             "Relatively high in natural sugars from dates"
-//         ]// Nut Butter
+//         ]
 //    ),
 //    Product(
 //        id: UUID(),
 //        name: "Organic Soybean Oil",
-//        imageURL: URL(string: "https://via.placeholder.com/300x200")!,
+//        imageURL: "Frame 2145",
 //        healthScore: 50,
 //        ingredients: [Ingredients["Soybean Oil"]!],
 //        allergens: [.soy],
@@ -234,12 +239,12 @@
 //         cons: [
 //             "Contains tree nuts (almonds), which are a common allergen",
 //             "Relatively high in natural sugars from dates"
-//         ]// Oil
+//         ]
 //    ),
 //    Product(
 //        id: UUID(),
 //        name: "Organic Potato Chips",
-//        imageURL: URL(string: "https://via.placeholder.com/300x200")!,
+//        imageURL: "Frame 2145",
 //        healthScore: 65,
 //        ingredients: [Ingredients["Potato"]!, Ingredients["Salt"]!],
 //        allergens: [],
@@ -264,12 +269,12 @@
 //         cons: [
 //             "Contains tree nuts (almonds), which are a common allergen",
 //             "Relatively high in natural sugars from dates"
-//         ]// Snacks
+//         ]
 //    ),
 //    Product(
 //        id: UUID(),
 //        name: "Organic Milk",
-//        imageURL: URL(string: "https://via.placeholder.com/300x200")!,
+//        imageURL: "Frame 2145",
 //        healthScore: 90,
 //        ingredients: [Ingredients["Milk"]!],
 //        allergens: [.milk],
@@ -300,7 +305,7 @@
 //         cons: [
 //             "Contains tree nuts (almonds), which are a common allergen",
 //             "Relatively high in natural sugars from dates"
-//         ]// Dairy
+//         ]
 //    )
 //]
 //let sampleUser = User(
@@ -313,30 +318,38 @@
 //let sampleLists: [SavedList] = [
 //    SavedList(
 //        id: UUID(),
-//        name: "Grocery List",
+//        name: "Snacks",
 //        products: [
-//            sampleProducts[0], // Organic Whole Wheat Bread
-//            sampleProducts[3], // Organic Potato Chips
-//            sampleProducts[4]  // Organic Milk
+//            sampleProducts[0],
+//            sampleProducts[3],
+//            sampleProducts[4]
 //        ],
-//        iconName: "list"
+//        iconName: UIImage(systemName: "popcorn")!
 //    ),
 //    SavedList(
 //        id: UUID(),
-//        name: "Baking Supplies",
+//        name: "Healthy choices",
 //        products: [
-//            sampleProducts[0], // Organic Whole Wheat Bread
-//            sampleProducts[1]  // Organic Crunchy Peanut Butter
+//            sampleProducts[0],
+//            sampleProducts[1]
 //        ],
-//        iconName: "baking"
+//        iconName: UIImage(systemName: "heart")!
 //    ),
 //    SavedList(
 //        id: UUID(),
-//        name: "Pantry Essentials",
+//        name: "Workout",
 //        products: [
-//            sampleProducts[2], // Organic Soybean Oil
-//            sampleProducts[1]  // Organic Crunchy Peanut Butter
+//            sampleProducts[2],
+//            sampleProducts[1]
 //        ],
-//        iconName: "pantry"
+//        iconName: UIImage(systemName: "figure.run")!
+//    ),SavedList(
+//        id: UUID(),
+//        name: "Workout",
+//        products: [
+//            sampleProducts[2],
+//            sampleProducts[1]
+//        ],
+//        iconName: UIImage(systemName: "figure.2.and.child.holdinghands")!
 //    )
 //]
