@@ -1,7 +1,8 @@
 import UIKit
 import AVFoundation
+import Vision
 
-class BarcodeScannerViewController: UIViewController {
+class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
     
     @IBOutlet weak var cameraPreviewView: UIView!
     @IBOutlet weak var overlayView: UIView!
@@ -10,12 +11,23 @@ class BarcodeScannerViewController: UIViewController {
     @IBOutlet weak var TorchIcon: UIBarButtonItem!
     private var captureSession: AVCaptureSession?
     private var previewLayer: AVCaptureVideoPreviewLayer?
-    
-    
+   
+    @IBAction func ScannerSwitcherButton(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+          if let scanViewController = storyboard.instantiateViewController(withIdentifier: "ScanwithLabel") as? ScanwithLabelViewController {
+              navigationController?.setViewControllers([scanViewController], animated: true)
+          }
+    }
     @IBAction func TorchTapped(_ sender: Any) {
         toggleFlashlight()
     }
-   
+    @IBAction func GalleryButtonTapped(_ sender: Any) {
+        let imagePicker = UIImagePickerController()
+        imagePicker.sourceType = .photoLibrary
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = false
+                present(imagePicker, animated: true)
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tabBarController?.tabBar.isHidden = true
@@ -44,6 +56,7 @@ class BarcodeScannerViewController: UIViewController {
         createOverlayMask()
     }
     
+    
     // MARK: - Camera Setup
     private func setupCamera() {
         captureSession = AVCaptureSession()
@@ -71,16 +84,78 @@ class BarcodeScannerViewController: UIViewController {
             metadataOutput.metadataObjectTypes = [.ean8, .ean13, .pdf417] // Set barcode types
         }
         
-        // Initialize and add the preview layer
+     
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
         previewLayer?.videoGravity = .resizeAspectFill
         cameraPreviewView.layer.addSublayer(previewLayer!)
         
-        // Start running the capture session on a background thread
+       
         DispatchQueue.global(qos: .background).async {
             self.captureSession?.startRunning()
         }
     }
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            picker.dismiss(animated: true)
+            
+            guard let image = info[.originalImage] as? UIImage else {
+                print("No image found")
+                return
+            }
+            
+            
+            guard let cgImage = image.cgImage else {
+                print("Could not get CGImage")
+                return
+            }
+            
+            let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+            
+           
+            let request = VNDetectBarcodesRequest { [weak self] request, error in
+                if let error = error {
+                    print("Error detecting barcode: \(error)")
+                    return
+                }
+                
+              
+                if let observations = request.results as? [VNBarcodeObservation] {
+                    DispatchQueue.main.async {
+                        self?.processDetectedBarcodes(observations)
+                    }
+                }
+            }
+            
+            // Perform the request
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    try requestHandler.perform([request])
+                } catch {
+                    print("Error performing barcode detection: \(error)")
+                }
+            }
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            picker.dismiss(animated: true)
+        }
+        
+        // MARK: - Process Detected Barcodes
+        private func processDetectedBarcodes(_ observations: [VNBarcodeObservation]) {
+            guard !observations.isEmpty else {
+                let alert = UIAlertController(title: "No Barcode Found",
+                                            message: "No barcode was detected in the selected image.",
+                                            preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: true)
+                return
+            }
+            
+           
+            if let firstBarcode = observations.first,
+               let payloadString = firstBarcode.payloadStringValue {
+                displayAlert(with: payloadString)
+            }
+        }
     @objc func toggleFlashlight() {
         guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }
 
@@ -105,17 +180,17 @@ class BarcodeScannerViewController: UIViewController {
     
     // MARK: - Overlay Mask Creation
     private func createOverlayMask() {
-        // Create a path for the overlay mask (entire overlay area)
+        
         let overlayPath = UIBezierPath(rect: overlayView.bounds)
         
-        // Convert scanningFrameView's frame to overlayView's coordinate system
+       
         let scanFrameInOverlay = overlayView.convert(scanningFrameView.frame, from: scanningFrameView.superview)
         
-        // Create a path for the "hole" (scanning area)
+       
         let holePath = UIBezierPath(rect: scanFrameInOverlay)
         overlayPath.append(holePath.reversing())
         
-        // Create a mask layer that cuts out the hole
+       
         let maskLayer = CAShapeLayer()
         maskLayer.path = overlayPath.cgPath
         overlayView.layer.mask = maskLayer
@@ -141,16 +216,21 @@ extension BarcodeScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
     
     // MARK: - Display Alert with Barcode Result
     private func displayAlert(with barcode: String) {
-        let alert = UIAlertController(title: "Barcode Detected", message: "Value: \(barcode)", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-           
-        }))
-        
-        present(alert, animated: true, completion: nil)
-    }
+            let alert = UIAlertController(title: "Barcode Detected",
+                                        message: "Value: \(barcode)",
+                                        preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
+                DispatchQueue.global(qos: .background).async {
+                    self?.captureSession?.startRunning()
+                }
+            }))
+            present(alert, animated: true)
+        }
+    
     @objc func backButtonTapped() {
        
         tabBarController?.selectedIndex = 0
 
     }
+    
 }

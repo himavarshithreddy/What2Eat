@@ -1,39 +1,27 @@
-//
-//  IngredientsViewController.swift
-//  What2Eat
-//
-//  Created by admin68 on 02/11/24.
-//
-
 import UIKit
 
-class IngredientsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class IngredientsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate {
     
     @IBOutlet weak var ingredientsTableView: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
         ingredientsTableView.delegate = self
         ingredientsTableView.dataSource = self
-
-        // Do any additional setup after loading the view.
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return ingredients.count
     }
-  
+    
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "IngredientCell", for: indexPath) as! IngredientCell
-                let ingredient = ingredients[indexPath.row]
-                
-                cell.ingredientLabel.text = ingredient.name
-                cell.riskLevelLabel.text = ingredient.riskLevel
-                cell.riskLevelLabel.textColor = ingredient.riskColor
-        let accessoryImageView = UIImageView(image: UIImage(systemName: "info.circle"))
-                accessoryImageView.tintColor = .systemGray
-                accessoryImageView.frame = CGRect(x: 0, y: 0, width: 20 , height: 20) //
-                cell.accessoryView = accessoryImageView
+        let ingredient = ingredients[indexPath.row]
+        
+        cell.ingredientLabel.text = ingredient.name
+        cell.riskLevelLabel.text = ingredient.riskLevel
+        cell.riskLevelLabel.textColor = ingredient.riskColor
+        cell.accessoryType = .detailButton
         return cell
     }
     
@@ -48,10 +36,26 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         cell.layer.mask = maskLayer
     }
     
-
-   
     
-
-   
-
+    
+    
+    func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath)
+        performSegue(withIdentifier: "showIngredientDetailsPopover", sender: indexPath)
+    }
+    
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?){
+        if segue.identifier == "showIngredientDetailsPopover" {
+            if let indexPath = sender as? IndexPath,
+               let destinationVC = segue.destination as? IngredientDetailViewController {
+                destinationVC.ingredient = "fcddsds"
+                
+            }
+        }
+        
+    }
+    
+    
 }
