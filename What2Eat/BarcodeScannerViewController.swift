@@ -2,39 +2,21 @@ import UIKit
 import AVFoundation
 import Vision
 
-class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
+class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,AVCaptureMetadataOutputObjectsDelegate {
     
     @IBOutlet weak var cameraPreviewView: UIView!
     @IBOutlet weak var overlayView: UIView!
     @IBOutlet weak var scanningFrameView: UIView!
-    var isTorchOn = false
+    @IBOutlet weak var SwitchScanButton: UIButton!
     @IBOutlet weak var TorchIcon: UIBarButtonItem!
     private var captureSession: AVCaptureSession?
     private var previewLayer: AVCaptureVideoPreviewLayer?
+    var isTorchOn = false
    
-    @IBAction func ScannerSwitcherButton(_ sender: UIButton) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-          if let scanViewController = storyboard.instantiateViewController(withIdentifier: "ScanwithLabel") as? ScanwithLabelViewController {
-              navigationController?.setViewControllers([scanViewController], animated: true)
-          }
-    }
-    @IBAction func TorchTapped(_ sender: Any) {
-        toggleFlashlight()
-    }
-    @IBAction func GalleryButtonTapped(_ sender: Any) {
-        let imagePicker = UIImagePickerController()
-        imagePicker.sourceType = .photoLibrary
-        imagePicker.delegate = self
-        imagePicker.allowsEditing = false
-                present(imagePicker, animated: true)
-    }
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureScanningFrame()
         self.tabBarController?.tabBar.isHidden = true
-        scanningFrameView.layer.masksToBounds = true
-        scanningFrameView.layer.borderWidth = 1.5
-        scanningFrameView.clipsToBounds = true
-        scanningFrameView.layer.borderColor = UIColor.systemOrange.cgColor
         let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
             navigationItem.leftBarButtonItem = backButton
         setupCamera()
@@ -54,6 +36,17 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         super.viewDidLayoutSubviews()
         previewLayer?.frame = cameraPreviewView.bounds
         createOverlayMask()
+    }
+    private func configureScanningFrame() {
+        scanningFrameView.layer.masksToBounds = true
+        scanningFrameView.layer.borderWidth = 1.5
+        scanningFrameView.clipsToBounds = true
+        scanningFrameView.layer.borderColor = UIColor.systemOrange.cgColor
+        SwitchScanButton.layer.cornerRadius=8
+        SwitchScanButton.layer.masksToBounds = true
+        SwitchScanButton.layer.borderWidth = 1.5
+        SwitchScanButton.clipsToBounds = true
+        SwitchScanButton.layer.borderColor = UIColor.white.cgColor
     }
     
     
@@ -196,10 +189,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         overlayView.layer.mask = maskLayer
        
     }
-}
 
-// MARK: - Barcode Detection
-extension BarcodeScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         for metadata in metadataObjects {
             guard let readableObject = metadata as? AVMetadataMachineReadableCodeObject,
@@ -232,5 +222,20 @@ extension BarcodeScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
         tabBarController?.selectedIndex = 0
 
     }
-    
+    @IBAction func ScannerSwitcherButton(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let scanViewController = storyboard.instantiateViewController(withIdentifier: "ScanwithLabel") as? ScanWithLabelViewController {
+              navigationController?.setViewControllers([scanViewController], animated: true)
+          }
+    }
+    @IBAction func TorchTapped(_ sender: Any) {
+        toggleFlashlight()
+    }
+    @IBAction func GalleryButtonTapped(_ sender: Any) {
+        let imagePicker = UIImagePickerController()
+        imagePicker.sourceType = .photoLibrary
+        imagePicker.delegate = self
+        imagePicker.allowsEditing = false
+                present(imagePicker, animated: true)
+    }
 }
