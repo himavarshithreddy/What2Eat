@@ -840,7 +840,7 @@
         <!--Barcode Scanner View Controller-->
         <scene sceneID="9LJ-Hj-1Q5">
             <objects>
-                <viewController storyboardIdentifier="BarcodeScannerViewController" id="AzM-uL-puC" customClass="BarcodeScannerViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ScanwithBarcode" id="AzM-uL-puC" customClass="BarcodeScannerViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="sc9-Vn-4xb">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -866,23 +866,20 @@
                                     <constraint firstAttribute="height" constant="250" id="HyQ-CJ-6Zf"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" alpha="0.75" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ajC-tK-2he">
+                            <button opaque="NO" clipsSubviews="YES" alpha="0.80000000000000004" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ajC-tK-2he">
                                 <rect key="frame" x="101" y="674" width="200" height="40"/>
-                                <color key="backgroundColor" white="0.23499617737003059" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="0a4-Di-Vsk"/>
                                     <constraint firstAttribute="width" constant="200" id="97b-mK-Yc9"/>
                                 </constraints>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="gray" title="Scan with Label">
+                                <buttonConfiguration key="configuration" style="filled" imagePlacement="leading" title="Scan with Label" imagePadding="8">
+                                    <imageReference key="image" image="text.viewfinder" catalog="system" symbolScale="large"/>
                                     <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
+                                    <color key="baseBackgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </buttonConfiguration>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="ScannerSwitcherButton:" destination="AzM-uL-puC" eventType="touchUpInside" id="EBc-Fi-CvZ"/>
                                 </connections>
@@ -927,11 +924,11 @@
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
+                        <outlet property="SwitchScanButton" destination="ajC-tK-2he" id="TNw-KK-DRm"/>
                         <outlet property="TorchIcon" destination="Ulv-gU-yq1" id="bhH-ec-TYC"/>
                         <outlet property="cameraPreviewView" destination="ZXs-9e-Ppa" id="K1O-dL-LsN"/>
                         <outlet property="overlayView" destination="AW0-Ih-GMv" id="3iz-mG-5VL"/>
                         <outlet property="scanningFrameView" destination="Dqv-Mz-1W0" id="2Ac-f2-TQr"/>
-                        <segue destination="ADS-PM-Rdx" kind="show" id="qtb-zB-oMc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="G8F-6f-TKi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1517,6 +1514,111 @@
             </objects>
             <point key="canvasLocation" x="2402.9850746268658" y="1849.4279176201371"/>
         </scene>
+        <!--Scan With Label View Controller-->
+        <scene sceneID="k9a-yD-gzN">
+            <objects>
+                <viewController storyboardIdentifier="ScanwithLabel" id="QfX-0E-obw" customClass="ScanWithLabelViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="u35-Oc-oR5">
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="51R-Ng-ON1">
+                                <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="g2g-ea-ics">
+                                <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fu2-fm-scb">
+                                <rect key="frame" x="20" y="137" width="362" height="600"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="600" id="r7J-Wa-qDB"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Take the Picture of the Product Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UDg-cA-MZd">
+                                <rect key="frame" x="96" y="112.66666666666667" width="210" height="14.333333333333329"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hkw-a8-W4O">
+                                <rect key="frame" x="166" y="767" width="70" height="70"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="70" id="cla-sa-u2K"/>
+                                    <constraint firstAttribute="height" constant="70" id="dxP-yh-nYO"/>
+                                </constraints>
+                                <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled">
+                                    <color key="baseBackgroundColor" white="0.9482033639143731" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="capturePhoto" destination="QfX-0E-obw" eventType="touchUpInside" id="UwC-6s-Uir"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Zdx-l9-uR3"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Fu2-fm-scb" firstAttribute="centerX" secondItem="u35-Oc-oR5" secondAttribute="centerX" id="0mQ-ku-Omf"/>
+                            <constraint firstItem="Fu2-fm-scb" firstAttribute="leading" secondItem="Zdx-l9-uR3" secondAttribute="leading" constant="20" id="2Zm-ab-WJX"/>
+                            <constraint firstItem="g2g-ea-ics" firstAttribute="leading" secondItem="u35-Oc-oR5" secondAttribute="leading" id="48J-LU-MXR"/>
+                            <constraint firstAttribute="bottom" secondItem="51R-Ng-ON1" secondAttribute="bottom" id="7gL-ZF-7Ch"/>
+                            <constraint firstItem="UDg-cA-MZd" firstAttribute="centerX" secondItem="u35-Oc-oR5" secondAttribute="centerX" id="A7L-wz-Vv3"/>
+                            <constraint firstItem="51R-Ng-ON1" firstAttribute="leading" secondItem="u35-Oc-oR5" secondAttribute="leading" id="GjS-P3-kWv"/>
+                            <constraint firstItem="hkw-a8-W4O" firstAttribute="centerX" secondItem="u35-Oc-oR5" secondAttribute="centerX" id="Iki-bO-c3k"/>
+                            <constraint firstItem="g2g-ea-ics" firstAttribute="top" secondItem="u35-Oc-oR5" secondAttribute="top" id="KKX-Pp-tEX"/>
+                            <constraint firstAttribute="bottom" secondItem="g2g-ea-ics" secondAttribute="bottom" id="LqO-bL-2pj"/>
+                            <constraint firstItem="51R-Ng-ON1" firstAttribute="top" secondItem="u35-Oc-oR5" secondAttribute="top" id="Oja-oR-jTX"/>
+                            <constraint firstItem="Zdx-l9-uR3" firstAttribute="trailing" secondItem="Fu2-fm-scb" secondAttribute="trailing" constant="20" id="Qse-cd-Apb"/>
+                            <constraint firstAttribute="trailing" secondItem="51R-Ng-ON1" secondAttribute="trailing" id="WaK-UR-dKn"/>
+                            <constraint firstAttribute="trailing" secondItem="g2g-ea-ics" secondAttribute="trailing" id="Z0T-gX-PWx"/>
+                            <constraint firstItem="Fu2-fm-scb" firstAttribute="top" secondItem="UDg-cA-MZd" secondAttribute="bottom" constant="10" id="d8L-5a-sYF"/>
+                            <constraint firstItem="hkw-a8-W4O" firstAttribute="top" secondItem="Fu2-fm-scb" secondAttribute="bottom" constant="30" id="jdm-ed-XVK"/>
+                            <constraint firstItem="Fu2-fm-scb" firstAttribute="centerY" secondItem="u35-Oc-oR5" secondAttribute="centerY" id="xHu-Ml-JZ7"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="pUG-Kt-dtJ">
+                        <rightBarButtonItems>
+                            <barButtonItem title="Torch" id="2nP-33-ruG">
+                                <imageReference key="image" image="flashlight.off.fill" catalog="system" symbolScale="large"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <connections>
+                                    <action selector="TorchTapped:" destination="QfX-0E-obw" id="lOW-QJ-sFJ"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Gallery" image="photo" catalog="system" id="Rtw-RI-a6r">
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <connections>
+                                    <action selector="GalleryButtonTapped:" destination="QfX-0E-obw" id="fiG-KD-6Jm"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Barcode" id="9f8-Aj-Lk4">
+                                <imageReference key="image" image="barcode.viewfinder" catalog="system" symbolScale="large"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <connections>
+                                    <action selector="SwtichtoBarcode:" destination="QfX-0E-obw" id="9g8-SH-Fpd"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="CaptureButton" destination="hkw-a8-W4O" id="H27-9z-sRQ"/>
+                        <outlet property="ScanningViewFrameHeight" destination="r7J-Wa-qDB" id="jI7-aU-i1s"/>
+                        <outlet property="TorchIcon" destination="2nP-33-ruG" id="5wf-3L-Z9P"/>
+                        <outlet property="cameraPreviewView" destination="51R-Ng-ON1" id="poC-xS-y01"/>
+                        <outlet property="overlayView" destination="g2g-ea-ics" id="6LN-oN-SQW"/>
+                        <outlet property="scanningFrameView" destination="Fu2-fm-scb" id="AkF-A5-civ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Gdv-bL-0DR" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1137" y="2746"/>
+        </scene>
         <!--Explore Products View Controller-->
         <scene sceneID="pm5-3F-0aF">
             <objects>
@@ -1655,124 +1757,24 @@
             </objects>
             <point key="canvasLocation" x="-2080.5970149253731" y="2745.9954233409608"/>
         </scene>
-        <!--Scanwith Label View Controller-->
-        <scene sceneID="Pi3-mT-UiH">
-            <objects>
-                <viewController storyboardIdentifier="ScanwithLabel" id="kAL-du-RMa" customClass="ScanwithLabelViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Y8F-hb-CLV">
-                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8CL-YE-6bd">
-                                <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
-                                <color key="backgroundColor" systemColor="darkTextColor"/>
-                            </view>
-                            <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="auL-px-PPM">
-                                <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Take a Picture of the Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hyq-Ue-Ub5">
-                                <rect key="frame" x="126" y="212.66666666666666" width="150" height="14.333333333333343"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="94m-Dr-7fc">
-                                <rect key="frame" x="30" y="237" width="342" height="400"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="400" id="sog-4j-R7H"/>
-                                </constraints>
-                            </view>
-                            <button opaque="NO" alpha="0.75" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rQc-uI-OOG">
-                                <rect key="frame" x="101" y="674" width="200" height="40"/>
-                                <color key="backgroundColor" white="0.23499617740000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="Dle-SD-IWU"/>
-                                    <constraint firstAttribute="width" constant="200" id="n50-cb-bTT"/>
-                                </constraints>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="gray" title="Scan with Barcode">
-                                    <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
-                                </buttonConfiguration>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="ScannerSwitcherButton:" destination="kAL-du-RMa" eventType="touchUpInside" id="1VF-Z1-tyS"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="MDO-Ne-t41"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="94m-Dr-7fc" firstAttribute="top" secondItem="hyq-Ue-Ub5" secondAttribute="bottom" constant="10" id="1dK-qg-Yfu"/>
-                            <constraint firstItem="auL-px-PPM" firstAttribute="top" secondItem="Y8F-hb-CLV" secondAttribute="top" id="429-Kx-IYs"/>
-                            <constraint firstItem="rQc-uI-OOG" firstAttribute="centerX" secondItem="Y8F-hb-CLV" secondAttribute="centerX" id="5Zd-dX-jNx"/>
-                            <constraint firstItem="hyq-Ue-Ub5" firstAttribute="centerX" secondItem="Y8F-hb-CLV" secondAttribute="centerX" id="9gl-le-uzb"/>
-                            <constraint firstItem="8CL-YE-6bd" firstAttribute="leading" secondItem="Y8F-hb-CLV" secondAttribute="leading" id="AwI-Ks-2Ze"/>
-                            <constraint firstAttribute="bottom" secondItem="rQc-uI-OOG" secondAttribute="bottom" constant="160" id="Fq1-bl-lDi"/>
-                            <constraint firstAttribute="bottom" secondItem="8CL-YE-6bd" secondAttribute="bottom" id="HY2-mw-hAx"/>
-                            <constraint firstItem="auL-px-PPM" firstAttribute="leading" secondItem="Y8F-hb-CLV" secondAttribute="leading" id="Rqc-hb-6ne"/>
-                            <constraint firstItem="94m-Dr-7fc" firstAttribute="leading" secondItem="MDO-Ne-t41" secondAttribute="leading" constant="30" id="TEA-8D-Lgp"/>
-                            <constraint firstItem="94m-Dr-7fc" firstAttribute="centerY" secondItem="Y8F-hb-CLV" secondAttribute="centerY" id="VgP-ye-K4W"/>
-                            <constraint firstItem="MDO-Ne-t41" firstAttribute="trailing" secondItem="94m-Dr-7fc" secondAttribute="trailing" constant="30" id="c1t-ky-e3q"/>
-                            <constraint firstAttribute="trailing" secondItem="auL-px-PPM" secondAttribute="trailing" id="fFf-kc-MNR"/>
-                            <constraint firstItem="8CL-YE-6bd" firstAttribute="top" secondItem="Y8F-hb-CLV" secondAttribute="top" id="h5P-uB-hyo"/>
-                            <constraint firstItem="auL-px-PPM" firstAttribute="bottom" secondItem="Y8F-hb-CLV" secondAttribute="bottom" id="pQ0-uf-M3w"/>
-                            <constraint firstAttribute="trailing" secondItem="8CL-YE-6bd" secondAttribute="trailing" id="y6a-Na-8lU"/>
-                        </constraints>
-                    </view>
-                    <navigationItem key="navigationItem" largeTitleDisplayMode="always" id="upW-lb-vTe">
-                        <rightBarButtonItems>
-                            <barButtonItem style="plain" id="8DO-Jb-mVc">
-                                <imageReference key="image" image="flashlight.off.fill" catalog="system" symbolScale="large"/>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <connections>
-                                    <action selector="TorchTapped:" destination="kAL-du-RMa" id="FJ1-H4-Nku"/>
-                                </connections>
-                            </barButtonItem>
-                            <barButtonItem title="Gallery" id="9gR-sU-hyg">
-                                <imageReference key="image" image="photo" catalog="system" symbolScale="large"/>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <connections>
-                                    <action selector="GalleryButtonTapped:" destination="kAL-du-RMa" id="QUC-5o-yOq"/>
-                                </connections>
-                            </barButtonItem>
-                        </rightBarButtonItems>
-                    </navigationItem>
-                    <connections>
-                        <outlet property="TorchIcon" destination="8DO-Jb-mVc" id="vm4-J2-kjq"/>
-                        <outlet property="cameraPreviewView" destination="8CL-YE-6bd" id="JD1-Kf-KJs"/>
-                        <outlet property="overlayView" destination="auL-px-PPM" id="ewx-tb-Zxr"/>
-                        <outlet property="scanningFrameView" destination="94m-Dr-7fc" id="NsZ-Un-s1D"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="zeZ-op-hHW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="779.1044776119403" y="2753.5469107551485"/>
-        </scene>
         <!--Navigation Controller-->
-        <scene sceneID="sFM-Cs-yRF">
+        <scene sceneID="72l-AH-rvO">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ADS-PM-Rdx" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Z1d-ga-ybY" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" id="JrI-uW-81y"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="ZXJ-Or-2wo">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="PRe-rq-IU9">
                         <rect key="frame" x="0.0" y="62" width="402" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="kAL-du-RMa" kind="relationship" relationship="rootViewController" id="thA-QF-mHz"/>
+                        <segue destination="QfX-0E-obw" kind="relationship" relationship="rootViewController" id="peS-OC-DA2"/>
                     </connections>
                 </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="0DA-9b-lhe" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8hA-x6-MoF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-140.29850746268656" y="2753.5469107551485"/>
+            <point key="canvasLocation" x="218" y="2746"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -1795,23 +1797,24 @@
         <image name="popcorn" catalog="system" width="103" height="128"/>
         <image name="square.grid.2x2" catalog="system" width="128" height="114"/>
         <image name="square.grid.2x2.fill" catalog="system" width="128" height="114"/>
+        <image name="text.viewfinder" catalog="system" width="128" height="115"/>
         <systemColor name="darkTextColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGrayColor">
-            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGreenColor">
-            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
