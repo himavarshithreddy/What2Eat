@@ -1,4 +1,7 @@
 import UIKit
+
+// MARK: - User Model
+
 struct User{
     let id: UUID
         var name: String
@@ -8,6 +11,7 @@ struct User{
     
 }
 
+// MARK: - Product Model
 struct Product {
     let id: UUID
     let name: String
@@ -23,19 +27,22 @@ struct Product {
     let cons: [String]
 }
 
+// MARK: - Saved List Model
 struct SavedList{
     let id: UUID
     let name: String
     var products: [Product]
     let iconName: UIImage
+}
 
-    }
+// MARK: - Category Model
 struct Category {
     let id: UUID
     let name: String
     let imageName: String
     
 }
+// Categories Data
 let Categories: [Category] = [
     Category(id: UUID(), name: "Bakery", imageName: "bakeryImage"),
     Category(id: UUID(), name: "Juices", imageName: "juicesImage"),
@@ -48,6 +55,8 @@ let Categories: [Category] = [
     Category(id: UUID(), name: "Juices", imageName: "juicesImage"),
     Category(id: UUID(), name: "Desserts", imageName: "dessertsImage"),
 ]
+
+// MARK: - Nutrition Model
 struct NutritionInfo {
     let calories: Int
     let fats: Double
@@ -58,6 +67,11 @@ struct NutritionInfo {
     let vitamins: [Vitamin]
     let minerals: [Mineral]
 }
+struct Nutrient {
+        let name: String
+        let value: String
+        let percentage: Float?  
+    }
 struct Vitamin {
     let name: String
     let dailyValue: Double
@@ -67,14 +81,27 @@ struct Mineral {
     let dailyValue: Double
 }
 
+// MARK: - Ingredient Model
 struct Ingredient {
     let id: UUID
     let name: String
     let riskLevel: RiskLevel
     let nutritionalInfo: String
     let potentialConcerns: String
+    let description: String
+    var riskColor: UIColor {
+            switch riskLevel {
+            case .low:
+                return UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1)
+            case .high:
+                return UIColor.systemRed
+            case .riskFree:
+                return UIColor.systemGreen
+        }
+    }
 }
 
+// MARK: - Enumerations
 enum RiskLevel: String {
     case low = "Low Risk"
     case high = "High Risk"
@@ -101,44 +128,53 @@ enum DietaryRestriction: String{
     case lowSugar = "Low Sugar"
     case keto = "Keto"
 }
+
+// MARK: - Sample Ingredients
 let Ingredients: [String: Ingredient] = [
     "Whole Wheat Flour": Ingredient(
         id: UUID(),
         name: "Whole Wheat Flour",
         riskLevel: .low,
         nutritionalInfo: "Source of fiber and carbohydrates",
-        potentialConcerns: "Contains gluten"
+        potentialConcerns: "Contains gluten",
+        description: "Whole wheat flour is made by grinding entire wheat kernels, retaining bran and germ, and is a nutritious source of fiber and minerals."
     ),
     "Yeast": Ingredient(
         id: UUID(),
         name: "Yeast",
         riskLevel: .riskFree,
         nutritionalInfo: "Helps with bread fermentation",
-        potentialConcerns: "None"
+        potentialConcerns: "None",
+        description: "Yeast is a microorganism used in baking to help dough rise and develop a light, airy texture through fermentation."
     ),
     "Salt": Ingredient(
         id: UUID(),
         name: "Salt",
         riskLevel: .low,
         nutritionalInfo: "Essential mineral, but excessive intake can raise blood pressure",
-        potentialConcerns: "Sodium content"
+        potentialConcerns: "Sodium content",
+        description: "Salt is a mineral essential for bodily functions and food preservation, but excessive intake may raise blood pressure."
     ),
     "Sugar": Ingredient(
         id: UUID(),
         name: "Sugar",
         riskLevel: .high,
         nutritionalInfo: "Sweetener",
-        potentialConcerns: "May contribute to high blood sugar"
+        potentialConcerns: "May contribute to high blood sugar",
+        description: "Sugar is a carbohydrate that provides sweetness and energy but may increase blood glucose levels when consumed in excess."
     ),
     "Soybean Oil": Ingredient(
         id: UUID(),
         name: "Soybean Oil",
         riskLevel: .high,
         nutritionalInfo: "Contains fats, adds flavor",
-        potentialConcerns: "Common allergen for some people"
+        potentialConcerns: "Common allergen for some people",
+        description: "Soybean oil is extracted from soybeans, adding flavor and fats to foods. It may trigger allergic reactions in some people."
     )
 ]
-// MARK: - Sample Data
+    
+
+// MARK: - Sample Products
 let sampleProducts: [Product] = [
     Product(
         id: UUID(),
@@ -308,6 +344,8 @@ let sampleProducts: [Product] = [
          ]
     )
 ]
+
+// MARK: - Sample User
 let sampleUser = User(
     id: UUID(),
     name: "Arjun",
@@ -315,6 +353,8 @@ let sampleUser = User(
     allergies: [.peanuts, .wheat],
     recentlyViewedProducts: [sampleProducts[0]]
 )
+
+// MARK: - Sample Saved Lists
 let sampleLists: [SavedList] = [
     SavedList(
         id: UUID(),

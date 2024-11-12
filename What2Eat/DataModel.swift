@@ -172,7 +172,7 @@
 //        description: "Soybean oil is extracted from soybeans, adding flavor and fats to foods. It may trigger allergic reactions in some people."
 //    )
 //]
-//
+
 //
 //// MARK: - Sample Data for Products
 //

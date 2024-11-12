@@ -25,8 +25,8 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
         setStarRating(1.5)
         setupEmptyStars()
         setupStarTapGestures()
-       SummaryTableView.dataSource = self
-    SummaryTableView.delegate = self
+        SummaryTableView.dataSource = self
+        SummaryTableView.delegate = self
         AlertTableView.dataSource = self
         AlertTableView.delegate = self
         
