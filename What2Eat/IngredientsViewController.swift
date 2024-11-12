@@ -4,7 +4,7 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
     var product: Product?
     @IBOutlet weak var ingredientsTableView: UITableView!
     var blurDelegate: BlurEffectDelegate?
-    var product: Product?
+  
     var ingredients: [Ingredient] = []
 
     override func viewDidLoad() {
