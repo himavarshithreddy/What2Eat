@@ -101,6 +101,7 @@ enum DietaryRestriction: String{
     case lowSugar = "Low Sugar"
     case keto = "Keto"
 }
+
 let Ingredients: [String: Ingredient] = [
     "Whole Wheat Flour": Ingredient(
         id: UUID(),
@@ -315,7 +316,7 @@ let sampleUser = User(
     allergies: [.peanuts, .wheat],
     recentlyViewedProducts: [sampleProducts[0]]
 )
-let sampleLists: [SavedList] = [
+var sampleLists: [SavedList] = [
     SavedList(
         id: UUID(),
         name: "Snacks",
@@ -352,4 +353,11 @@ let sampleLists: [SavedList] = [
         ],
         iconName: UIImage(systemName: "figure.2.and.child.holdinghands")!
     )
+]
+let randomlistImages = [
+    "leaf", "carrot", "fork.knife", "cart", "cup.and.saucer",
+               "takeoutbag.and.cup.and.straw", "popcorn", "flame", "applelogo",
+               "fork.knife.circle", "heart", "heart.circle", "staroflife",
+               "cross.case", "pills", "figure.walk", "figure.walk.circle",
+               "figure.run", "figure.strengthtraining.traditional", "bandage"
 ]
