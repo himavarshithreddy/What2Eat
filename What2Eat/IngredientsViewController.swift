@@ -1,7 +1,7 @@
 import UIKit
 
 class IngredientsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate {
-    
+    var product: Product?
     @IBOutlet weak var ingredientsTableView: UITableView!
     var blurDelegate: BlurEffectDelegate?
     var product: Product?

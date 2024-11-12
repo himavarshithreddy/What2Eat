@@ -60,22 +60,17 @@
 //    let protein: Double
 //    let sodium: Double
 //    let carbohydrates: Double
-//    let vitamins: [Vitamin]
-//    let minerals: [Mineral]
+//    let vitamins: [String]
+//    let minerals: [String]
 //}
-//
-//struct NutritionFact {
-//    let name: String
-//    let amount: String
-//    let percentage: Double
+//struct User {
+//    let id: String
+//    var name: String
+//    var dietaryRestrictions: [DietaryRestriction]
+//    var allergies: [Allergen]
 //}
-//
-//struct Vitamin {
-//    let name: String
-//    let dailyValue: Double
-//}
-//
-//struct Mineral {
+//struct SavedList {
+//    let id: String
 //    let name: String
 //    let dailyValue: Double
 //}
