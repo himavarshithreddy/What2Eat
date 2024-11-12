@@ -8,28 +8,32 @@
 import UIKit
 
 class ExploreProductsViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
-    var titletext: String?
-    var ExploreProductslist: [Product] = []
+   
+    var category: Category?
+    var filteredProducts: [Product] = []
     
     @IBOutlet weak var ExploreProductsTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
      ExploreProductsTableView.delegate = self
      ExploreProductsTableView.dataSource = self
-        self.navigationItem.title = titletext
-        ExploreProductslist = sampleProducts
+       
+        if let category = category {
+                   self.navigationItem.title = category.name  // Set title based on category
+                   // Filter ExploreProductslist based on selected category
+                   filteredProducts = sampleProducts.filter { $0.categoryId == category.id }
+               }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        ExploreProductslist.count
+        filteredProducts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ExploreProductsCell", for: indexPath) as! ExploreProductsCell
-        let product = ExploreProductslist[indexPath.row]
+        let product = filteredProducts[indexPath.row]
         if product.healthScore < 40 {
                    cell.ExploreScoreCircle.layer.backgroundColor = UIColor.systemRed.cgColor
                 }
@@ -50,6 +54,18 @@ class ExploreProductsViewController: UIViewController,UITableViewDelegate,UITabl
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         70
     }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            let selectedProduct = filteredProducts[indexPath.row]
+            performSegue(withIdentifier: "showProductDetails", sender: selectedProduct)
+        }
+        
+        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            if segue.identifier == "showProductDetails",
+               let destinationVC = segue.destination as? ProductDetailsViewController,
+               let selectedProduct = sender as? Product {
+                destinationVC.product = selectedProduct
+            }
+        }
     /*
     // MARK: - Navigation
 
