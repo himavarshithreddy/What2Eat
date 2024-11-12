@@ -9,6 +9,7 @@ import UIKit
 
 class ExploreProductsViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
     var titletext: String?
+    var ExploreProductslist: [Product] = []
     
     @IBOutlet weak var ExploreProductsTableView: UITableView!
     
@@ -19,6 +20,7 @@ class ExploreProductsViewController: UIViewController,UITableViewDelegate,UITabl
      ExploreProductsTableView.delegate = self
      ExploreProductsTableView.dataSource = self
         self.navigationItem.title = titletext
+        ExploreProductslist = sampleProducts
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -28,21 +30,21 @@ class ExploreProductsViewController: UIViewController,UITableViewDelegate,UITabl
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ExploreProductsCell", for: indexPath) as! ExploreProductsCell
         let product = ExploreProductslist[indexPath.row]
-        if product.score < 40 {
+        if product.healthScore < 40 {
                    cell.ExploreScoreCircle.layer.backgroundColor = UIColor.systemRed.cgColor
                 }
-                else if product.score < 75 {
+                else if product.healthScore < 75 {
                 
                     cell.ExploreScoreCircle.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
                 }
-                else if product.score < 100 {
+                else if product.healthScore < 100 {
                     cell.ExploreScoreCircle.layer.backgroundColor = UIColor.systemGreen.cgColor
                 }
         
         cell.ExploreProductsName.text = product.name
-        cell.ExploreProductsImage.image = UIImage(named: product.image)
+        cell.ExploreProductsImage.image = UIImage(named: product.imageURL)
         cell.ExploreScoreCircle.layer.cornerRadius = 20
-        cell.ExploreScoretext.text = String(product.score)
+        cell.ExploreScoretext.text = String(product.healthScore)
         return cell
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
