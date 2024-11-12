@@ -1056,7 +1056,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="G8F-6f-TKi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1004" y="2761"/>
+            <point key="canvasLocation" x="-1042" y="2746"/>
         </scene>
         <!--Nutrition-->
         <scene sceneID="PxJ-F0-Gul">
@@ -1183,9 +1183,9 @@
                     <connections>
                         <segue destination="nlS-aF-ZmI" kind="relationship" relationship="viewControllers" id="VKG-qd-Dao"/>
                         <segue destination="Xwe-NG-tbC" kind="relationship" relationship="viewControllers" id="Czj-8L-2Ck"/>
-                        <segue destination="GSz-cP-Wfr" kind="relationship" relationship="viewControllers" id="BfK-z1-NKS"/>
+                        <segue destination="Z1d-ga-ybY" kind="relationship" relationship="viewControllers" id="Dfl-ZY-Ta7"/>
                         <segue destination="U7E-fy-ZxV" kind="relationship" relationship="viewControllers" id="zsV-L4-tg3"/>
-                        <segue destination="BxF-QJ-9YU" kind="relationship" relationship="viewControllers" id="SRS-nZ-unr"/>
+                        <segue destination="GSz-cP-Wfr" kind="relationship" relationship="viewControllers" id="BfK-z1-NKS"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uJw-ki-dvM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1274,6 +1274,7 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="SavedTableView" destination="qCS-1F-MNN" id="QPH-V6-JJG"/>
+                        <segue destination="vGL-C5-uNW" kind="show" identifier="ShowProductsSegue" id="uec-rK-dgi"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4SL-0W-7VN" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1555,7 +1556,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="rfM-xI-SI0">
-                                <rect key="frame" x="16" y="82" width="370" height="792"/>
+                                <rect key="frame" x="16" y="126" width="370" height="748"/>
                                 <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="SavedProductsCell" id="FeM-91-WFV" customClass="SavedProductsCell" customModule="What2Eat" customModuleProvider="target">
@@ -1631,6 +1632,7 @@
                     <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="lSE-hi-kyr"/>
                     <connections>
                         <outlet property="SavedProductsTableView" destination="rfM-xI-SI0" id="rRb-PO-hcc"/>
+                        <segue destination="GSz-cP-Wfr" kind="show" identifier="showProductDetailsfromSaved" id="pk1-vP-GTU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1gM-po-OwS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1882,10 +1884,14 @@
             </objects>
             <point key="canvasLocation" x="-2080.5970149253731" y="2745.9954233409608"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Scan-->
         <scene sceneID="72l-AH-rvO">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Z1d-ga-ybY" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Scan" id="VY8-CY-H34">
+                        <imageReference key="image" image="barcode.viewfinder" catalog="system" symbolScale="large"/>
+                        <imageReference key="selectedImage" image="barcode.viewfinder" catalog="system" symbolScale="large"/>
+                    </tabBarItem>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="PRe-rq-IU9">
                         <rect key="frame" x="0.0" y="62" width="402" height="44"/>
@@ -1903,7 +1909,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="I50-U6-Ug8"/>
+        <segue reference="BfK-z1-NKS"/>
     </inferredMetricsTieBreakers>
     <color key="tintColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
     <resources>

@@ -3,8 +3,7 @@ import UIKit
 
 class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDelegate {
     @IBOutlet weak var SavedTableView: UITableView!
-    var Savedlists: [SavedList] = []
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,18 +16,18 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        Savedlists.count + 1
+        sampleLists.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SavedCell", for: indexPath) as! SavedCell
        
-        if indexPath.row == Savedlists.count {
+        if indexPath.row == sampleLists.count {
             cell.SavedLabel.text = "Create new List"
             cell.SavedIcon.image = UIImage(systemName: "plus")
             cell.accessoryType = .none
         }else{
-            let saved = Savedlists[indexPath.row]
+            let saved = sampleLists[indexPath.row]
             cell.SavedLabel.text = saved.name
             cell.SavedIcon.image = saved.iconName
             cell.accessoryType = .disclosureIndicator
@@ -44,7 +43,7 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
         return 60
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == Savedlists.count {
+        if indexPath.row == sampleLists.count {
                   
             let alertController = UIAlertController(title: "Create New List", message: "Enter a name for your new list.", preferredStyle: .alert)
                    alertController.addTextField { textField in
@@ -64,19 +63,24 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
                    present(alertController, animated: true)
                }
         else{
-            let selectedList = Savedlists[indexPath.row]
-            let SavedproductsVC = storyboard?.instantiateViewController(withIdentifier: "ProductsViewController") as! SavedProductsViewController
-            SavedproductsVC.titleText = selectedList.name
-            navigationController?.pushViewController(SavedproductsVC, animated: true)
+            let selectedList = sampleLists[indexPath.row]
+            performSegue(withIdentifier: "ShowProductsSegue", sender: selectedList)
         }
        
        
     }
     private func addNewList(with name: String) {
-        let randomimage = savedlistImage.randomElement() ?? "leaf"
+        let randomimage = randomlistImages.randomElement() ?? "leaf"
         let randomImageName = UIImage(systemName: randomimage)!
-        Savedlists.append(Saved(name: name, icon: randomImageName))
+        sampleLists.append(SavedList( id: UUID(),name: name, products: [], iconName: randomImageName))
         SavedTableView.reloadData()
        }
-    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            if segue.identifier == "ShowProductsSegue" {
+                if let savedProductsVC = segue.destination as? SavedProductsViewController,
+                   let selectedList = sender as? SavedList {
+                    savedProductsVC.selectedList = selectedList
+                }
+            }
+        }
 }
