@@ -1,11 +1,12 @@
 
 import UIKit
 
-class ProductDetailsViewController: UIViewController {
+class ProductDetailsViewController: UIViewController, BlurEffectDelegate {
 
     @IBOutlet weak var progressView: UIView!
 
-
+    @IBOutlet weak var blurEffectView: UIVisualEffectView!
+    
     @IBOutlet weak var progressLabel: UILabel!
     
     @IBOutlet weak var segmentedControl: UISegmentedControl!
@@ -17,6 +18,7 @@ class ProductDetailsViewController: UIViewController {
 
        override func viewDidLoad() {
            super.viewDidLoad()
+           blurEffectView.isHidden = true
            setupCircularProgressBar()
            setProgress(to: 0.55)
            self.view.bringSubviewToFront(SummarySegmentView)
@@ -97,5 +99,21 @@ class ProductDetailsViewController: UIViewController {
 
                 // Present the action sheet
                 present(actionSheet, animated: true, completion: nil)
+    }
+    func addBlurEffect() {
+            blurEffectView.isHidden = false
+        }
+
+        // Hide the blur effect
+        func removeBlurEffect() {
+            blurEffectView.isHidden = true
+        }
+    
+    func showIngredientsViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let ingredientsVC = storyboard.instantiateViewController(withIdentifier: "IngredientsViewController") as? IngredientsViewController {
+            ingredientsVC.blurDelegate = self 
+            present(ingredientsVC, animated: true, completion: nil)
+        }
     }
 }

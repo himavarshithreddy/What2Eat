@@ -8,6 +8,7 @@
 import UIKit
 
 class SavedProductsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource{
+    var SavedProductsList: [Product] = []
     @IBOutlet weak var SavedProductsTableView: UITableView!
     var titleText: String?
     override func viewDidLoad() {
@@ -25,20 +26,20 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SavedProductsCell", for: indexPath) as! SavedProductsCell
         let product = SavedProductsList[indexPath.row]
-        if product.score < 40 {
+        if product.healthScore < 40 {
            
             cell.ScoreCircle.layer.backgroundColor = UIColor.systemRed.cgColor
         }
-        else if product.score < 75 {
+        else if product.healthScore < 75 {
         
             cell.ScoreCircle.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
         }
-        else if product.score < 100 {
+        else if product.healthScore < 100 {
             cell.ScoreCircle.layer.backgroundColor = UIColor.systemGreen.cgColor
         }
         cell.SavedProductsName.text = product.name
-        cell.SavedProductsImage.image = UIImage(named: product.image)
-        cell.Scoretext.text = String(product.score)
+        cell.SavedProductsImage.image = UIImage(named: product.imageURL)
+        cell.Scoretext.text = String(product.healthScore)
         cell.ScoreCircle.layer.cornerRadius = 20
         return cell
         
