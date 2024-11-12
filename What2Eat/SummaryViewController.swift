@@ -8,7 +8,7 @@
 import UIKit
 
 class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDataSource {
-    
+    var product: Product?
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
     @IBOutlet weak var AlertTableView: UITableView!

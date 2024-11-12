@@ -19,12 +19,12 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
         // Do any additional setup after loading the view.
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        SavedProductsList.count
+        sampleLists.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SavedProductsCell", for: indexPath) as! SavedProductsCell
-        let product = SavedProductsList[indexPath.row]
+        let product = sampleLists[indexPath.row]
         if product.score < 40 {
            
             cell.ScoreCircle.layer.backgroundColor = UIColor.systemRed.cgColor

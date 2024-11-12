@@ -23,7 +23,7 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
         CollectionView.delegate = self
         CollectionView.dataSource = self
         SearchBar.delegate=self
-        filteredCategories = categories
+        filteredCategories = Categories
         
         // Do any additional setup after loading the view.
     }
@@ -58,7 +58,7 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
      
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-          filteredCategories = searchText.isEmpty ? categories : categories.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+          filteredCategories = searchText.isEmpty ? Categories : Categories.filter { $0.name.lowercased().contains(searchText.lowercased()) }
        
         CollectionView.reloadData()
       }
@@ -91,14 +91,19 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
         // Pass the selected object to the new view controller.
     }
     */
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+            let selectedCategory = filteredCategories[indexPath.item]
+            
+          
+            performSegue(withIdentifier: "showExploreProducts", sender: selectedCategory)
+        }
+        
+        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             if segue.identifier == "showExploreProducts",
                let destination = segue.destination as? ExploreProductsViewController,
-               let indexPaths = CollectionView.indexPathsForSelectedItems,
-               let indexPath = indexPaths.first {
+               let selectedCategory = sender as? Category {
                 
-                let categoryName = filteredCategories[indexPath.row].name
-                destination.titletext = categoryName
+                destination.category = selectedCategory
             }
         }
 

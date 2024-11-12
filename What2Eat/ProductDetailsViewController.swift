@@ -2,7 +2,7 @@
 import UIKit
 
 class ProductDetailsViewController: UIViewController {
-
+    var product: Product?
     @IBOutlet weak var progressView: UIView!
 
 
@@ -11,6 +11,8 @@ class ProductDetailsViewController: UIViewController {
     @IBOutlet weak var segmentedControl: UISegmentedControl!
     @IBOutlet weak var SummarySegmentView: UIView!
    
+    @IBOutlet var ProductImage: UIImageView!
+    @IBOutlet var ProductName: UILabel!
     @IBOutlet weak var IngredientsSegmentView: UIView!
     @IBOutlet weak var NutritionSegmentView: UIView!
     private var progressLayer: CAShapeLayer!
@@ -18,9 +20,24 @@ class ProductDetailsViewController: UIViewController {
        override func viewDidLoad() {
            super.viewDidLoad()
            setupCircularProgressBar()
-           setProgress(to: 0.55)
+           setupProductDetails()  // Set up product details
+           setProgress(to: CGFloat(product!.healthScore))
            self.view.bringSubviewToFront(SummarySegmentView)
        }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+          // Check the identifier of each segue and pass `product` to each child view controller
+          if segue.identifier == "showSummary",
+             let summaryVC = segue.destination as? SummaryViewController {
+              summaryVC.product = product
+          } else if segue.identifier == "showIngredients",
+                    let ingredientsVC = segue.destination as? IngredientsViewController {
+              ingredientsVC.product = product
+          } else if segue.identifier == "showNutrition",
+                    let nutritionVC = segue.destination as? NutritionViewController {
+              nutritionVC.product = product
+          }
+      }
 
        // Function to set up the circular progress bar
     @IBAction func SegmentAction(_ sender: UISegmentedControl) {
@@ -81,7 +98,7 @@ class ProductDetailsViewController: UIViewController {
        }
     @IBAction func SavedButtonTapped(_ sender: Any) {
         let actionSheet = UIAlertController(title: "Select a List to add to", message:nil, preferredStyle: .actionSheet)
-        for list in Savedlists {
+        for list in sampleLists {
             let action = UIAlertAction(title: list.name, style: .default) { _ in
                 print("Selected list: \(list)")
             }
@@ -98,4 +115,15 @@ class ProductDetailsViewController: UIViewController {
                 // Present the action sheet
                 present(actionSheet, animated: true, completion: nil)
     }
+    private func setupProductDetails() {
+          if let product = product {
+              
+              self.title = product.name
+              progressLabel.text = "\(Int(product.healthScore))"
+              ProductName.text = product.name
+              ProductImage.image = UIImage(named: product.imageURL)
+              
+             
+          }
+      }
 }
