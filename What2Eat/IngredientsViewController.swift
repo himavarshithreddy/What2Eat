@@ -3,6 +3,10 @@ import UIKit
 class IngredientsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate {
     var product: Product?
     @IBOutlet weak var ingredientsTableView: UITableView!
+    var blurDelegate: BlurEffectDelegate?
+    var product: Product?
+    var ingredients: [Ingredient] = []
+
     override func viewDidLoad() {
         super.viewDidLoad()
         ingredientsTableView.delegate = self
@@ -17,9 +21,8 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "IngredientCell", for: indexPath) as! IngredientCell
         let ingredient = ingredients[indexPath.row]
-        
         cell.ingredientLabel.text = ingredient.name
-        cell.riskLevelLabel.text = ingredient.riskLevel
+        cell.riskLevelLabel.text = ingredient.riskLevel.rawValue
         cell.riskLevelLabel.textColor = ingredient.riskColor
         cell.accessoryType = .detailButton
         return cell
@@ -35,27 +38,41 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         maskLayer.frame = CGRect(x: cell.bounds.origin.x, y: cell.bounds.origin.y, width: cell.bounds.width, height: cell.bounds.height).insetBy(dx: 0, dy: verticalPadding/2)
         cell.layer.mask = maskLayer
     }
-    
-    
-    
-    
     func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath)
-        performSegue(withIdentifier: "showIngredientDetailsPopover", sender: indexPath)
-    }
-    
-    
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?){
-        if segue.identifier == "showIngredientDetailsPopover" {
-            if let indexPath = sender as? IndexPath,
-               let destinationVC = segue.destination as? IngredientDetailViewController {
-                destinationVC.ingredient = "fcddsds"
+            let ingredient = ingredients[indexPath.row]
+            
+            // Initialize the IngredientDetailViewController
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            if let ingredientDetailVC = storyboard.instantiateViewController(withIdentifier: "IngredientDetailViewController") as? IngredientDetailViewController {
                 
-            }
-        }
-        
-    }
-    
-    
-}
+                // Pass the data to the IngredientDetailViewController
+                ingredientDetailVC.riskLevelText = ingredient.riskLevel.rawValue
+                ingredientDetailVC.riskLevelColor = ingredient.riskColor
+                ingredientDetailVC.nutritionalInfoText = ingredient.nutritionalInfo
+                ingredientDetailVC.potentialConcernsText = ingredient.potentialConcerns
+                ingredientDetailVC.descriptionText = ingredient.description
+
+                // Configure presentation style for the bottom sheet
+                ingredientDetailVC.modalPresentationStyle = .pageSheet
+                if let sheet = ingredientDetailVC.sheetPresentationController {
+                    let customDetent = UISheetPresentationController.Detent.custom { _ in
+                        return 350
+                    }
+                    sheet.detents = [customDetent]
+                    sheet.prefersGrabberVisible = true
+                    sheet.preferredCornerRadius = 22
+                }
+                
+                blurDelegate?.addBlurEffect()
+
+                            present(ingredientDetailVC, animated: true, completion: nil)
+                            
+                            ingredientDetailVC.presentationController?.delegate = self
+                        }
+                    }
+                    
+                    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+                        // Remove the blur effect when the sheet is dismissed
+                        blurDelegate?.removeBlurEffect()
+                    }
+                }

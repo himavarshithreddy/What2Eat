@@ -10,10 +10,13 @@ import UIKit
 class NutritionViewController: UIViewController,UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var NutritionTableView: UITableView!
     var product: Product?
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         NutritionTableView.delegate = self
         NutritionTableView.dataSource = self
+        
 
         // Do any additional setup after loading the view.
     }

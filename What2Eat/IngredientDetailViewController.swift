@@ -2,28 +2,34 @@
 //  IngredientDetailViewController.swift
 //  What2Eat
 //
-//  Created by admin68 on 09/11/24.
+//  Created by sumanaswi on 10/11/24.
 //
 
 import UIKit
 
 class IngredientDetailViewController: UIViewController {
-    var ingredient:String?
+    @IBOutlet weak var riskLevelLabel: UILabel!
+    @IBOutlet weak var nutritionalInfoLabel: UILabel!
+    @IBOutlet weak var potentialConcernsLabel: UILabel!
+    
+    @IBOutlet weak var descriptionLabel: UILabel!
+    
+    var riskLevelText: String?
+    var riskLevelColor: UIColor?
+    var nutritionalInfoText: String?
+    var potentialConcernsText: String?
+    var descriptionText: String?
+   
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        // Configure the labels with the provided data
+        riskLevelLabel.text = " \(riskLevelText ?? "N/A")"
+         riskLevelLabel.textColor = riskLevelColor
+        nutritionalInfoLabel.text = nutritionalInfoText
+       potentialConcernsLabel.text = potentialConcernsText
+        descriptionLabel.text = descriptionText
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
+

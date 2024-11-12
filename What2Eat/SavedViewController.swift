@@ -3,6 +3,9 @@ import UIKit
 
 class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDelegate {
     @IBOutlet weak var SavedTableView: UITableView!
+    var Savedlists: [SavedList] = []
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         SavedTableView.dataSource = self
@@ -27,7 +30,7 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
         }else{
             let saved = Savedlists[indexPath.row]
             cell.SavedLabel.text = saved.name
-            cell.SavedIcon.image = saved.icon
+            cell.SavedIcon.image = saved.iconName
             cell.accessoryType = .disclosureIndicator
         }
         return cell
@@ -70,7 +73,7 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
        
     }
     private func addNewList(with name: String) {
-        let randomimage = randomlistImages.randomElement() ?? "leaf"
+        let randomimage = savedlistImage.randomElement() ?? "leaf"
         let randomImageName = UIImage(systemName: randomimage)!
         Savedlists.append(Saved(name: name, icon: randomImageName))
         SavedTableView.reloadData()
