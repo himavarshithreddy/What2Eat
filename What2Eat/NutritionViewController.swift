@@ -10,49 +10,60 @@ import UIKit
 class NutritionViewController: UIViewController,UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var NutritionTableView: UITableView!
     var product: Product?
-    var nutrients: [Nutrient] = []
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        guard product != nil else {
+              print("Product is nil")
+              return
+          }
         NutritionTableView.delegate = self
         NutritionTableView.dataSource = self
-        if let product = product{
-            let nutritionInfo = product.nutritionInfo
+        
 
-            nutrients.append(Nutrient(name: "Calories", value: "\(nutritionInfo.calories) kcal", percentage: nil))
-            nutrients.append(Nutrient(name: "Fats", value: "\(nutritionInfo.fats) g", percentage: nil))
-            nutrients.append(Nutrient(name: "Sugars", value: "\(nutritionInfo.sugars) g", percentage: nil))
-            nutrients.append(Nutrient(name: "Protein", value: "\(nutritionInfo.protein) g", percentage: nil))
-            nutrients.append(Nutrient(name: "Sodium", value: "\(nutritionInfo.sodium) mg", percentage: nil))
-            nutrients.append(Nutrient(name: "Carbohydrates", value: "\(nutritionInfo.carbohydrates) g", percentage: nil))
-            for vitamin in nutritionInfo.vitamins {
-                nutrients.append(Nutrient(name: vitamin.name, value: "\(vitamin.dailyValue)%", percentage: Float(vitamin.dailyValue) / 100.0))
-            }
-            
-            // Adding minerals
-            for mineral in nutritionInfo.minerals {
-                nutrients.append(Nutrient(name: mineral.name, value: "\(mineral.dailyValue)%", percentage: Float(mineral.dailyValue) / 100.0))
-            }
-        }
- }
-func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return nutrients.count
+        // Do any additional setup after loading the view.
+    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        nutrients.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NutritionCell", for: indexPath) as! NutritionCell
-        let nutrient = nutrients[indexPath.row]
-        
-        cell.NutrientLabel.text = nutrient.name
-        cell.NutrientGrams.text = nutrient.value
-        
-        if let percentage = nutrient.percentage {
-            cell.NutritionProgress.progress = percentage
-            cell.NutritionProgress.isHidden = false
-        } else {
-            cell.NutritionProgress.isHidden = true
-        }
+        let nutrition = nutrients[indexPath.row]
+        var nutritionValue: Double = 0.0  // Default value
 
-        return cell
+                switch nutrition.name {
+                case "Calories":
+                    nutritionValue = Double(product?.nutritionInfo.calories ?? 0)
+                case "Fats":
+                    nutritionValue = product?.nutritionInfo.fats ?? 0
+                case "Sugars":
+                    nutritionValue = product?.nutritionInfo.sugars ?? 0
+                case "Protein":
+                    nutritionValue = product?.nutritionInfo.protein ?? 0
+                case "Sodium":
+                    nutritionValue = product?.nutritionInfo.sodium ?? 0
+                case "Carbohydrates":
+                    nutritionValue = product?.nutritionInfo.carbohydrates ?? 0
+                case "Vitamin B":
+                    nutritionValue = product?.nutritionInfo.vitaminB ?? 0
+                case "Iron":
+                    nutritionValue = product?.nutritionInfo.iron ?? 0
+                default:
+                    break
+                }
+        cell.NutrientLabel.text = nutrition.name
+        
+        cell.NutrientGrams.text = String(format: "%.1f g", nutritionValue)
+
+        cell.NutritionProgress.progress = Float(nutritionValue/100)
+
+           return cell
     }
+    
+   
+    
+
+    
 }

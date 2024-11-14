@@ -3,24 +3,27 @@ import UIKit
 class IngredientsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate {
     var product: Product?
     @IBOutlet weak var ingredientsTableView: UITableView!
-    var blurDelegate: BlurEffectDelegate?
   
     var ingredients: [Ingredient] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        guard product != nil else {
+              print("Product is nil")
+              return
+          }
         ingredientsTableView.delegate = self
         ingredientsTableView.dataSource = self
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return ingredients.count
+        return product!.ingredients.count
     }
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "IngredientCell", for: indexPath) as! IngredientCell
-        let ingredient = ingredients[indexPath.row]
+        let ingredient = product!.ingredients[indexPath.row]
         cell.ingredientLabel.text = ingredient.name
         cell.riskLevelLabel.text = ingredient.riskLevel.rawValue
         cell.riskLevelLabel.textColor = ingredient.riskColor
@@ -39,7 +42,7 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         cell.layer.mask = maskLayer
     }
     func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-            let ingredient = ingredients[indexPath.row]
+            let ingredient = product!.ingredients[indexPath.row]
             
             // Initialize the IngredientDetailViewController
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -48,11 +51,12 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
                 // Pass the data to the IngredientDetailViewController
                 ingredientDetailVC.riskLevelText = ingredient.riskLevel.rawValue
                 ingredientDetailVC.riskLevelColor = ingredient.riskColor
+                ingredientDetailVC.ingredientName = ingredient.name
                 ingredientDetailVC.nutritionalInfoText = ingredient.nutritionalInfo
                 ingredientDetailVC.potentialConcernsText = ingredient.potentialConcerns
                 ingredientDetailVC.descriptionText = ingredient.description
 
-                // Configure presentation style for the bottom sheet
+              
                 ingredientDetailVC.modalPresentationStyle = .pageSheet
                 if let sheet = ingredientDetailVC.sheetPresentationController {
                     let customDetent = UISheetPresentationController.Detent.custom { _ in
@@ -63,7 +67,6 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
                     sheet.preferredCornerRadius = 22
                 }
                 
-                blurDelegate?.addBlurEffect()
 
                             present(ingredientDetailVC, animated: true, completion: nil)
                             
@@ -71,8 +74,5 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
                         }
                     }
                     
-                    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-                        // Remove the blur effect when the sheet is dismissed
-                        blurDelegate?.removeBlurEffect()
-                    }
+                    
                 }

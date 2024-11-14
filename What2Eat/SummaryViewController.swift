@@ -22,7 +22,7 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     var userRating: Int = 0
     override func viewDidLoad() {
         super.viewDidLoad()
-        setStarRating(1.5)
+        setStarRating(product!.userRating)
         setupEmptyStars()
         setupStarTapGestures()
        SummaryTableView.dataSource = self
@@ -89,6 +89,7 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     func setStarRating(_ rating: Float) {
         let starViews = UserRatingStarStack.arrangedSubviews.compactMap { $0 as? UIImageView }
         RatingText.text = "\(rating)"
+        NumberOfRatings.text = "\(product!.numberOfRatings) Ratings"
         
         for (index, star) in starViews.enumerated() {
             if rating >= Float(index) + 1 {
