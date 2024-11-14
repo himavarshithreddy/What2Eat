@@ -18,9 +18,13 @@ class ProductDetailsViewController: UIViewController {
 
        override func viewDidLoad() {
            super.viewDidLoad()
+           guard let product = product else {
+                 print("Product is nil")
+                 return
+             }
            setupCircularProgressBar()
-           setupProductDetails()  // Set up product details
-           setProgress(to: CGFloat(product!.healthScore))
+           setupProductDetails()
+           setProgress(to: CGFloat(product.healthScore)/100)
            self.view.bringSubviewToFront(SummarySegmentView)
        }
     
@@ -91,7 +95,7 @@ class ProductDetailsViewController: UIViewController {
            // Update the strokeEnd property
            progressLayer.strokeEnd = clampedProgress
            let percentage = Int(clampedProgress * 100)
-                   progressLabel.text = "\(percentage)" // Set the text as percentage
+        progressLabel.text = "\(percentage)" // Set the text as percentage
            
            
        }
@@ -101,7 +105,7 @@ class ProductDetailsViewController: UIViewController {
             let action = UIAlertAction(title: list.name, style: .default) { _ in
                 print("Selected list: \(list)")
             }
-            //actionSheet.view.backgroundColor = UIColor(red: 221, green: 215, blue: 205, alpha: 1)
+            
             actionSheet.view.tintColor = .systemOrange
             actionSheet.view.layer.cornerRadius = 14
             actionSheet.view.layer.masksToBounds = true
@@ -117,8 +121,8 @@ class ProductDetailsViewController: UIViewController {
     private func setupProductDetails() {
           if let product = product {
               
-              self.title = product.name
-              progressLabel.text = "\(Int(product.healthScore))"
+
+             
               ProductName.text = product.name
               ProductImage.image = UIImage(named: product.imageURL)
               

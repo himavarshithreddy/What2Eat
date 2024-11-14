@@ -64,22 +64,22 @@ struct NutritionInfo {
     let protein: Double
     let sodium: Double
     let carbohydrates: Double
-    let vitamins: [Vitamin]
-    let minerals: [Mineral]
+    let vitaminB: Double
+    let iron: Double
 }
 struct Nutrient {
         let name: String
-        let value: String
-        let percentage: Float?
     }
-struct Vitamin {
-    let name: String
-    let dailyValue: Double
-}
-struct Mineral {
-    let name: String
-    let dailyValue: Double
-}
+let nutrients: [Nutrient] = [
+    Nutrient(name: "Calories"),
+    Nutrient(name: "Fats"),
+    Nutrient(name: "Sugars"),
+    Nutrient(name: "Protein"),
+    Nutrient(name: "Sodium"),
+    Nutrient(name: "Carbohydrates"),
+    Nutrient(name: "Vitamin B"),
+    Nutrient(name: "Iron")
+]
 
 // MARK: - Ingredient Model
 struct Ingredient {
@@ -92,7 +92,7 @@ struct Ingredient {
     var riskColor: UIColor {
             switch riskLevel {
             case .low:
-                return UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1)
+                return UIColor.systemOrange
             case .high:
                 return UIColor.systemRed
             case .riskFree:
@@ -178,26 +178,20 @@ let Ingredients: [String: Ingredient] = [
 let sampleProducts: [Product] = [
     Product(
         id: UUID(),
-        name: "Organic Whole Wheat Bread",
+        name: "Wheat Bread",
         imageURL: "Frame 2145",
         healthScore: 80,
         ingredients: [Ingredients["Whole Wheat Flour"]!, Ingredients["Yeast"]!, Ingredients["Salt"]!],
         allergens: [.wheat],
         nutritionInfo: NutritionInfo(
-            calories: 150,
+            calories: 40,
             fats: 2.5,
             sugars: 3,
             protein: 5,
-            sodium: 230,
+            sodium: 2,
             carbohydrates: 27,
-            vitamins: [
-                Vitamin(name: "Vitamin B6", dailyValue: 6.0),
-                Vitamin(name: "Thiamin", dailyValue: 8.0)
-            ],
-            minerals: [
-                Mineral(name: "Iron", dailyValue: 8.0),
-                Mineral(name: "Magnesium", dailyValue: 6.0)
-            ]
+            vitaminB: 20,
+            iron: 10
         ),
         userRating: 4.2,
         numberOfRatings: 45,
@@ -214,25 +208,20 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        name: "Organic Crunchy Peanut Butter",
+        name: "Peanut Butter",
         imageURL: "Frame 2145",
         healthScore: 75,
         ingredients: [Ingredients["Sugar"]!, Ingredients["Salt"]!],
         allergens: [.peanuts],
         nutritionInfo: NutritionInfo(
-            calories: 190,
+            calories: 70,
             fats: 16,
             sugars: 3,
             protein: 7,
-            sodium: 150,
+            sodium: 10,
             carbohydrates: 6,
-            vitamins: [
-                Vitamin(name: "Vitamin E", dailyValue: 10.0)
-            ],
-            minerals: [
-                Mineral(name: "Magnesium", dailyValue: 8.0),
-                Mineral(name: "Potassium", dailyValue: 2.0)
-            ]
+            vitaminB: 20,
+            iron: 10
         ),
         userRating: 4.8,
         numberOfRatings: 240,
@@ -249,20 +238,20 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        name: "Organic Soybean Oil",
+        name: "Soybean Oil",
         imageURL: "Frame 2145",
         healthScore: 50,
         ingredients: [Ingredients["Soybean Oil"]!],
         allergens: [.soy],
         nutritionInfo: NutritionInfo(
-            calories: 120,
+            calories: 90,
             fats: 14,
             sugars: 0,
             protein: 0,
             sodium: 0,
             carbohydrates: 0,
-            vitamins: [],
-            minerals: []
+            vitaminB: 20,
+            iron: 10
         ),
         userRating: 3.5,
         numberOfRatings: 200,
@@ -279,20 +268,20 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        name: "Organic Potato Chips",
+        name: "Potato Chips",
         imageURL: "Frame 2145",
         healthScore: 65,
         ingredients: [Ingredients["Salt"]!],
         allergens: [],
         nutritionInfo: NutritionInfo(
-            calories: 150,
+            calories: 90,
             fats: 10,
             sugars: 1,
             protein: 2,
-            sodium: 180,
+            sodium: 30,
             carbohydrates: 15,
-            vitamins: [],
-            minerals: []
+            vitaminB: 20,
+            iron: 10
         ),
         userRating: 4.0,
         numberOfRatings: 140,
@@ -309,26 +298,20 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        name: "Organic Milk",
+        name: "Milk",
         imageURL: "Frame 2145",
         healthScore: 90,
         ingredients: [],
         allergens: [.milk],
         nutritionInfo: NutritionInfo(
-            calories: 120,
+            calories: 80,
             fats: 2.5,
             sugars: 12,
             protein: 8,
-            sodium: 120,
+            sodium: 10,
             carbohydrates: 12,
-            vitamins: [
-                Vitamin(name: "Vitamin A", dailyValue: 10.0),
-                Vitamin(name: "Vitamin D", dailyValue: 20.0)
-            ],
-            minerals: [
-                Mineral(name: "Calcium", dailyValue: 30.0),
-                Mineral(name: "Phosphorus", dailyValue: 15.0)
-            ]
+            vitaminB: 20,
+            iron: 10
         ),
         userRating: 4.5,
         numberOfRatings: 170,
