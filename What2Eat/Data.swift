@@ -7,8 +7,8 @@ struct User{
         var name: String
         var dietaryRestrictions: [DietaryRestriction]
         var allergies: [Allergen]
-    var recentlyViewedProducts : [Product]
-    
+        var recentlyViewedProducts : [Product]
+        
 }
 
 // MARK: - Product Model
@@ -16,17 +16,53 @@ struct Product {
     let id: UUID
     let name: String
     let imageURL: String
-    let healthScore: Int
     var ingredients: [Ingredient]
-    var allergens: [Allergen]
     var nutritionInfo: NutritionInfo
     var userRating: Float
     var numberOfRatings: Int
     let categoryId: UUID
     let pros: [String]
     let cons: [String]
-}
+    func getAllergensForUser(_ user: User) -> [Allergen] {
+            return ingredients.compactMap { ingredient in
+                user.allergies.first { allergen in
+                    ingredient.name.lowercased().contains(allergen.rawValue.lowercased())
+                }
+            }
+        }
+    var healthScore: Int
+    static func calculateHealthScore(from nutritionInfo: NutritionInfo) -> Int {
+        var score = 100
 
+                if nutritionInfo.calories > 200 {
+                    score -= 10
+                } else if nutritionInfo.calories > 100 {
+                    score -= 5
+                }
+                if nutritionInfo.fats > 15 {
+                    score -= 15
+                } else if nutritionInfo.fats > 10 {
+                    score -= 10
+                }
+                if nutritionInfo.protein >= 10 {
+                    score += 10
+                } else if nutritionInfo.protein >= 5 {
+                    score += 5
+                }
+                if nutritionInfo.sugars > 10 {
+                    score -= 15
+                } else if nutritionInfo.sugars > 5 {
+                    score -= 5
+                }
+                if nutritionInfo.sodium > 200 {
+                    score -= 15
+                } else if nutritionInfo.sodium > 100 {
+                    score -= 5
+                }
+                return max(0, min(score, 100))
+            }
+        }
+        
 // MARK: - Saved List Model
 struct SavedList{
     let id: UUID
@@ -107,7 +143,7 @@ enum RiskLevel: String {
     case high = "High Risk"
     case riskFree = "Risk Free"
 }
-enum Allergen: String{
+enum Allergen: String,CaseIterable{
     case milk = "Milk"
     case peanuts = "Peanuts"
     case treeNuts = "Tree Nuts"
@@ -131,9 +167,9 @@ enum DietaryRestriction: String{
 
 // MARK: - Sample Ingredients
 let Ingredients: [String: Ingredient] = [
-    "Whole Wheat Flour": Ingredient(
+    "Wheat Flour": Ingredient(
         id: UUID(),
-        name: "Whole Wheat Flour",
+        name: "Whole Wheat",
         riskLevel: .low,
         nutritionalInfo: "Source of fiber and carbohydrates",
         potentialConcerns: "Contains gluten",
@@ -180,9 +216,8 @@ let sampleProducts: [Product] = [
         id: UUID(),
         name: "Wheat Bread",
         imageURL: "Frame 2145",
-        healthScore: 80,
-        ingredients: [Ingredients["Whole Wheat Flour"]!, Ingredients["Yeast"]!, Ingredients["Salt"]!],
-        allergens: [.wheat],
+        ingredients: [Ingredients["Wheat Flour"]!, Ingredients["Yeast"]!, Ingredients["Salt"]!],
+       
         nutritionInfo: NutritionInfo(
             calories: 40,
             fats: 2.5,
@@ -204,15 +239,26 @@ let sampleProducts: [Product] = [
          cons: [
              "Contains tree nuts (almonds), which are a common allergen",
              "Relatively high in natural sugars from dates"
-         ]
+         ],
+        healthScore: Product.calculateHealthScore(
+            from: NutritionInfo(
+                calories: 40,
+                fats: 2.5,
+                sugars: 3,
+                protein: 5,
+                sodium: 2,
+                carbohydrates: 27,
+                vitaminB: 20,
+                iron: 10
+            )
+        )
     ),
     Product(
         id: UUID(),
         name: "Peanut Butter",
         imageURL: "Frame 2145",
-        healthScore: 75,
         ingredients: [Ingredients["Sugar"]!, Ingredients["Salt"]!],
-        allergens: [.peanuts],
+       
         nutritionInfo: NutritionInfo(
             calories: 70,
             fats: 16,
@@ -234,15 +280,26 @@ let sampleProducts: [Product] = [
          cons: [
              "Contains tree nuts (almonds), which are a common allergen",
              "Relatively high in natural sugars from dates"
-         ]
+         ],
+        healthScore: Product.calculateHealthScore(
+            from: NutritionInfo(
+                calories: 70,
+                fats: 16,
+                sugars: 3,
+                protein: 7,
+                sodium: 10,
+                carbohydrates: 6,
+                vitaminB: 20,
+                iron: 10
+            )
+        )
     ),
     Product(
         id: UUID(),
         name: "Soybean Oil",
         imageURL: "Frame 2145",
-        healthScore: 50,
         ingredients: [Ingredients["Soybean Oil"]!],
-        allergens: [.soy],
+      
         nutritionInfo: NutritionInfo(
             calories: 90,
             fats: 14,
@@ -257,22 +314,30 @@ let sampleProducts: [Product] = [
         numberOfRatings: 200,
         categoryId: Categories[2].id,
         pros: [
-             "High in plant-based protein",
-             "Contains essential vitamins and minerals",
-             "Made with organic, minimally processed ingredients"
+             "High in plant-based protein"
          ],
          cons: [
-             "Contains tree nuts (almonds), which are a common allergen",
-             "Relatively high in natural sugars from dates"
-         ]
+             "Contains tree nuts (almonds), which are a common allergen"
+         ],
+        healthScore: Product.calculateHealthScore(
+            from: NutritionInfo(
+                calories: 90,
+                fats: 14,
+                sugars: 0,
+                protein: 0,
+                sodium: 0,
+                carbohydrates: 0,
+                vitaminB: 20,
+                iron: 10
+            )
+        )
     ),
     Product(
         id: UUID(),
         name: "Potato Chips",
         imageURL: "Frame 2145",
-        healthScore: 65,
         ingredients: [Ingredients["Salt"]!],
-        allergens: [],
+     
         nutritionInfo: NutritionInfo(
             calories: 90,
             fats: 10,
@@ -294,15 +359,26 @@ let sampleProducts: [Product] = [
          cons: [
              "Contains tree nuts (almonds), which are a common allergen",
              "Relatively high in natural sugars from dates"
-         ]
+         ],
+        healthScore: Product.calculateHealthScore(
+            from: NutritionInfo(
+                calories: 90,
+                fats: 10,
+                sugars: 1,
+                protein: 2,
+                sodium: 30,
+                carbohydrates: 15,
+                vitaminB: 20,
+                iron: 10
+            )
+        )
     ),
     Product(
         id: UUID(),
         name: "Milk",
         imageURL: "Frame 2145",
-        healthScore: 90,
         ingredients: [],
-        allergens: [.milk],
+        
         nutritionInfo: NutritionInfo(
             calories: 80,
             fats: 2.5,
@@ -324,7 +400,20 @@ let sampleProducts: [Product] = [
          cons: [
              "Contains tree nuts (almonds), which are a common allergen",
              "Relatively high in natural sugars from dates"
-         ]
+         ],
+        healthScore: Product.calculateHealthScore(
+            from: NutritionInfo(
+                calories: 80,
+                fats: 2.5,
+                sugars: 12,
+                protein: 8,
+                sodium: 10,
+                carbohydrates: 12,
+                vitaminB: 20,
+                iron: 10
+
+            )
+        )
     )
 ]
 
@@ -378,7 +467,7 @@ var sampleLists: [SavedList] = [
 ]
 let randomlistImages = [
     "leaf", "carrot", "fork.knife", "cart", "cup.and.saucer",
-               "takeoutbag.and.cup.and.straw", "popcorn", "flame", "applelogo",
+               "takeoutbag.and.cup.and.straw", "popcorn", "flame",
                "fork.knife.circle", "heart", "heart.circle", "staroflife",
                "cross.case", "pills", "figure.walk", "figure.walk.circle",
                "figure.run", "figure.strengthtraining.traditional", "bandage"
