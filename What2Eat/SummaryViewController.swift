@@ -54,16 +54,18 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView.tag == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightsCell", for: indexPath) as! HighlightsCell
-            let highlights = NutritionFacts[indexPath.row]
-            cell.HighlightText.text = highlights.text
-            cell.iconImage.image = highlights.icon
-            cell.iconImage.tintColor = highlights.iconColor
-            if highlights.iconColor == .systemRed {
-                cell.HighlightText.textColor = .red
+            if let product = product, indexPath.row < product.cons.count {
+                let highlights = product.cons[indexPath.row]
+                cell.HighlightText.text = highlights
+                    cell.iconImage.image = UIImage(systemName:"exclamationmark.triangle.fill")
+                    cell.iconImage.tintColor = .systemRed
+                    return cell
+            } else {
+                print("Product is nil or index out of bounds")
+                return UITableViewCell()
             }
-            
-            
-            return cell
+
+       
         }else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertCell", for: indexPath) as! AlertCell
             let alert = alerts[indexPath.row]
