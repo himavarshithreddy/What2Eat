@@ -8,6 +8,7 @@ struct User{
         var dietaryRestrictions: [DietaryRestriction]
         var allergies: [Allergen]
         var recentlyViewedProducts : [Product]
+        var PicksforYou: [Product]
         
 }
 
@@ -423,7 +424,8 @@ let sampleUser = User(
     name: "Arjun",
     dietaryRestrictions: [.glutenFree, .dairyFree],
     allergies: [.peanuts, .wheat],
-    recentlyViewedProducts: [sampleProducts[0]]
+    recentlyViewedProducts: [sampleProducts[0]],
+    PicksforYou: [sampleProducts[0], sampleProducts[1], sampleProducts[2]]
 )
 
 // MARK: - Sample Saved Lists
