@@ -95,34 +95,62 @@ class ProductDetailsViewController: UIViewController {
            // Update the strokeEnd property
            progressLayer.strokeEnd = clampedProgress
            let percentage = Int(clampedProgress * 100)
-        progressLabel.text = "\(percentage)" // Set the text as percentage
+        progressLabel.text = "\(percentage)"
+           if product!.healthScore < 40 {
+               progressLabel.textColor = .systemRed
+               progressLayer.strokeColor = UIColor.systemRed.cgColor
+                   }
+                   else if product!.healthScore < 75 {
+                       progressLayer.strokeColor = UIColor.orange.cgColor
+                       progressLabel.textColor = .systemOrange
+                   }
+                   else if product!.healthScore < 100 {
+                       progressLayer.strokeColor = UIColor.systemGreen.cgColor
+                       progressLabel.textColor = .systemGreen
+                   }// Set the text as percentage
            
            
        }
     @IBAction func SavedButtonTapped(_ sender: Any) {
-        let actionSheet = UIAlertController(title: "Select a List to add to", message:nil, preferredStyle: .actionSheet)
-        for list in sampleLists {
+        guard let product = product else {
+            print("No product to save")
+            return
+        }
+        
+        let actionSheet = UIAlertController(title: "Select a List to add to", message: nil, preferredStyle: .actionSheet)
+        for (index, list) in sampleLists.enumerated() {
             let action = UIAlertAction(title: list.name, style: .default) { _ in
-                print("Selected list: \(list)")
+                self.addProductToList(at: index, product: product)
             }
-            
             actionSheet.view.tintColor = .systemOrange
             actionSheet.view.layer.cornerRadius = 14
             actionSheet.view.layer.masksToBounds = true
             actionSheet.addAction(action)
-            
         }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-                actionSheet.addAction(cancelAction)
 
-                // Present the action sheet
-                present(actionSheet, animated: true, completion: nil)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        actionSheet.addAction(cancelAction)
+
+        present(actionSheet, animated: true, completion: nil)
     }
+
+    private func addProductToList(at index: Int, product: Product) {
+        guard sampleLists.indices.contains(index) else {
+            print("Invalid list index")
+            return
+        }
+
+        if sampleLists[index].products.contains(where: { $0.id == product.id }) {
+            print("\(product.name) is already in the list \(sampleLists[index].name)")
+            return
+        }
+
+        sampleLists[index].products.append(product)
+        print("\(product.name) added to \(sampleLists[index].name)")
+    }
+
     private func setupProductDetails() {
           if let product = product {
-              
-
-             
               ProductName.text = product.name
               ProductImage.image = UIImage(named: product.imageURL)
               

@@ -157,15 +157,15 @@
 //    ]
 //
 //
-
-import UIKit
-struct AlertModel {
-    let text: String
-}
-let alerts = [
-    AlertModel(text: "Contains Milk and Soy"),
-    AlertModel(text: "Non Vegetarian")
-]
+//
+//import UIKit
+//struct AlertModel {
+//    let text: String
+//}
+//let alerts = [
+//    AlertModel(text: "Contains Milk and Soy"),
+//    AlertModel(text: "Non Vegetarian")
+//]
 
 //struct Saved{
 //    let name:String

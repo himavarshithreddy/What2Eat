@@ -219,7 +219,10 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
     
     @objc func backButtonTapped() {
        
-        tabBarController?.selectedIndex = 0
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let scanViewController = storyboard.instantiateViewController(withIdentifier: "HomeScreen") as? HomeViewController {
+              navigationController?.setViewControllers([scanViewController], animated: true)
+          }
 
     }
     @IBAction func ScannerSwitcherButton(_ sender: UIButton) {

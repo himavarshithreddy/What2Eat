@@ -35,7 +35,7 @@ class NutritionViewController: UIViewController,UITableViewDelegate, UITableView
 
                 switch nutrition.name {
                 case "Calories":
-                    nutritionValue = Double(product?.nutritionInfo.calories ?? 0)
+                    nutritionValue = Double(product?.nutritionInfo.energy ?? 0)
                 case "Fats":
                     nutritionValue = product?.nutritionInfo.fats ?? 0
                 case "Sugars":
