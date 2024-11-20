@@ -14,7 +14,7 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
     @IBOutlet weak var AlertTableView: UITableView!
-  @IBOutlet weak var SummaryTableView: UITableView!
+    @IBOutlet weak var SummaryTableView: UITableView!
     @IBOutlet weak var AlertViewHeight: NSLayoutConstraint!
     @IBOutlet weak var SummaryTableHeight: NSLayoutConstraint!
     @IBOutlet weak var RatingText: UILabel!
@@ -24,13 +24,20 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     override func viewDidLoad() {
         super.viewDidLoad()
         if let product = product {
-                    userAllergens = product.getAllergensForUser(sampleUser) // Replace sampleUser with actual user
-                }
-        setStarRating(product!.userRating)
+            userAllergens = product.getAllergensForUser(sampleUser) // Replace sampleUser with actual user
+        }
+        if let productId = product?.id {
+            if let savedRating = loadUserRatingFromUserDefaults(productId: productId) {
+                userRating = savedRating
+                updateUserRatingStars(savedRating)
+            }
+        }
+        
+        setStarRating(product?.userRating ?? 0)
         setupEmptyStars()
         setupStarTapGestures()
-       SummaryTableView.dataSource = self
-    SummaryTableView.delegate = self
+        SummaryTableView.dataSource = self
+        SummaryTableView.delegate = self
         AlertTableView.dataSource = self
         AlertTableView.delegate = self
         SummaryTableView.estimatedRowHeight = 40
@@ -41,21 +48,19 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
         let VarSummaryTableHeight = CGFloat(CGFloat(product!.pros.count+product!.cons.count)*52)
         AlertViewHeight.constant = VarAlertViewHeight
         SummaryTableHeight.constant = VarSummaryTableHeight
-       
-      
+        
+        
     }
     
-
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView.tag == 1 {
             return product!.pros.count+product!.cons.count
-               } else if tableView.tag == 2 {
-                  
-                   return userAllergens.count
-              }
-              return 0
-
-       
+        } else if tableView.tag == 2 {
+            
+            return userAllergens.count
+        }
+        return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -67,36 +72,42 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
             cell.iconImage.image = UIImage(systemName:"exclamationmark.triangle.fill")
             cell.iconImage.tintColor = .systemRed
             cell.iconImage.image = indexPath.row < product!.cons.count
-                        ? UIImage(systemName: "exclamationmark.triangle.fill")
+            ? UIImage(systemName: "exclamationmark.triangle.fill")
             : UIImage(systemName: "checkmark.square.fill")
             cell.iconImage.tintColor = indexPath.row < product!.cons.count
-                        ? .systemRed
+            ? .systemRed
             : .systemGreen
-        
-               
+            
+            
             return cell
         }else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertCell", for: indexPath) as! AlertCell
             let allergen = userAllergens[indexPath.row]
-                        cell.AlertText.text = "Contains \(allergen.rawValue)"
-                        return cell
+            cell.AlertText.text = "Contains \(allergen.rawValue)"
+            return cell
             
         }else {return UITableViewCell()}
-            
         
-    
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-                if tableView.tag == 1 {
-                    return UITableView.automaticDimension
-                }
-                else if tableView.tag == 2 {
-        return 25
-                }
-                else {return 0}
+        if tableView.tag == 1 {
+            return UITableView.automaticDimension
+        }
+        else if tableView.tag == 2 {
+            return 25
+        }
+        else {return 0}
         
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let productId = product?.id {
+            if let savedRating = loadUserRatingFromUserDefaults(productId: productId) {
+                updateUserRatingStars(savedRating)
             }
+        }
+    }
     
     func setStarRating(_ rating: Float) {
         let starViews = UserRatingStarStack.arrangedSubviews.compactMap { $0 as? UIImageView }
@@ -115,17 +126,16 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     }
     
     func setupEmptyStars() {
-            
         let starViews = RateStarStackView.arrangedSubviews.compactMap { $0 as? UIImageView }
-            for star in starViews {
-                star.image = UIImage(systemName: "star")
-            }
+        for star in starViews {
+            star.image = UIImage(systemName: "star")
         }
+    }
     func setupStarTapGestures() {
         let starViews = RateStarStackView.arrangedSubviews.compactMap { $0 as? UIImageView }
         
         for (index, star) in starViews.enumerated() {
-            star.tag = index + 1 
+            star.tag = index + 1
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(starTapped(_:)))
             star.addGestureRecognizer(tapGesture)
         }
@@ -133,27 +143,30 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     @objc func starTapped(_ sender: UITapGestureRecognizer) {
         guard let tappedStar = sender.view as? UIImageView else { return }
         let rating = tappedStar.tag
-        
-       
+        if let productId = product?.id {
+            saveUserRatingToUserDefaults(productId: productId, rating: rating)
+        }
         updateUserRatingStars(rating)
-        
-        
     }
+    func saveUserRatingToUserDefaults(productId: UUID, rating: Int) {
+        UserDefaults.standard.set(rating, forKey: "userRating_\(productId.uuidString)")
+    }
+    func loadUserRatingFromUserDefaults(productId: UUID) -> Int? {
+        return UserDefaults.standard.integer(forKey: "userRating_\(productId.uuidString)")
+    }
+    
     func updateUserRatingStars(_ rating: Int) {
         let starViews = RateStarStackView.arrangedSubviews.compactMap { $0 as? UIImageView }
-        
         for (index, star) in starViews.enumerated() {
             if index < rating {
                 star.image = UIImage(systemName: "star.fill")
                 star.tintColor = .orange
             } else {
                 star.image = UIImage(systemName: "star")
+                star.tintColor = .gray
             }
         }
     }
-
-
-        
-    }
-
+}
+                
 
