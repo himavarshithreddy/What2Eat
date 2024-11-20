@@ -8,8 +8,8 @@
 import UIKit
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    let options = ["My Health Info", "Edit Health Info", "Edit Personal Info"]
-        let icons = ["heart.text.square", "square.and.pencil", "person.text.rectangle"]
+    let options = ["Edit Health Info", "Edit Personal Info"]
+        let icons = ["square.and.pencil", "person.text.rectangle"]
     
 
     @IBOutlet weak var tableview: UITableView!

@@ -192,7 +192,10 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     }
     @objc func backButtonTapped() {
        
-        tabBarController?.selectedIndex = 0
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let scanViewController = storyboard.instantiateViewController(withIdentifier: "HomeScreen") as? HomeViewController {
+              navigationController?.setViewControllers([scanViewController], animated: true)
+          }
 
     }
     @objc func toggleFlashlight() {
@@ -242,7 +245,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     @IBAction func SwtichtoBarcode(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let scanViewController = storyboard.instantiateViewController(withIdentifier: "ScanwithBarcode") as? BarcodeScannerViewController {
-              navigationController?.setViewControllers([scanViewController], animated: true)
+            navigationController?.setViewControllers([scanViewController], animated: true)
           }
     }
 }
