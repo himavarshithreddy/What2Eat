@@ -2,6 +2,9 @@ import UIKit
 
 class ProductDetailsViewController: UIViewController {
     var product: Product?
+    private var isSaved: Bool {
+            return isProductInAnyList(product!)
+        }
     @IBOutlet weak var progressView: UIView!
 
 
@@ -26,6 +29,14 @@ class ProductDetailsViewController: UIViewController {
            setupProductDetails()
            setProgress(to: CGFloat(product.healthScore)/100)
            self.view.bringSubviewToFront(SummarySegmentView)
+           let bookmarkButton = UIBarButtonItem(
+                       image: UIImage(systemName: isSaved ? "bookmark.fill" : "bookmark"),
+                       style: .plain,
+                       target: self,
+                       action: #selector(SavedButtonTapped(_:))
+                   )
+                   bookmarkButton.tintColor = .systemOrange
+                   navigationItem.rightBarButtonItem = bookmarkButton
        }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -111,50 +122,75 @@ class ProductDetailsViewController: UIViewController {
            
            
        }
-    @IBAction func SavedButtonTapped(_ sender: Any) {
+    @IBAction func SavedButtonTapped(_ sender: UIBarButtonItem) {
         guard let product = product else {
-            print("No product to save")
-            return
-        }
-        
-        let actionSheet = UIAlertController(title: "Select a List to add to", message: nil, preferredStyle: .actionSheet)
-        for (index, list) in sampleLists.enumerated() {
-            let action = UIAlertAction(title: list.name, style: .default) { _ in
-                self.addProductToList(at: index, product: product)
+                print("No product to save or unsave")
+                return
             }
-            actionSheet.view.tintColor = .systemOrange
-            actionSheet.view.layer.cornerRadius = 14
-            actionSheet.view.layer.masksToBounds = true
-            actionSheet.addAction(action)
+
+            if isSaved {
+
+                removeProductFromAllLists(product)
+                print("\(product.name) removed from lists")
+            } else {
+
+                let actionSheet = UIAlertController(title: "Select a List to add to", message: nil, preferredStyle: .actionSheet)
+                for (index, list) in sampleLists.enumerated() {
+                    let action = UIAlertAction(title: list.name, style: .default) { _ in
+                        self.addProductToList(at: index, product: product)
+                        self.updateBookmarkIcon(for: sender)
+                    }
+                    actionSheet.addAction(action)
+                    action.setValue(UIColor.systemOrange, forKey: "titleTextColor")
+                }
+
+                let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+                actionSheet.addAction(cancelAction)
+                cancelAction.setValue(UIColor.systemOrange, forKey: "titleTextColor")
+                present(actionSheet, animated: true, completion: nil)
+                return
+            }
+
+            updateBookmarkIcon(for: sender)
         }
-
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        actionSheet.addAction(cancelAction)
-
-        present(actionSheet, animated: true, completion: nil)
-    }
 
     private func addProductToList(at index: Int, product: Product) {
-        guard sampleLists.indices.contains(index) else {
-            print("Invalid list index")
-            return
+            guard sampleLists.indices.contains(index) else {
+                print("Invalid list index")
+                return
+            }
+
+            if sampleLists[index].products.contains(where: { $0.id == product.id }) {
+                print("\(product.name) is already in the list \(sampleLists[index].name)")
+                return
+            }
+
+            sampleLists[index].products.append(product)
+            print("\(product.name) added to \(sampleLists[index].name)")
         }
 
-        if sampleLists[index].products.contains(where: { $0.id == product.id }) {
-            print("\(product.name) is already in the list \(sampleLists[index].name)")
-            return
+    private func removeProductFromAllLists(_ product: Product) {
+        for (index, list) in sampleLists.enumerated() {
+            if let productIndex = list.products.firstIndex(where: { $0.id == product.id }) {
+                sampleLists[index].products.remove(at: productIndex) // Access list by index to make it mutable
+            }
         }
-
-        sampleLists[index].products.append(product)
-        print("\(product.name) added to \(sampleLists[index].name)")
     }
+    private func isProductInAnyList(_ product: Product) -> Bool {
+            return sampleLists.contains { list in
+                list.products.contains { $0.id == product.id }
+            }
+        }
+
+   private func updateBookmarkIcon(for button: UIBarButtonItem) {
+            let iconName = isSaved ? "bookmark.fill" : "bookmark"
+            button.image = UIImage(systemName: iconName)
+        }
 
     private func setupProductDetails() {
-          if let product = product {
-              ProductName.text = product.name
-              ProductImage.image = UIImage(named: product.imageURL)
-              
-             
-          }
-      }
-}
+            if let product = product {
+                ProductName.text = product.name
+                ProductImage.image = UIImage(named: product.imageURL)
+            }
+        }
+    }
