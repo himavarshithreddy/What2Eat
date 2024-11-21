@@ -34,27 +34,25 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
         let image = savedlistImages[indexPath.row]
         cell.IconImage.image = UIImage(systemName: image)
         if selectedIcon == image {
-            cell.layer.backgroundColor = UIColor(red: 228/255 , green: 113/255, blue: 45/255, alpha: 1).cgColor
+            cell.layer.backgroundColor = UIColor.systemOrange.cgColor
             }
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedIcon = savedlistImages[indexPath.row]
-       
         PreviewIcon.image = UIImage(systemName: selectedIcon!)
-       
+        collectionView.reloadData()
 
         if let cell = collectionView.cellForItem(at: indexPath) {
-            cell.layer.backgroundColor = UIColor(red: 228/255 , green: 113/255, blue: 45/255, alpha: 1).cgColor
+            cell.layer.backgroundColor = UIColor.systemOrange.cgColor
             }
 
         for cell in collectionView.visibleCells {
             if let index = collectionView.indexPath(for: cell), index != indexPath {
-                cell.layer.backgroundColor = UIColor.systemOrange.cgColor
+                cell.contentView.backgroundColor = UIColor(red: 228/255 , green: 113/255, blue: 45/255, alpha: 1)
                 
             }
         }
-
     }
 
     @IBAction func saveList(_ sender: Any) {
@@ -79,15 +77,6 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
     }
 
 
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
+   
 
 }
