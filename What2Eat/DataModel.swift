@@ -1502,7 +1502,7 @@ var sampleLists: [SavedList] = [
         iconName: UIImage(systemName: "figure.2.and.child.holdinghands")!
     )
 ]
-let randomlistImages = [
+let savedlistImages = [
     "leaf", "carrot", "fork.knife", "cart", "cup.and.saucer",
                "takeoutbag.and.cup.and.straw", "popcorn", "flame", "applelogo",
                "fork.knife.circle", "heart", "heart.circle", "staroflife",
