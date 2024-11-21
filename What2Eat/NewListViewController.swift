@@ -83,6 +83,11 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
                     newList.products.append(product)
                 }
         sampleLists.append(newList)
+        NotificationCenter.default.post(
+                name: Notification.Name("ProductSaved"),
+                object: product, // Pass the product as the notification's object
+                userInfo: ["listName": name] // Optionally include list details
+            )
         NotificationCenter.default.post(name: Notification.Name("ProductSaved"), object: product,userInfo: nil)
            
         NotificationCenter.default.post(name: Notification.Name("NewListCreated"), object: nil, userInfo: nil)

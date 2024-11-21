@@ -37,6 +37,8 @@ class ProductDetailsViewController: UIViewController {
                    )
                    bookmarkButton.tintColor = .systemOrange
                    navigationItem.rightBarButtonItem = bookmarkButton
+           NotificationCenter.default.addObserver(self, selector: #selector(handleProductSavedNotification(_:)), name: Notification.Name("ProductSaved"), object: nil)
+
            NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkIcon), name: Notification.Name("ProductSaved"), object: product)
        }
     
@@ -73,6 +75,19 @@ class ProductDetailsViewController: UIViewController {
         }
         
     }
+    @objc private func handleProductSavedNotification(_ notification: Notification) {
+        guard let savedProduct = notification.object as? Product else { return }
+        
+        // Check if the saved product matches the current product
+        if savedProduct.id == product?.id {
+            updateBookmarkIcon(for: navigationItem.rightBarButtonItem!)
+        }
+    }
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: Notification.Name("ProductSaved"), object: nil)
+    }
+
+
     private func setupCircularProgressBar() {
            // 1. Define the circular path
            let center = CGPoint(x: progressView.bounds.width / 2, y: progressView.bounds.height / 2)
@@ -197,9 +212,10 @@ class ProductDetailsViewController: UIViewController {
         }
 
     @objc private func updateBookmarkIcon(for button: UIBarButtonItem) {
-            let iconName = isSaved ? "bookmark.fill" : "bookmark"
-            button.image = UIImage(systemName: iconName)
-        }
+        let iconName = isSaved ? "bookmark.fill" : "bookmark"
+        button.image = UIImage(systemName: iconName)
+    }
+
     
 
     private func setupProductDetails() {
