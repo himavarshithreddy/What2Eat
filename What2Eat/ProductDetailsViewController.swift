@@ -37,9 +37,11 @@ class ProductDetailsViewController: UIViewController {
                    )
                    bookmarkButton.tintColor = .systemOrange
                    navigationItem.rightBarButtonItem = bookmarkButton
+           NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkIcon), name: Notification.Name("ProductSaved"), object: product)
        }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+          // Check the identifier of each segue and pass `product` to each child view controller
           if segue.identifier == "showSummary",
              let summaryVC = segue.destination as? SummaryViewController {
               summaryVC.product = product
@@ -50,9 +52,14 @@ class ProductDetailsViewController: UIViewController {
                     let nutritionVC = segue.destination as? NutritionViewController {
               nutritionVC.product = product
           }
+        else if segue.identifier == "Createnewlist",
+                let navigationController = segue.destination as? UINavigationController,
+                           let newListVC = navigationController.topViewController as? NewListViewController {
+                            newListVC.product = product
+          }
       }
 
-      
+       // Function to set up the circular progress bar
     @IBAction func SegmentAction(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
             case 0:
@@ -67,7 +74,7 @@ class ProductDetailsViewController: UIViewController {
         
     }
     private func setupCircularProgressBar() {
-          
+           // 1. Define the circular path
            let center = CGPoint(x: progressView.bounds.width / 2, y: progressView.bounds.height / 2)
            let radius = progressView.bounds.width / 2
            let circularPath = UIBezierPath(
@@ -78,7 +85,7 @@ class ProductDetailsViewController: UIViewController {
                clockwise: true
            )
 
-          
+           // 2. Create the background layer
            let backgroundLayer = CAShapeLayer()
            backgroundLayer.path = circularPath.cgPath
            backgroundLayer.strokeColor = UIColor.white.cgColor
@@ -97,9 +104,9 @@ class ProductDetailsViewController: UIViewController {
            progressView.layer.addSublayer(progressLayer)
        }
 
-     
+       // Function to update the progress with animation
        func setProgress(to progress: CGFloat, animated: Bool = true) {
-         
+           // Clamp the progress between 0 and 1
            let clampedProgress = min(max(progress, 0), 1)
            
            // Update the strokeEnd property
@@ -146,7 +153,7 @@ class ProductDetailsViewController: UIViewController {
                 }
                 let newListAction = UIAlertAction(title: "New List", style: .default) { _ in
                          
-                    self.performSegue(withIdentifier: "Createnewlist", sender: product)
+                          self.performSegue(withIdentifier: "Createnewlist", sender: self)
                       }
                       newListAction.setValue(UIColor.systemOrange, forKey: "titleTextColor")
                       actionSheet.addAction(newListAction)
@@ -179,7 +186,7 @@ class ProductDetailsViewController: UIViewController {
     private func removeProductFromAllLists(_ product: Product) {
         for (index, list) in sampleLists.enumerated() {
             if let productIndex = list.products.firstIndex(where: { $0.id == product.id }) {
-                sampleLists[index].products.remove(at: productIndex)
+                sampleLists[index].products.remove(at: productIndex) // Access list by index to make it mutable
             }
         }
     }
@@ -189,10 +196,11 @@ class ProductDetailsViewController: UIViewController {
             }
         }
 
-   private func updateBookmarkIcon(for button: UIBarButtonItem) {
+    @objc private func updateBookmarkIcon(for button: UIBarButtonItem) {
             let iconName = isSaved ? "bookmark.fill" : "bookmark"
             button.image = UIImage(systemName: iconName)
         }
+    
 
     private func setupProductDetails() {
             if let product = product {
@@ -200,4 +208,5 @@ class ProductDetailsViewController: UIViewController {
                 ProductImage.image = UIImage(named: product.imageURL)
             }
         }
+   
     }

@@ -11,14 +11,13 @@ import WebKit
 class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UITableViewDelegate,UITableViewDataSource {
     
     
+    @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
     @IBOutlet var RecentScansTableView: UITableView!
    
     
-    @IBAction func ProfileButon(_ sender: Any) {
-        performSegue(withIdentifier: "showprofile", sender: nil)
-    }
+    
     @IBOutlet var HomeImage: UIImageView!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,7 +29,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         collectionView.dataSource = self
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
       
-       
+        HomeHeight.constant = CGFloat((sampleUser.recentlyViewedProducts.count * 85)+800)
       
 
         // Do any additional setup after loading the view.
