@@ -40,7 +40,6 @@ class ProductDetailsViewController: UIViewController {
        }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-          // Check the identifier of each segue and pass `product` to each child view controller
           if segue.identifier == "showSummary",
              let summaryVC = segue.destination as? SummaryViewController {
               summaryVC.product = product
@@ -53,7 +52,7 @@ class ProductDetailsViewController: UIViewController {
           }
       }
 
-       // Function to set up the circular progress bar
+      
     @IBAction func SegmentAction(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
             case 0:
@@ -68,7 +67,7 @@ class ProductDetailsViewController: UIViewController {
         
     }
     private func setupCircularProgressBar() {
-           // 1. Define the circular path
+          
            let center = CGPoint(x: progressView.bounds.width / 2, y: progressView.bounds.height / 2)
            let radius = progressView.bounds.width / 2
            let circularPath = UIBezierPath(
@@ -79,7 +78,7 @@ class ProductDetailsViewController: UIViewController {
                clockwise: true
            )
 
-           // 2. Create the background layer
+          
            let backgroundLayer = CAShapeLayer()
            backgroundLayer.path = circularPath.cgPath
            backgroundLayer.strokeColor = UIColor.white.cgColor
@@ -98,9 +97,9 @@ class ProductDetailsViewController: UIViewController {
            progressView.layer.addSublayer(progressLayer)
        }
 
-       // Function to update the progress with animation
+     
        func setProgress(to progress: CGFloat, animated: Bool = true) {
-           // Clamp the progress between 0 and 1
+         
            let clampedProgress = min(max(progress, 0), 1)
            
            // Update the strokeEnd property
@@ -145,6 +144,12 @@ class ProductDetailsViewController: UIViewController {
                     actionSheet.addAction(action)
                     action.setValue(UIColor.systemOrange, forKey: "titleTextColor")
                 }
+                let newListAction = UIAlertAction(title: "New List", style: .default) { _ in
+                         
+                    self.performSegue(withIdentifier: "Createnewlist", sender: product)
+                      }
+                      newListAction.setValue(UIColor.systemOrange, forKey: "titleTextColor")
+                      actionSheet.addAction(newListAction)
 
                 let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
                 actionSheet.addAction(cancelAction)
@@ -174,7 +179,7 @@ class ProductDetailsViewController: UIViewController {
     private func removeProductFromAllLists(_ product: Product) {
         for (index, list) in sampleLists.enumerated() {
             if let productIndex = list.products.firstIndex(where: { $0.id == product.id }) {
-                sampleLists[index].products.remove(at: productIndex) // Access list by index to make it mutable
+                sampleLists[index].products.remove(at: productIndex)
             }
         }
     }

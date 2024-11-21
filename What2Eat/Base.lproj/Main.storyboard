@@ -402,6 +402,7 @@
                         <outlet property="progressLabel" destination="By1-bb-Iwe" id="DY6-8J-53A"/>
                         <outlet property="progressView" destination="EMC-pg-A4R" id="JCt-Ud-AVX"/>
                         <outlet property="segmentedControl" destination="iIl-tV-Be8" id="361-XF-F0a"/>
+                        <segue destination="T6e-2b-LQv" kind="presentation" identifier="Createnewlist" id="iNl-Lk-j6i"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="g4v-5h-JRV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2727,6 +2728,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="iNl-Lk-j6i"/>
         <segue reference="0hp-Wk-kLE"/>
         <segue reference="y4O-Y4-r2u"/>
         <segue reference="Omn-Dm-tHE"/>
