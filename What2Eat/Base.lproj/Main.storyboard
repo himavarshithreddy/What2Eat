@@ -1467,16 +1467,7 @@
                             <constraint firstAttribute="bottom" secondItem="rjQ-9w-4dg" secondAttribute="bottom" id="nTW-5r-PoY"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="RBN-is-lI8">
-                        <barButtonItem key="rightBarButtonItem" style="plain" id="yXb-x4-B9I">
-                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="kQb-us-6GB">
-                                <rect key="frame" x="-37" y="-17" width="89" height="33"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="Button"/>
-                            </button>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="RBN-is-lI8"/>
                     <connections>
                         <outlet property="HomeHeight" destination="vtq-0C-fYy" id="mNv-6H-saK"/>
                         <outlet property="HomeImage" destination="m6e-Vk-0J1" id="Kg1-ty-pw2"/>

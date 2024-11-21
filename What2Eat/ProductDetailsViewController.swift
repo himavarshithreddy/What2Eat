@@ -39,7 +39,7 @@ class ProductDetailsViewController: UIViewController {
                    navigationItem.rightBarButtonItem = bookmarkButton
            NotificationCenter.default.addObserver(self, selector: #selector(handleProductSavedNotification(_:)), name: Notification.Name("ProductSaved"), object: nil)
 
-           NotificationCenter.default.addObserver(self, selector: #selector(updateBookmarkIcon), name: Notification.Name("ProductSaved"), object: product)
+           
        }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
