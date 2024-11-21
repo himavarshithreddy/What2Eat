@@ -19,15 +19,27 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
         SavedProductsTableView.dataSource = self
         if let selectedList = selectedList {
                     self.navigationItem.title = selectedList.name
-                    // Populate your table view with the products in the selected list
                 }
+        NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(handleProductChange(_:)),
+                name: Notification.Name("ProductUnsaved"),
+                object: nil
+            )
 
-        // Do any additional setup after loading the view.
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return selectedList?.products.count ?? 0
     }
-    
+    @objc func handleProductChange(_ notification: Notification) {
+        guard let unsavedProduct = notification.object as? Product else { return }
+        selectedList?.products.removeAll { $0.id == unsavedProduct.id }
+        SavedProductsTableView.reloadData()
+    }
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SavedProductsCell", for: indexPath) as! SavedProductsCell
         let product = selectedList?.products[indexPath.row]

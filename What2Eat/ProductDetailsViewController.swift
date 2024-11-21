@@ -131,6 +131,7 @@ class ProductDetailsViewController: UIViewController {
             if isSaved {
 
                 removeProductFromAllLists(product)
+                NotificationCenter.default.post(name: Notification.Name("ProductUnsaved"), object: product)
                 print("\(product.name) removed from lists")
             } else {
 
@@ -138,6 +139,7 @@ class ProductDetailsViewController: UIViewController {
                 for (index, list) in sampleLists.enumerated() {
                     let action = UIAlertAction(title: list.name, style: .default) { _ in
                         self.addProductToList(at: index, product: product)
+                        NotificationCenter.default.post(name: Notification.Name("ProductSaved"), object: product)
                         self.updateBookmarkIcon(for: sender)
                     }
                     actionSheet.addAction(action)
