@@ -1236,35 +1236,18 @@
                                                             <segue destination="QfX-0E-obw" kind="show" id="y4O-Y4-r2u"/>
                                                         </connections>
                                                     </button>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OUi-v7-Wj6">
-                                                        <rect key="frame" x="347" y="100" width="35" height="35"/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="width" constant="35" id="9R7-jO-K1k"/>
-                                                            <constraint firstAttribute="height" constant="35" id="DTr-WI-Dj9"/>
-                                                        </constraints>
-                                                        <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="plain" image="profile">
-                                                            <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="4" scale="small"/>
-                                                            <color key="baseForegroundColor" systemColor="tintColor"/>
-                                                        </buttonConfiguration>
-                                                        <connections>
-                                                            <segue destination="EpU-Kp-tf1" kind="show" id="Cvv-Gj-60s"/>
-                                                        </connections>
-                                                    </button>
                                                 </subviews>
                                                 <color key="backgroundColor" red="1" green="0.57254901960000004" blue="0.25098039220000001" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                                 <constraints>
                                                     <constraint firstItem="DAf-ox-Fxj" firstAttribute="top" secondItem="P5K-xK-Ers" secondAttribute="bottom" constant="20" id="0Os-o2-mqN"/>
                                                     <constraint firstItem="P5K-xK-Ers" firstAttribute="leading" secondItem="aLp-KI-ZWA" secondAttribute="leading" constant="20" id="9hv-f5-aEU"/>
                                                     <constraint firstItem="R3d-2w-lyN" firstAttribute="top" secondItem="DAf-ox-Fxj" secondAttribute="bottom" constant="40" id="GJF-WY-zm7"/>
-                                                    <constraint firstAttribute="trailing" secondItem="OUi-v7-Wj6" secondAttribute="trailing" constant="20" id="KdM-rk-lxE"/>
                                                     <constraint firstAttribute="trailing" secondItem="wuX-6H-Vyy" secondAttribute="trailing" constant="20" id="Qdw-4t-ind"/>
                                                     <constraint firstItem="wuX-6H-Vyy" firstAttribute="top" secondItem="DAf-ox-Fxj" secondAttribute="bottom" constant="40" id="XOT-ua-xqx"/>
                                                     <constraint firstAttribute="bottom" secondItem="m6e-Vk-0J1" secondAttribute="bottom" constant="-20" id="ZKT-ir-jr1"/>
                                                     <constraint firstItem="P5K-xK-Ers" firstAttribute="top" secondItem="aLp-KI-ZWA" secondAttribute="top" constant="80" id="b2k-p5-5tP"/>
                                                     <constraint firstAttribute="height" constant="450" id="dC5-Uu-kMz"/>
                                                     <constraint firstAttribute="trailing" secondItem="m6e-Vk-0J1" secondAttribute="trailing" constant="50" id="gwn-pn-0EQ"/>
-                                                    <constraint firstItem="OUi-v7-Wj6" firstAttribute="top" secondItem="aLp-KI-ZWA" secondAttribute="top" constant="100" id="i7e-3j-Q1B"/>
                                                     <constraint firstItem="R3d-2w-lyN" firstAttribute="leading" secondItem="aLp-KI-ZWA" secondAttribute="leading" constant="20" id="lHp-da-Eh1"/>
                                                     <constraint firstItem="DAf-ox-Fxj" firstAttribute="leading" secondItem="aLp-KI-ZWA" secondAttribute="leading" constant="20" id="nDg-MY-BGZ"/>
                                                 </constraints>
@@ -1484,7 +1467,16 @@
                             <constraint firstAttribute="bottom" secondItem="rjQ-9w-4dg" secondAttribute="bottom" id="nTW-5r-PoY"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="RBN-is-lI8"/>
+                    <navigationItem key="navigationItem" id="RBN-is-lI8">
+                        <barButtonItem key="rightBarButtonItem" style="plain" id="yXb-x4-B9I">
+                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="kQb-us-6GB">
+                                <rect key="frame" x="-37" y="-17" width="89" height="33"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Button"/>
+                            </button>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="HomeHeight" destination="vtq-0C-fYy" id="mNv-6H-saK"/>
                         <outlet property="HomeImage" destination="m6e-Vk-0J1" id="Kg1-ty-pw2"/>
@@ -2378,20 +2370,20 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Maneeth Reddy" textAlignment="justified" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QHp-R1-Gqs">
-                                <rect key="frame" x="123" y="256" width="157" height="27"/>
+                                <rect key="frame" x="123" y="212" width="157" height="27"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="22"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="profile" translatesAutoresizingMaskIntoConstraints="NO" id="3UZ-3L-0pj">
-                                <rect key="frame" x="141" y="106" width="120" height="120"/>
+                                <rect key="frame" x="141" y="62" width="120" height="120"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="120" id="3tf-bV-lyu"/>
                                     <constraint firstAttribute="width" constant="120" id="9F1-W1-Mop"/>
                                 </constraints>
                             </imageView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="QWX-e1-1PX">
-                                <rect key="frame" x="16" y="313" width="370" height="176"/>
+                                <rect key="frame" x="16" y="269" width="370" height="269"/>
                                 <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ProfileCell" id="kgI-DT-tcC" customClass="ProfileTableViewCell" customModule="What2Eat" customModuleProvider="target">
@@ -2438,7 +2430,7 @@
                                 <sections/>
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="p8n-35-Byc">
-                                <rect key="frame" x="33" y="727" width="337" height="54"/>
+                                <rect key="frame" x="33" y="776" width="337" height="54"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="4YQ-lO-aZb"/>
                                 </constraints>
@@ -2790,9 +2782,6 @@
         </systemColor>
         <systemColor name="systemRedColor">
             <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="tintColor">
-            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
