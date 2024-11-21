@@ -9,8 +9,19 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
         super.viewDidLoad()
         SavedTableView.dataSource = self
         SavedTableView.delegate = self
-       
+        NotificationCenter.default.addObserver(self, selector: #selector(newListCreated(_:)), name: Notification.Name("NewListCreated"), object: nil)
     }
+    @objc func newListCreated(_ notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let name = userInfo["name"] as? String,
+           let icon = userInfo["icon"] as? String {
+            let iconImage = UIImage(systemName: icon)!
+            sampleLists.append(SavedList(id: UUID(), name: name, products: [], iconName: iconImage))
+            SavedTableView.reloadData()
+        }
+    }
+
+       
     func numberOfSections(in tableView: UITableView) -> Int {
         1
     }
@@ -44,23 +55,8 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == sampleLists.count {
-                  
-            let alertController = UIAlertController(title: "Create New List", message: "Enter a name for your new list.", preferredStyle: .alert)
-                   alertController.addTextField { textField in
-                       textField.placeholder = "List Name"
-                   }
-            alertController.view.backgroundColor = UIColor(red: 221, green: 215, blue: 205, alpha: 1)
-            alertController.view.tintColor = .orange
-            alertController.view.layer.cornerRadius = 14
-            alertController.view.layer.masksToBounds = true
-                   alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-                   alertController.addAction(UIAlertAction(title: "Create", style: .default) { [weak self] _ in
-                       if let listName = alertController.textFields?.first?.text, !listName.isEmpty {
-                           self?.addNewList(with: listName)
-                       }
-                   })
-                   
-                   present(alertController, animated: true)
+            performSegue(withIdentifier: "NewList", sender: nil)
+
                }
         else{
             let selectedList = sampleLists[indexPath.row]
@@ -69,12 +65,7 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
        
        
     }
-    private func addNewList(with name: String) {
-        let randomimage = randomlistImages.randomElement() ?? "leaf"
-        let randomImageName = UIImage(systemName: randomimage)!
-        sampleLists.append(SavedList( id: UUID(),name: name, products: [], iconName: randomImageName))
-        SavedTableView.reloadData()
-       }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             if segue.identifier == "ShowProductsSegue" {
                 if let savedProductsVC = segue.destination as? SavedProductsViewController,
