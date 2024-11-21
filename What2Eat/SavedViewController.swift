@@ -11,14 +11,11 @@ class SavedViewController: UIViewController,UITableViewDataSource,UITableViewDel
         SavedTableView.delegate = self
         NotificationCenter.default.addObserver(self, selector: #selector(newListCreated(_:)), name: Notification.Name("NewListCreated"), object: nil)
     }
+    
     @objc func newListCreated(_ notification: Notification) {
-        if let userInfo = notification.userInfo,
-           let name = userInfo["name"] as? String,
-           let icon = userInfo["icon"] as? String {
-            let iconImage = UIImage(systemName: icon)!
-            sampleLists.append(SavedList(id: UUID(), name: name, products: [], iconName: iconImage))
+       
             SavedTableView.reloadData()
-        }
+        
     }
 
        

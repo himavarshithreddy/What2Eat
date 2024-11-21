@@ -8,9 +8,10 @@
 import UIKit
 
 class NewListViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource,UICollectionViewDelegateFlowLayout {
-        
+    var product: Product?
     var selectedIcon: String?
 
+    @IBOutlet var saveButton: UIBarButtonItem!
     @IBOutlet var PreviewIcon: UIImageView!
     @IBOutlet weak var SelectIconCV: UICollectionView!
     @IBOutlet weak var ListNameText: UITextField!
@@ -18,10 +19,18 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
         super.viewDidLoad()
         SelectIconCV.delegate = self
         SelectIconCV.dataSource = self
+        saveButton.isEnabled = false
+        ListNameText.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
-
-        // Do any additional setup after loading the view.
     }
+    @objc func textFieldDidChange() {
+            // Enable Save button if both List name and selected Icon are present
+            if let name = ListNameText.text, !name.isEmpty, selectedIcon != nil {
+                saveButton.isEnabled = true
+            } else {
+                saveButton.isEnabled = false
+            }
+        }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         savedlistImages.count
     }
@@ -53,30 +62,39 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
                 
             }
         }
+        textFieldDidChange()
     }
 
     @IBAction func saveList(_ sender: Any) {
         guard let name = ListNameText.text, !name.isEmpty else {
-                showAlert(message: "Please enter a list name.")
+               
                 return
             }
             
             guard let icon = selectedIcon else {
-                showAlert(message: "Please select an icon.")
+               
                 return
             }
-        NotificationCenter.default.post(name: Notification.Name("NewListCreated"), object: nil, userInfo: ["name": ListNameText.text!, "icon": icon])
+       
+       
+        let iconImage = UIImage(systemName: icon)!
+        var newList = SavedList(id: UUID(), name: name, products: [], iconName: iconImage)
+        if let product = product {
+                    newList.products.append(product)
+                }
+        sampleLists.append(newList)
+        NotificationCenter.default.post(name: Notification.Name("ProductSaved"), object: product,userInfo: nil)
+           
+        NotificationCenter.default.post(name: Notification.Name("NewListCreated"), object: nil, userInfo: nil)
+       
         dismiss(animated: true, completion: nil)
     }
-    func showAlert(message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        okAction.setValue(UIColor.systemOrange, forKey: "titleTextColor")
-        alert.addAction(okAction)
-        present(alert, animated: true, completion: nil)
+  
+
+    @IBAction func cancelButtonTapped(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
     }
-
-
+    
    
 
 }

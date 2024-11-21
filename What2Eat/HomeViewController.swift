@@ -11,14 +11,13 @@ import WebKit
 class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UITableViewDelegate,UITableViewDataSource {
     
     
+    @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
     @IBOutlet var RecentScansTableView: UITableView!
    
     
-    @IBAction func ProfileButon(_ sender: Any) {
-        performSegue(withIdentifier: "showprofile", sender: nil)
-    }
+    
     @IBOutlet var HomeImage: UIImageView!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,11 +29,25 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         collectionView.dataSource = self
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
       
-       
+        HomeHeight.constant = CGFloat((sampleUser.recentlyViewedProducts.count * 85)+800)
       
 
         // Do any additional setup after loading the view.
     }
+    override func viewDidLayoutSubviews() {
+            super.viewDidLayoutSubviews()
+            let accessoryView = UIButton()
+            let image = UIImage(named:"profile")
+
+            accessoryView.setImage(image, for: .normal)
+            accessoryView.frame.size = CGSize(width: 34, height: 34)
+            let largeTitleView = navigationController?.navigationBar.subviews.first { subview in
+                return String(describing: type(of: subview)) == "_UINavigationBarLargeTitleView"
+            }
+            largeTitleView?.perform (Selector(("setAccessoryView:")), with: accessoryView)
+            largeTitleView?.perform (Selector(("setAlignAccessoryViewToTitleBaseline:")), with: nil)
+            largeTitleView?.perform(Selector (("updateContent") ))
+        }
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
