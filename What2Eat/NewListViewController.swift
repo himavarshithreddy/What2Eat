@@ -11,6 +11,7 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
         
     var selectedIcon: String?
 
+    @IBOutlet var PreviewIcon: UIImageView!
     @IBOutlet weak var SelectIconCV: UICollectionView!
     @IBOutlet weak var ListNameText: UITextField!
     override func viewDidLoad() {
@@ -33,23 +34,23 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
         let image = savedlistImages[indexPath.row]
         cell.IconImage.image = UIImage(systemName: image)
         if selectedIcon == image {
-                cell.contentView.backgroundColor = .systemOrange
-            } else {
-                cell.contentView.backgroundColor = UIColor.clear
+            cell.layer.backgroundColor = UIColor(red: 228/255 , green: 113/255, blue: 45/255, alpha: 1).cgColor
             }
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedIcon = savedlistImages[indexPath.row]
-        collectionView.reloadData()
+       
+        PreviewIcon.image = UIImage(systemName: selectedIcon!)
+       
 
         if let cell = collectionView.cellForItem(at: indexPath) {
-            cell.contentView.backgroundColor = .systemOrange
+            cell.layer.backgroundColor = UIColor(red: 228/255 , green: 113/255, blue: 45/255, alpha: 1).cgColor
             }
 
         for cell in collectionView.visibleCells {
             if let index = collectionView.indexPath(for: cell), index != indexPath {
-                cell.contentView.backgroundColor = UIColor(red: 228/255 , green: 113/255, blue: 45/255, alpha: 1)
+                cell.layer.backgroundColor = UIColor.systemOrange.cgColor
                 
             }
         }
