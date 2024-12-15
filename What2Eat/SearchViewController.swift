@@ -11,6 +11,7 @@ class SearchViewController: UIViewController,UITableViewDelegate,UITableViewData
   
     
     var searchResults: [Product] = []
+ 
     var isSearching = false
     var searchicon : String = "clock.arrow.trianglehead.counterclockwise.rotate.90"
     @IBOutlet var SearchBar: UISearchBar!
@@ -65,17 +66,47 @@ class SearchViewController: UIViewController,UITableViewDelegate,UITableViewData
         }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedProduct = searchResults[indexPath.row]
+        addProductToRecentSearch(product: selectedProduct)
         performSegue(withIdentifier: "showProductDetailFromSearch", sender: selectedProduct)
     }
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showProductDetailFromSearch" {
-            if let destinationVC = segue.destination as? ProductDetailsViewController {
-                if let product = sender as? Product {
-                    destinationVC.product = product
-                }
+    func addProductToRecentSearch(product: Product) {
+        // Add product to recent searches
+        if !recentSearch.products.contains(where: { $0.id == product.id }) {
+            recentSearch.products.insert(product, at: 0) // Insert at the beginning
+            
+            // Limit to a fixed number (e.g., 10 recent searches)
+            if recentSearch.products.count > 10 {
+                recentSearch.products.removeLast()
             }
         }
     }
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+
+        let searchText = searchBar.text ?? ""
+        
+        // Filter products based on the search text
+        let filteredProducts = sampleProducts.filter {
+            $0.name.lowercased().contains(searchText.lowercased())
+        }
+        
+        // Perform segue to SearchResultsViewController
+        performSegue(withIdentifier: "showSearchResults", sender: filteredProducts)
+    }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showProductDetailFromSearch" {
+            if let destinationVC = segue.destination as? ProductDetailsViewController,
+               let product = sender as? Product {
+                destinationVC.product = product
+            }
+        } else if segue.identifier == "showSearchResults" {
+            if let destinationVC = segue.destination as? SearchResultsViewController,
+               let results = sender as? [Product] {
+                destinationVC.searchResults = results
+            }
+        }
+    }
+
 
         
 }
