@@ -102,17 +102,24 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         if let productId = product?.id {
             if let savedRating = loadUserRatingFromUserDefaults(productId: productId) {
+                userRating = savedRating
                 updateUserRatingStars(savedRating)
             }
         }
+        
+        if let product = product {
+            setStarRating(product.userRating)
+        }
     }
+
     
     func setStarRating(_ rating: Float) {
         let starViews = UserRatingStarStack.arrangedSubviews.compactMap { $0 as? UIImageView }
-        RatingText.text = "\(rating)"
-        NumberOfRatings.text = "\(product!.numberOfRatings) Ratings"
+        RatingText.text = String(format: "%.1f", rating)
+           NumberOfRatings.text = "\(product!.numberOfRatings) Ratings"
         
         for (index, star) in starViews.enumerated() {
             if rating >= Float(index) + 1 {
@@ -143,10 +150,19 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     @objc func starTapped(_ sender: UITapGestureRecognizer) {
         guard let tappedStar = sender.view as? UIImageView else { return }
         let rating = tappedStar.tag
+        
         if let productId = product?.id {
             saveUserRatingToUserDefaults(productId: productId, rating: rating)
         }
+        
+        // Update the product rating logic
+        updateProductRating(newRating: rating)
+        
+        // Update the UI stars
         updateUserRatingStars(rating)
+        
+        // Update the user's local rating
+        userRating = rating
     }
     func saveUserRatingToUserDefaults(productId: UUID, rating: Int) {
         UserDefaults.standard.set(rating, forKey: "userRating_\(productId.uuidString)")
@@ -167,6 +183,39 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
             }
         }
     }
+    func updateProductRating(newRating: Int) {
+        guard var product = product else { return }
+        
+        // Calculate the current total score
+        var totalScore = product.userRating * Float(product.numberOfRatings)
+        
+        // Check if this is a new rating or an update
+        if userRating > 0 {
+            // Subtract the old rating if the user is updating their rating
+            totalScore -= Float(userRating)
+        } else {
+            // Increment the number of ratings if it's a new rating
+            product.numberOfRatings += 1
+        }
+        
+        // Add the new rating to the total score
+        totalScore += Float(newRating)
+        
+        // Update the product's average rating
+        let newAverage = totalScore / Float(product.numberOfRatings)
+            
+            // Round the average rating to 1 decimal place
+            product.userRating = round(newAverage * 10) / 10.0
+        
+        // Save the updated product back to the instance variable
+        self.product = product
+
+        // Update the UI
+        setStarRating(product.userRating)
+        NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
+    }
+
+
 }
                 
 

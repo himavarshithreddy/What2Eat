@@ -16,6 +16,7 @@ struct User{
 // MARK: - Product Model
 struct Product {
     let id: UUID
+    let barcode: String
     let name: String
     let imageURL: String
     var ingredients: [Ingredient]
@@ -555,6 +556,7 @@ let Ingredients: [String: Ingredient] = [
 let sampleProducts: [Product] = [
     Product(
         id: UUID(),
+        barcode:"123456789011",
         name: "Boost",
         imageURL: "Frame 2145",
         ingredients: [Ingredients["Whole Wheat Flour"]!, Ingredients["Yeast"]!, Ingredients["Salt"]!],
@@ -596,6 +598,7 @@ let sampleProducts: [Product] = [
         ))
     ), Product(
         id: UUID(),
+        barcode:"123456789012",
         name: "Orange Juice",
         imageURL: "orange_juice",
         ingredients: [
@@ -633,6 +636,7 @@ let sampleProducts: [Product] = [
             ))
     ),Product(
         id: UUID(),
+        barcode:"123456789013",
         name: "Crisp Apple Juice",
         imageURL: "apple_juice",
         ingredients: [
@@ -670,6 +674,7 @@ let sampleProducts: [Product] = [
         ))
     ),Product(
         id: UUID(),
+        barcode:"123456789014",
         name: "Mango Juice",
         imageURL: "mango_juice",
         ingredients: [
@@ -709,6 +714,7 @@ let sampleProducts: [Product] = [
 
     ),Product(
         id: UUID(),
+        barcode:"123456789015",
         name: "Mixed Berry Juice",
         imageURL: "mixed_berry_juice",
         ingredients: [
@@ -749,6 +755,7 @@ let sampleProducts: [Product] = [
         ),
     Product(
             id: UUID(),
+            barcode:"123456789016",
             name: "Multigrain Bread",
             imageURL: "multi",
             ingredients: [
@@ -773,7 +780,7 @@ let sampleProducts: [Product] = [
 
             ),
             userRating: 4.5,
-            numberOfRatings: 120,
+            numberOfRatings: 4,
             categoryId: Categories[0].id,
             pros: [
                 "High in dietary fiber, aiding digestion.",
@@ -798,6 +805,7 @@ let sampleProducts: [Product] = [
         ),
         Product(
             id: UUID(),
+            barcode:"123456789017",
             name: "Croissant",
             imageURL: "croissant",
             ingredients: [
@@ -846,6 +854,7 @@ let sampleProducts: [Product] = [
         ),
         Product(
             id: UUID(),
+            barcode:"123456789018",
             name: "Blueberry Muffin",
             imageURL: "muffin",
             ingredients: [
@@ -895,6 +904,7 @@ let sampleProducts: [Product] = [
         ),
         Product(
             id: UUID(),
+            barcode:"123456789019",
             name: "Chocolate Cookie",
             imageURL: "cookie",
             ingredients: [
@@ -943,6 +953,7 @@ let sampleProducts: [Product] = [
         ),
         Product(
             id: UUID(),
+            barcode:"123456789020",
             name: "Banana Bread",
             imageURL: "banana",
             ingredients: [
@@ -993,6 +1004,7 @@ let sampleProducts: [Product] = [
         ),
     Product(
         id: UUID(),
+        barcode:"123456789021",
         name: "Peanut Butter",
         imageURL: "peanut",
         ingredients: [Ingredients["Sugar"]!, Ingredients["Salt"]!],
@@ -1036,6 +1048,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
+        barcode:"123456789022",
         name: "Soybean Oil",
         imageURL: "soybean",
         ingredients: [Ingredients["Soybean Oil"]!],
@@ -1078,6 +1091,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
+        barcode:"123456789023",
         name: "Potato Chips",
         imageURL: "potato",
         ingredients: [Ingredients["Salt"]!],
@@ -1120,6 +1134,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
+        barcode:"123456789024",
         name: "Milk",
         imageURL: "milk",
         ingredients: [],
@@ -1161,6 +1176,7 @@ let sampleProducts: [Product] = [
         ))
     ),Product(
         id: UUID(),
+        barcode:"123456789025",
         name: "Oats",
         imageURL: "oats",
         ingredients: [Ingredients["Rolled Oats"]!],
@@ -1203,6 +1219,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
+        barcode:"123456789026",
         name: "Cornflakes",
         imageURL: "flakes",
         ingredients: [Ingredients["Corn"]!, Ingredients["Sugar"]!, Ingredients["Salt"]!],
@@ -1244,6 +1261,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
+        barcode:"123456789027",
         name: "Pancake Mix",
         imageURL: "pancake",
         ingredients: [Ingredients["Flour"]!, Ingredients["Sugar"]!, Ingredients["Baking Powder"]!],
@@ -1285,6 +1303,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
+        barcode:"123456789028",
         name: "Granola Bar",
         imageURL: "granola",
         ingredients: [Ingredients["Oats"]!, Ingredients["Honey"]!, Ingredients["Almonds"]!],
@@ -1325,6 +1344,7 @@ let sampleProducts: [Product] = [
         ))
     ),Product(
         id: UUID(),
+        barcode:"123456789029",
         name: "Cheddar Cheese",
         imageURL: "cheddar",
         ingredients: [Ingredients["Milk"]!, Ingredients["Salt"]!, Ingredients["Enzymes"]!],
@@ -1366,6 +1386,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
+        barcode:"123456789030",
         name: "Yogurt",
         imageURL: "yogurt",
         ingredients: [Ingredients["Milk"]!, Ingredients["Live Cultures"]!],
@@ -1407,6 +1428,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
+        barcode:"123456789031",
         name: "Butter",
         imageURL: "butter",
         ingredients: [Ingredients["Cream"]!, Ingredients["Salt"]!],
@@ -1509,3 +1531,10 @@ let savedlistImages = [
                "cross.case", "pills", "figure.walk", "figure.walk.circle",
                "figure.run", "figure.strengthtraining.traditional", "bandage"
 ]
+struct recentSearchs{
+    var products: [Product]
+}
+var recentSearch = recentSearchs(products: [sampleProducts[9],
+                                            sampleProducts[7],
+                                            sampleProducts[4]])
+

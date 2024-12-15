@@ -134,7 +134,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     }
     // MARK: - Table View Methods
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("selectedProduct")
+       
         let selectedProduct = sampleUser.recentlyViewedProducts[indexPath.row]
      
         performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
