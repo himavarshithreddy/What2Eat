@@ -1533,8 +1533,10 @@ let savedlistImages = [
 ]
 struct recentSearchs{
     var products: [Product]
+    var searchQueries: [String]
 }
 var recentSearch = recentSearchs(products: [sampleProducts[9],
                                             sampleProducts[7],
-                                            sampleProducts[4]])
+                                            sampleProducts[4]],
+                                  searchQueries: [])
 
