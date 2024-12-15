@@ -9,10 +9,8 @@ import UIKit
 
 class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UISearchBarDelegate {
     
-    
-    var filteredCategories: [Category] = []
-    private var searchBar: UISearchBar?
-    
+
+
     @IBOutlet weak var SearchBar: UISearchBar!
     @IBOutlet weak var CollectionView: UICollectionView!
     override func viewDidLoad() {
@@ -23,18 +21,18 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
                 CollectionView.delegate = self
                 CollectionView.dataSource = self
                 SearchBar.delegate=self
-                filteredCategories = Categories
+              
                 
                 // Do any additional setup after loading the view.
             }
             func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-                return filteredCategories.count
+                return Categories.count
             }
             
             func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
                  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath)
                 cell.layer.cornerRadius = 8
-                let category = filteredCategories[indexPath.item]
+                let category = Categories[indexPath.item]
                 if let CategoryCell = cell as? CategoryCollectionViewCell {
                     CategoryCell.CategoryName.text = category.name
                     CategoryCell.CategoryImage.image = UIImage(named: category.imageName)
@@ -57,16 +55,8 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
              }
              
             
-            func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-                  filteredCategories = searchText.isEmpty ? Categories : Categories.filter { $0.name.lowercased().contains(searchText.lowercased()) }
-               
-                CollectionView.reloadData()
-              }
-              
-              func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-                  searchBar.resignFirstResponder()
-              }
-            
+          
+                          
              func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
                  return CGSize(width: collectionView.frame.width, height: 25) // Adjust height as needed
              }
@@ -82,17 +72,8 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
 
             
 
-            /*
-            // MARK: - Navigation
-
-            // In a storyboard-based application, you will often want to do a little preparation before navigation
-            override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-                // Get the new view controller using segue.destination.
-                // Pass the selected object to the new view controller.
-            }
-            */
             func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-                    let selectedCategory = filteredCategories[indexPath.item]
+                    let selectedCategory = Categories[indexPath.item]
                     
                   
                     performSegue(withIdentifier: "showExploreProducts", sender: selectedCategory)
@@ -106,5 +87,10 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
                         destination.category = selectedCategory
                     }
                 }
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
+        performSegue(withIdentifier: "showsearch", sender: nil)
+        
+        return false 
+    }
 
         }

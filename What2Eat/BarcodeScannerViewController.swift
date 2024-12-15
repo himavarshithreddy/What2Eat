@@ -146,7 +146,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
            
             if let firstBarcode = observations.first,
                let payloadString = firstBarcode.payloadStringValue {
-                displayAlert(with: payloadString)
+                displayResult(with: payloadString)
             }
         }
     @objc func toggleFlashlight() {
@@ -199,24 +199,41 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
             captureSession?.stopRunning()
             
             // Show result in an alert
-            displayAlert(with: stringValue)
+            displayResult(with: stringValue)
             break
         }
     }
     
     // MARK: - Display Alert with Barcode Result
-    private func displayAlert(with barcode: String) {
-            let alert = UIAlertController(title: "Barcode Detected",
-                                        message: "Value: \(barcode)",
-                                        preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
-                DispatchQueue.global(qos: .background).async {
-                    self?.captureSession?.startRunning()
-                }
-            }))
-            present(alert, animated: true)
+    private func displayResult(with barcode: String) {
+        if let matchingProduct = sampleProducts.first(where: { $0.barcode == barcode }) {
+                // If a matching product is found, navigate to the ProductDetailsViewController
+                navigateToProductDetails(with: matchingProduct)
+            } else {
+                // If no matching product is found, show an alert
+                let alert = UIAlertController(title: "Product Not Found",
+                                              message: "The scanned barcode does not match any products in the database.",
+                                              preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
+                    DispatchQueue.global(qos: .background).async {
+                        self?.captureSession?.startRunning()
+                    }
+                }))
+                present(alert, animated: true)
+            }        }
+    private func navigateToProductDetails(with product: Product) {
+        // Instantiate the ProductDetailsViewController from the storyboard
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let productDetailsVC = storyboard.instantiateViewController(withIdentifier: "ProductDetailsViewController") as? ProductDetailsViewController {
+            
+            // Pass the product to the ProductDetailsViewController
+            productDetailsVC.product = product
+            
+            // Navigate to the ProductDetailsViewController
+            navigationController?.pushViewController(productDetailsVC, animated: true)
         }
-    
+    }
+
     @objc func backButtonTapped() {
        
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
