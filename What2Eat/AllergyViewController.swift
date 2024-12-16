@@ -13,15 +13,41 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
     
     
     @IBOutlet weak var allergyLabel: UILabel!
-    @IBOutlet weak var continueButtonPressed: UIButton!
     
     @IBOutlet weak var collectionView: UICollectionView!
     
-    let allergies = ["🍖Meat", "🦀Crab", "🌽Corn", "🐄Dairy", "🥚Eggs", "🍄Mushroom", "🥥Coconut", "🐟Fish", "🍞Wheat", "🌾Oats", "🥜Peanuts", "🔍Other"]
+    let allergies: [String] = [
+        "🐄Dairy",
+        "🥜Peanuts",
+        "🌰Tree Nuts",
+        "🥚Eggs",
+        "🌾Soy",
+        "🍞Wheat",
+        "🐟Fish",
+        "🦀Shellfish",
+        "🍖Milk",
+        "🍂Sesame",
+        "🍄Nuts"
+    ]
+    let allergenMapping: [String: Allergen] = [
+        "🐄Dairy": .dairy,
+        "🥜Peanuts": .peanuts,
+        "🌰Tree Nuts": .treeNuts,
+        "🥚Eggs": .eggs,
+        "🌾Soy": .soy,
+        "🍞Wheat": .wheat,
+        "🐟Fish": .fish,
+        "🦀Shellfish": .shellfish,
+        "🍖Milk": .milk,
+        "🍂Sesame": .sesame,
+        "🍄Nuts": .nuts
+    ]
+    var selectedAllergens: [Allergen] = []
         
     override func viewDidLoad() {
             super.viewDidLoad()
             setupCollectionView()
+       
         }
             
         private func setupCollectionView() {
@@ -39,9 +65,20 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
             let allergy = allergies[indexPath.row]
             cell.allergyButton.setTitle(allergy, for: .normal)
             cell.allergyButton.titleLabel?.textAlignment = .center
+            cell.allergyButton.tag = indexPath.row
+            cell.allergyButton.addTarget(self, action: #selector(allergyButtonTapped(_:)), for: .touchUpInside)
             return cell
         }
-            
+    @objc private func allergyButtonTapped(_ sender: UIButton) {
+           let allergy = allergies[sender.tag]
+           guard let mappedAllergen = allergenMapping[allergy] else { return }
+           
+           if selectedAllergens.contains(mappedAllergen) {
+               selectedAllergens.removeAll { $0 == mappedAllergen }
+           } else {
+               selectedAllergens.append(mappedAllergen)
+           }
+       }
         func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
             let title = allergies[indexPath.item]
             let font = UIFont.systemFont(ofSize: 17)
@@ -107,7 +144,12 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
                 
             return rowGroup
         }
+    @IBAction func ContinueButton(_ sender: Any) {
+        sampleUser.allergies = selectedAllergens
+                
+                print("Updated User Allergens: \(sampleUser.allergies)")
     }
+}
     
 
     

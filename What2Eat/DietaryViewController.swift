@@ -11,11 +11,31 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
 
     @IBOutlet weak var dietaryLabel: UILabel!
     
-    @IBOutlet weak var continueButtonPressed: UIButton!
+    @IBOutlet weak var SaveButton: UIButton!
     
     @IBOutlet weak var collectionView: UICollectionView!
     
-    let dietaryOptions = ["🥕Vegetarian", "🐟Pescatarian", "🥑Keto", "💉Type1 Diabetes", "🥩Paleo", "🍎Digestive Health", "💧Anemia", "🌱Vegan", "🩸Pre Diabetes", "🍉Whole30", "💊High Blood Pressure", "🔍Other"]
+    let dietaryOptions = [
+        "🌾Gluten-Free",
+        "🐄Dairy-Free",
+        "🥜Nut-Free",
+        "🌱Vegan",
+        "🍃Vegetarian",
+        "🍭Low Sugar",
+        "🥓Keto",
+        "💓High Blood Pressure"
+    ]
+    let dietaryRestrictionMapping: [String: DietaryRestriction] = [
+        "🌾Gluten-Free": .glutenFree,
+        "🐄Dairy-Free": .dairyFree,
+        "🥜Nut-Free": .nutFree,
+        "🌱Vegan": .vegan,
+        "🍃Vegetarian": .vegetarian,
+        "🍭Low Sugar": .lowSugar,
+        "🥓Keto": .keto,
+        "💓High Blood Pressure": .highBP
+    ]
+    var selectedDietaryRestrictions: [DietaryRestriction] = []
        
     override func viewDidLoad() {
                super.viewDidLoad()
@@ -37,9 +57,23 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                let dietaryOption = dietaryOptions[indexPath.row]
                cell.dietaryButton.setTitle(dietaryOption, for: .normal)
                cell.dietaryButton.titleLabel?.textAlignment = .center
+               cell.dietaryButton.tag = indexPath.row
+
+                      // Attach action to handle selection
+                      cell.dietaryButton.addTarget(self, action: #selector(dietaryButtonTapped(_:)), for: .touchUpInside)
+
                return cell
            }
-           
+    @objc private func dietaryButtonTapped(_ sender: UIButton) {
+          let dietaryOption = dietaryOptions[sender.tag]
+          guard let mappedRestriction = dietaryRestrictionMapping[dietaryOption] else { return }
+
+          if selectedDietaryRestrictions.contains(mappedRestriction) {
+              selectedDietaryRestrictions.removeAll { $0 == mappedRestriction }
+          } else {
+              selectedDietaryRestrictions.append(mappedRestriction)
+          }
+      }
            func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
                let title = dietaryOptions[indexPath.item]
                let font = UIFont.systemFont(ofSize: 17)
@@ -114,4 +148,9 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                
                return rowGroup
            }
-       }
+    @IBAction func SaveButtonTapped(_ sender: Any) {
+        sampleUser.dietaryRestrictions = selectedDietaryRestrictions
+        print("Updated User Dietary Restrictions: \(sampleUser.dietaryRestrictions)")
+        SaveButton.setTitle("Saved",for: .normal)
+    }
+}

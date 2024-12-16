@@ -14,6 +14,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
+    @IBOutlet var UserName: UILabel!
     @IBOutlet var RecentScansTableView: UITableView!
    
     
@@ -31,7 +32,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
       
         HomeHeight.constant = CGFloat((sampleUser.recentlyViewedProducts.count * 85)+800)
       
-
+        UserName.text = "Hi \(sampleUser.name),"
         // Do any additional setup after loading the view.
     }
     override func viewDidLayoutSubviews() {
@@ -175,6 +176,9 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
 
       
     
-        // MARK: - Table View Methods
+    @IBAction func ProfileButton(_ sender: Any) {
+        
+    }
+   
         
 }

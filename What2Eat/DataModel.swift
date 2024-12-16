@@ -230,6 +230,7 @@ enum DietaryRestriction: String{
     case vegetarian = "Vegetarian"
     case lowSugar = "Low Sugar"
     case keto = "Keto"
+    case highBP = "High Blood Pressure"
 }
 
 // MARK: - Sample Ingredients
@@ -1472,7 +1473,7 @@ let sampleProducts: [Product] = [
 ]
 
 // MARK: - Sample User
-let sampleUser = User(
+var sampleUser = User(
     id: UUID(),
     name: "Arjun",
     dietaryRestrictions: [.glutenFree, .dairyFree],
