@@ -7,6 +7,7 @@
 
 import UIKit
 import WebKit
+import FirebaseAuth
 
 class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UITableViewDelegate,UITableViewDataSource {
     
@@ -32,7 +33,9 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
       
         HomeHeight.constant = CGFloat((sampleUser.recentlyViewedProducts.count * 85)+800)
       
-        UserName.text = "Hi \(sampleUser.name),"
+        if let user = Auth.auth().currentUser {
+            UserName.text = "Hi, \(user.displayName ?? "User")"
+        }
         // Do any additional setup after loading the view.
     }
     override func viewDidLayoutSubviews() {

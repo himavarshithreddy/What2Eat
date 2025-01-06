@@ -1,7 +1,9 @@
 import UIKit
 import FirebaseAuth
-class LoginViewController: UIViewController {
+
+class SignUpViewController: UIViewController {
     
+    @IBOutlet var nameTextField: UITextField!
     @IBOutlet var emailTextField: UITextField!
     @IBOutlet var passwordTextField: UITextField!
     
@@ -17,8 +19,9 @@ class LoginViewController: UIViewController {
         view.addSubview(activityIndicator)
     }
     
-    @IBAction func loginButtonTapped(_ sender: Any) {
-        guard let email = emailTextField.text, !email.isEmpty,
+    @IBAction func SignUpbuttonTapped(_ sender: Any) {
+        guard let name = nameTextField.text, !name.isEmpty,
+              let email = emailTextField.text, !email.isEmpty,
               let password = passwordTextField.text, !password.isEmpty else {
             showAlert(message: "Please fill in all fields.")
             return
@@ -28,21 +31,35 @@ class LoginViewController: UIViewController {
         activityIndicator.startAnimating()
         view.isUserInteractionEnabled = false // Disable user interaction to prevent further taps
         
-        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             // Hide the activity indicator
-            self.activityIndicator.stopAnimating()
+           
             self.view.isUserInteractionEnabled = true // Re-enable user interaction
-            
+
             if let error = error {
                 // Show error in alert box
-                self.showAlert(message: "Login error: \(error.localizedDescription)")
+                self.showAlert(message: "Sign-up error: \(error.localizedDescription)")
                 return
             }
-            
-            // If login is successful, navigate to the Tab Bar Controller
-            if let user = authResult?.user {
-                print("User logged in: \(user.email ?? "No email")")
+            self.activityIndicator.stopAnimating()
+            self.view.isUserInteractionEnabled = true
+
+            guard let user = authResult?.user else { return }
+            let changeRequest = user.createProfileChangeRequest()
+            self.activityIndicator.startAnimating()
+            changeRequest.displayName = name
+            changeRequest.commitChanges { error in
+              
+
+                if let error = error {
+                    // Show error in alert box
+                    self.showAlert(message: "Profile update error: \(error.localizedDescription)")
+                    return
+                }
+                self.activityIndicator.stopAnimating()
                 self.navigateToTabBarController()
+                print("User registered with name: \(user.displayName ?? "No name")")
+                
             }
         }
     }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     let options = ["Edit Health Info", "Edit Personal Info"]
@@ -18,7 +19,10 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         tableview.delegate = self
         tableview.dataSource = self
-        UserName.text = sampleUser.name
+        if let user = Auth.auth().currentUser {
+            UserName.text = user.displayName
+        }
+       
         // Do any additional setup after loading the view.
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
