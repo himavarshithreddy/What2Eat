@@ -32,12 +32,18 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
       
         HomeHeight.constant = CGFloat((sampleUser.recentlyViewedProducts.count * 85)+800)
-      
-        if let user = Auth.auth().currentUser {
-            UserName.text = "Hi, \(user.displayName ?? "User")"
-        }
+        updateUserName()
+       
         // Do any additional setup after loading the view.
     }
+    func updateUserName() {
+            if let user = Auth.auth().currentUser {
+                UserName.text = "Hi, \(user.displayName ?? "Guest")"
+            } else {
+                UserName.text = "Hi, Guest"
+            }
+        }
+   
     override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
             let accessoryView = UIButton()
