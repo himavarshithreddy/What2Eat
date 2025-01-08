@@ -10,7 +10,12 @@ struct User{
     var picksforyou: [Product]
     var recentlyViewedProducts : [Product]
     var ratings: [UUID: Int]
-    
+}
+struct Users{
+    var name: String
+    var dietaryRestrictions: [String]
+    var allergies: [String]
+    var recentlyViewedProducts : [String]
 }
 
 // MARK: - Product Model
@@ -153,6 +158,7 @@ let Categories: [Category] = [
     Category(id: UUID(), name: "Bakery", imageName: "bakeryImage"),
     Category(id: UUID(), name: "Juices", imageName: "juicesImage"),
     Category(id: UUID(), name: "Desserts", imageName: "dessertsImage"),
+    Category(id: UUID(), name: "Dessertsssssssssssss", imageName: "dessertsImage"),
 ]
 
 // MARK: - Nutrition Model

@@ -12,6 +12,11 @@
 		F57BA4382D2BDE8B007988D3 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F57BA4372D2BDE8B007988D3 /* FirebaseCore */; };
 		F5B6E1BC2D2C021E0050E24A /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = F5B6E1BB2D2C021E0050E24A /* GoogleSignIn */; };
 		F5B6E1BE2D2C021E0050E24A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F5B6E1BD2D2C021E0050E24A /* GoogleSignInSwift */; };
+		F5B6E1C02D2C30F70050E24A /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = F5B6E1BF2D2C30F70050E24A /* FirebaseDatabase */; };
+		F5B6E1C22D2C30F70050E24A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F5B6E1C12D2C30F70050E24A /* FirebaseFirestore */; };
+		F5B6E1C42D2C30F70050E24A /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = F5B6E1C32D2C30F70050E24A /* FirebaseFirestoreCombine-Community */; };
+		F5B6E1C62D2C30F70050E24A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F5B6E1C52D2C30F70050E24A /* FirebaseStorage */; };
+		F5B6E1C82D2C30F70050E24A /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = F5B6E1C72D2C30F70050E24A /* FirebaseStorageCombine-Community */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,11 +49,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5B6E1C02D2C30F70050E24A /* FirebaseDatabase in Frameworks */,
+				F5B6E1C42D2C30F70050E24A /* FirebaseFirestoreCombine-Community in Frameworks */,
+				F5B6E1C82D2C30F70050E24A /* FirebaseStorageCombine-Community in Frameworks */,
+				F5B6E1C62D2C30F70050E24A /* FirebaseStorage in Frameworks */,
 				F5B6E1BE2D2C021E0050E24A /* GoogleSignInSwift in Frameworks */,
 				F57BA42E2D2BAE8E007988D3 /* FirebaseAuth in Frameworks */,
 				F5B6E1BC2D2C021E0050E24A /* GoogleSignIn in Frameworks */,
 				F57BA4382D2BDE8B007988D3 /* FirebaseCore in Frameworks */,
 				F57BA4302D2BAE8E007988D3 /* FirebaseAuthCombine-Community in Frameworks */,
+				F5B6E1C22D2C30F70050E24A /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +106,11 @@
 				F57BA4372D2BDE8B007988D3 /* FirebaseCore */,
 				F5B6E1BB2D2C021E0050E24A /* GoogleSignIn */,
 				F5B6E1BD2D2C021E0050E24A /* GoogleSignInSwift */,
+				F5B6E1BF2D2C30F70050E24A /* FirebaseDatabase */,
+				F5B6E1C12D2C30F70050E24A /* FirebaseFirestore */,
+				F5B6E1C32D2C30F70050E24A /* FirebaseFirestoreCombine-Community */,
+				F5B6E1C52D2C30F70050E24A /* FirebaseStorage */,
+				F5B6E1C72D2C30F70050E24A /* FirebaseStorageCombine-Community */,
 			);
 			productName = What2Eat;
 			productReference = F5D14C602CC8A58E00CDB0EB /* What2Eat.app */;
@@ -170,6 +185,8 @@
 				DEVELOPMENT_TEAM = F64K86LK5G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = What2Eat/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = What2Eat;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to scan barcodes.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to upload product images";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -182,7 +199,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = admin20admin20;
+				PRODUCT_BUNDLE_IDENTIFIER = com.what2eat.srm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -200,6 +217,8 @@
 				DEVELOPMENT_TEAM = F64K86LK5G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = What2Eat/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = What2Eat;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to scan barcodes.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to upload product images";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -212,7 +231,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = admin20admin20;
+				PRODUCT_BUNDLE_IDENTIFIER = com.what2eat.srm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -406,6 +425,31 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F5B6E1BA2D2C021E0050E24A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
+		};
+		F5B6E1BF2D2C30F70050E24A /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F57BA42C2D2BAE8E007988D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		F5B6E1C12D2C30F70050E24A /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F57BA42C2D2BAE8E007988D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		F5B6E1C32D2C30F70050E24A /* FirebaseFirestoreCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F57BA42C2D2BAE8E007988D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseFirestoreCombine-Community";
+		};
+		F5B6E1C52D2C30F70050E24A /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F57BA42C2D2BAE8E007988D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		F5B6E1C72D2C30F70050E24A /* FirebaseStorageCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F57BA42C2D2BAE8E007988D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseStorageCombine-Community";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

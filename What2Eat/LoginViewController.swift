@@ -2,6 +2,7 @@ import UIKit
 import Firebase
 import FirebaseAuth
 import GoogleSignIn
+import FirebaseFirestore
 
 class LoginViewController: UIViewController {
     
@@ -47,11 +48,39 @@ class LoginViewController: UIViewController {
             // If login is successful, navigate to the Tab Bar Controller
             if let user = authResult?.user {
                 print("User logged in: \(user.email ?? "No email")")
-                self.navigateToTabBarController()
+                self.fetchUserData(uid: user.uid) { userData in
+                    // Map the fetched data to the User model
+                    let userModel = Users(
+                       name: userData["name"] as? String ?? "",
+                        dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
+                        allergies: userData["allergies"] as? [String] ?? [],
+                        recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
+                    )
+                    self.navigateToTabBarController()
+                }
+                
             }
         }
     }
-    
+    // Fetch user data from Firestore
+        private func fetchUserData(uid: String, completion: @escaping ([String: Any]) -> Void) {
+            let db = Firestore.firestore()
+
+            db.collection("users").document(uid).getDocument { document, error in
+                if let error = error {
+                    self.showAlert(message: "Error fetching user data: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let document = document, document.exists else {
+                    self.showAlert(message: "User data not found.")
+                    return
+                }
+
+                // Pass the document data to the completion handler
+                completion(document.data() ?? [:])
+            }
+        }
     private func navigateToTabBarController() {
         // Get the active window from UIWindowScene (iOS 13+)
         if let windowScene = view.window?.windowScene {
@@ -75,32 +104,73 @@ class LoginViewController: UIViewController {
     }
     
     @IBAction func GoogleSignInButtonTapped(_ sender: Any) {
-        
-        GIDSignIn.sharedInstance.signIn(withPresenting: self){
-            signInResult, error in if let error = error {
-                print("Error Signing In: \(error.localizedDescription)")
-                return
-            }
-            guard let user = signInResult?.user, let idToken = user.idToken?.tokenString else {
-                print("No user found")
-                return
-            }
-            
-            let crendentail = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            
-            Auth.auth().signIn(with: crendentail) { authResult , error in
-                if let error = error {
-                    print("Error Signing In: \(error.localizedDescription)")
-                    return
-                    
-                }
-                print("User signed in successfully")
-                self.navigateToTabBarController()
-                
-            }
-        }
+        GIDSignIn.sharedInstance.signIn(withPresenting: self) { signInResult, error in
+             if let error = error {
+                 print("Error Signing In: \(error.localizedDescription)")
+                 return
+             }
+             
+             guard let user = signInResult?.user, let idToken = user.idToken?.tokenString else {
+                 print("No user found")
+                 return
+             }
+             
+             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+             
+             Auth.auth().signIn(with: credential) { authResult, error in
+                 if let error = error {
+                     print("Error Signing In: \(error.localizedDescription)")
+                     return
+                 }
+                 
+                 print("User signed in successfully")
+                 
+                 // Fetch the user from Firestore
+                 self.fetchUserData(uid: authResult?.user.uid ?? "") { userData in
+                     if userData.isEmpty {
+                         // User document does not exist, create a new one
+                         self.createNewUser(uid: authResult?.user.uid ?? "", name: user.profile?.name ?? "")
+                     } else {
+                         // Map the fetched data to the User model
+                         let userModel = Users(
+                             name: userData["name"] as? String ?? "",
+                             dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
+                             allergies: userData["allergies"] as? [String] ?? [],
+                             recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
+                         )
+                         // Continue to the next screen
+                         self.navigateToTabBarController()
+                     }
+                 }
+             }
+         }
          
     }
+    // Function to create a new user document in Firestore
+    private func createNewUser(uid: String, name: String) {
+        let db = Firestore.firestore()
+        
+        // Default data for a new user
+        let newUserData: [String: Any] = [
+            "name": name,
+            "dietaryRestrictions": [],
+            "allergies": [],
+            "recentlyViewedProducts": []
+        ]
+        
+        // Create the document in the 'users' collection with the user's UID as document ID
+        db.collection("users").document(uid).setData(newUserData) { error in
+            if let error = error {
+                print("Error creating new user: \(error.localizedDescription)")
+                self.showAlert(message: "Error creating new user: \(error.localizedDescription)")
+                return
+            }
+            
+            print("New user created successfully")
+            self.navigateToTabBarController()
+        }
+    }
+
     func resetPassword(forEmail email: String) {
         Auth.auth().sendPasswordReset(withEmail: email) { error in
             if let error = error {
