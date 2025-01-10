@@ -6,10 +6,14 @@
 //
 
 import UIKit
+import FirebaseFirestore
+
+
 
 class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UISearchBarDelegate {
     
-
+    let db = Firestore.firestore()
+    var categories: [Category] = []
 
     @IBOutlet weak var SearchBar: UISearchBar!
     @IBOutlet weak var CollectionView: UICollectionView!
@@ -21,10 +25,39 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
                 CollectionView.delegate = self
                 CollectionView.dataSource = self
                 SearchBar.delegate=self
+        fetchCategoriesFromFirebase()
               
                 
                 // Do any additional setup after loading the view.
             }
+    func fetchCategoriesFromFirebase() {
+        db.collection("categories").getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Error fetching categories: \(error.localizedDescription)")
+                return
+            }
+            
+            // Clear the existing categories array
+            self.categories = []
+            
+            // Parse documents into Category model
+            querySnapshot?.documents.forEach { document in
+                let data = document.data()
+                if let idString = data["id"] as? String,
+                   let id = UUID(uuidString: idString),
+                   let name = data["name"] as? String,
+                   let imageName = data["imageName"] as? String {
+                    let category = Category(id: id, name: name, imageName: imageName)
+                    self.categories.append(category)
+                }
+            }
+            
+            // Reload the collection view on the main thread
+            DispatchQueue.main.async {
+                self.CollectionView.reloadData()
+            }
+        }
+    }
             func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
                 return Categories.count
             }

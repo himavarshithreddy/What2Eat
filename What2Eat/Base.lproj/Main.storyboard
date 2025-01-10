@@ -1841,7 +1841,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="PWk-wr-eVV">
                         <barButtonItem key="rightBarButtonItem" title="Continue as Guest" style="plain" id="UFy-Uc-9ek">
-                            <button key="customView" opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="feX-yJ-Q3U">
+                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="feX-yJ-Q3U">
                                 <rect key="frame" x="202" y="5" width="184" height="34.333333333333336"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>

@@ -1,5 +1,6 @@
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 class SignUpViewController: UIViewController {
     
@@ -57,13 +58,36 @@ class SignUpViewController: UIViewController {
                     return
                 }
                 self.activityIndicator.stopAnimating()
-                self.navigateToTabBarController()
-                print("User registered with name: \(user.displayName ?? "No name")")
-                
+                self.createUserDocument(uid: user.uid, name: name) {
+                              self.navigateToTabBarController()
+                              print("User registered with name: \(user.displayName ?? "No name")")
+                          }
             }
         }
     }
-    
+    private func createUserDocument(uid: String, name: String, completion: @escaping () -> Void) {
+        let db = Firestore.firestore()
+        
+        // Define the initial user data
+        let userData: [String: Any] = [
+            "name": name,
+            "dietaryRestrictions": [], // Empty array
+            "allergies": [],           // Empty array
+            "recentlyViewedProducts": [] // Empty array
+        ]
+        
+        // Save the user data to Firestore
+        db.collection("users").document(uid).setData(userData) { error in
+            if let error = error {
+                print("Error creating user document: \(error.localizedDescription)")
+                self.showAlert(message: "Failed to create user data. Please try again.")
+            } else {
+                print("User document created successfully.")
+                completion()
+            }
+        }
+    }
+
     private func navigateToTabBarController() {
         // Get the active window from UIWindowScene (iOS 13+)
         if let windowScene = view.window?.windowScene {

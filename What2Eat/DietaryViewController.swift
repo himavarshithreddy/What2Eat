@@ -6,6 +6,8 @@
 
 
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
 
 class DietaryViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout  {
 
@@ -40,6 +42,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     override func viewDidLoad() {
                super.viewDidLoad()
                setupCollectionView()
+        
            }
            
            private func setupCollectionView() {
@@ -149,8 +152,41 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                return rowGroup
            }
     @IBAction func SaveButtonTapped(_ sender: Any) {
-        sampleUser.dietaryRestrictions = selectedDietaryRestrictions
-        print("Updated User Dietary Restrictions: \(sampleUser.dietaryRestrictions)")
-        SaveButton.setTitle("Saved",for: .normal)
+        // Get the currently logged-in user's UID
+        guard let uid = Auth.auth().currentUser?.uid else {
+            print("No user is logged in")
+            showAlert(message: "User not logged in.")
+            return
+        }
+
+        // Convert the selected dietary restrictions to an array of strings (if needed)
+        let selectedDietaryNames = selectedDietaryRestrictions.map { $0.rawValue }
+
+        // Create a reference to the user's document in Firestore
+        let db = Firestore.firestore()
+        let userDocument = db.collection("users").document(uid)
+
+        // Update the dietaryRestrictions field in Firestore
+        userDocument.updateData([
+            "dietaryRestrictions": selectedDietaryNames
+        ]) { error in
+            if let error = error {
+                print("Error updating dietary restrictions: \(error.localizedDescription)")
+                self.showAlert(message: "Error updating dietary restrictions: \(error.localizedDescription)")
+            } else {
+                print("Dietary restrictions updated successfully.")
+                self.showAlert(message: "Dietary restrictions updated successfully.")
+                // Change button text to indicate success
+                self.SaveButton.setTitle("Saved", for: .normal)
+            }
+        }
     }
+
+    private func showAlert(message: String) {
+        let alertController = UIAlertController(title: "Update Status", message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(okAction)
+        present(alertController, animated: true, completion: nil)
+    }
+
 }

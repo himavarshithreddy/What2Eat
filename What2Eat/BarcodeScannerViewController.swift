@@ -24,6 +24,11 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tabBarController?.tabBar.isHidden = true
+        if let captureSession = captureSession, !captureSession.isRunning {
+               DispatchQueue.global(qos: .background).async {
+                   captureSession.startRunning()
+               }
+           }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -147,6 +152,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
             if let firstBarcode = observations.first,
                let payloadString = firstBarcode.payloadStringValue {
                 displayResult(with: payloadString)
+                
             }
         }
     @objc func toggleFlashlight() {
@@ -212,8 +218,9 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
             } else {
                 // If no matching product is found, show an alert
                 let alert = UIAlertController(title: "Product Not Found",
-                                              message: "The scanned barcode does not match any products in the database.",
+                                              message: "The scanned barcode does not match any products in the database.\(barcode)",
                                               preferredStyle: .alert)
+                
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
                     DispatchQueue.global(qos: .background).async {
                         self?.captureSession?.startRunning()
