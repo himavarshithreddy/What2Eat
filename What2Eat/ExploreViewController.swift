@@ -59,13 +59,13 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
         }
     }
             func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-                return categories.count
+                return Categories.count
             }
             
             func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
                  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CategoryCell", for: indexPath)
                 cell.layer.cornerRadius = 8
-                let category = categories[indexPath.item]
+                let category = Categories[indexPath.item]
                 if let CategoryCell = cell as? CategoryCollectionViewCell {
                     CategoryCell.CategoryName.text = category.name
                     CategoryCell.CategoryImage.image = UIImage(named: category.imageName)
@@ -106,7 +106,7 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
             
 
             func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-                    let selectedCategory = categories[indexPath.item]
+                    let selectedCategory = Categories[indexPath.item]
                     
                   
                     performSegue(withIdentifier: "showExploreProducts", sender: selectedCategory)

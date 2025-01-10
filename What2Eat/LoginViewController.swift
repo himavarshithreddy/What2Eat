@@ -50,7 +50,7 @@ class LoginViewController: UIViewController {
                 print("User logged in: \(user.email ?? "No email")")
                 self.fetchUserData(uid: user.uid) { userData in
                     // Map the fetched data to the User model
-                    let userModel = Users(
+                    _ = Users(
                        name: userData["name"] as? String ?? "",
                         dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
                         allergies: userData["allergies"] as? [String] ?? [],
@@ -62,25 +62,7 @@ class LoginViewController: UIViewController {
             }
         }
     }
-    // Fetch user data from Firestore
-        private func fetchUserData(uid: String, completion: @escaping ([String: Any]) -> Void) {
-            let db = Firestore.firestore()
-
-            db.collection("users").document(uid).getDocument { document, error in
-                if let error = error {
-                    self.showAlert(message: "Error fetching user data: \(error.localizedDescription)")
-                    return
-                }
-                
-                guard let document = document, document.exists else {
-                    self.showAlert(message: "User data not found.")
-                    return
-                }
-
-                // Pass the document data to the completion handler
-                completion(document.data() ?? [:])
-            }
-        }
+    
     private func navigateToTabBarController() {
         // Get the active window from UIWindowScene (iOS 13+)
         if let windowScene = view.window?.windowScene {
@@ -105,47 +87,69 @@ class LoginViewController: UIViewController {
     
     @IBAction func GoogleSignInButtonTapped(_ sender: Any) {
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { signInResult, error in
-             if let error = error {
-                 print("Error Signing In: \(error.localizedDescription)")
-                 return
-             }
-             
-             guard let user = signInResult?.user, let idToken = user.idToken?.tokenString else {
-                 print("No user found")
-                 return
-             }
-             
-             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-             
-             Auth.auth().signIn(with: credential) { authResult, error in
-                 if let error = error {
-                     print("Error Signing In: \(error.localizedDescription)")
-                     return
-                 }
-                 
-                 print("User signed in successfully")
-                 
-                 // Fetch the user from Firestore
-                 self.fetchUserData(uid: authResult?.user.uid ?? "") { userData in
-                     if userData.isEmpty {
-                         // User document does not exist, create a new one
-                         self.createNewUser(uid: authResult?.user.uid ?? "", name: user.profile?.name ?? "")
-                     } else {
-                         // Map the fetched data to the User model
-                         let userModel = Users(
-                             name: userData["name"] as? String ?? "",
-                             dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
-                             allergies: userData["allergies"] as? [String] ?? [],
-                             recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
-                         )
-                         // Continue to the next screen
-                         self.navigateToTabBarController()
-                     }
-                 }
-             }
-         }
-         
+            if let error = error {
+                print("Error Signing In: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let user = signInResult?.user, let idToken = user.idToken?.tokenString else {
+                print("No user found")
+                return
+            }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
+                if let error = error {
+                    print("Error Signing In: \(error.localizedDescription)")
+                    return
+                }
+                
+                print("User signed in successfully")
+                
+                // Fetch the user from Firestore
+                self.fetchUserData(uid: authResult?.user.uid ?? "") { userData in
+                    if userData.isEmpty {
+                        // User document does not exist, create a new one
+                        self.createNewUser(uid: authResult?.user.uid ?? "", name: user.profile?.name ?? "")
+                    } else {
+                        // User data exists, proceed
+                        _ = Users(
+                            name: userData["name"] as? String ?? "",
+                            dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
+                            allergies: userData["allergies"] as? [String] ?? [],
+                            recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
+                        )
+                        // Continue to the next screen
+                        self.navigateToTabBarController()
+                    }
+                }
+            }
+        }
     }
+
+    // Fetch user data from Firestore
+    private func fetchUserData(uid: String, completion: @escaping ([String: Any]) -> Void) {
+        let db = Firestore.firestore()
+
+        db.collection("users").document(uid).getDocument { document, error in
+            if let error = error {
+                self.showAlert(message: "Error fetching user data: \(error.localizedDescription)")
+                return
+            }
+            
+            // Check if the document exists, if not, return an empty dictionary
+            guard let document = document, document.exists else {
+                completion([:])
+                return
+            }
+
+            // Pass the document data to the completion handler
+            completion(document.data() ?? [:])
+        }
+    }
+
+
     // Function to create a new user document in Firestore
     private func createNewUser(uid: String, name: String) {
         let db = Firestore.firestore()

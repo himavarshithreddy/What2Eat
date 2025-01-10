@@ -42,6 +42,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     override func viewDidLoad() {
                super.viewDidLoad()
                setupCollectionView()
+        
            }
            
            private func setupCollectionView() {

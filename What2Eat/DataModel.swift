@@ -157,8 +157,7 @@ let Categories: [Category] = [
     Category(id: UUID(), name: "Sauces", imageName: "saucesImage"),
     Category(id: UUID(), name: "Bakery", imageName: "bakeryImage"),
     Category(id: UUID(), name: "Juices", imageName: "juicesImage"),
-    Category(id: UUID(), name: "Desserts", imageName: "dessertsImage"),
-    Category(id: UUID(), name: "Dessertsssssssssssss", imageName: "dessertsImage"),
+    Category(id: UUID(), name: "Desserts", imageName: "dessertsImage")
 ]
 
 // MARK: - Nutrition Model
@@ -563,7 +562,7 @@ let Ingredients: [String: Ingredient] = [
 let sampleProducts: [Product] = [
     Product(
         id: UUID(),
-        barcode:"123456789011",
+        barcode:"1234567890111",
         name: "Boost",
         imageURL: "Frame 2145",
         ingredients: [Ingredients["Whole Wheat Flour"]!, Ingredients["Yeast"]!, Ingredients["Salt"]!],
@@ -605,7 +604,7 @@ let sampleProducts: [Product] = [
         ))
     ), Product(
         id: UUID(),
-        barcode:"123456789012",
+        barcode:"1234567890122",
         name: "Orange Juice",
         imageURL: "orange_juice",
         ingredients: [
@@ -643,7 +642,7 @@ let sampleProducts: [Product] = [
             ))
     ),Product(
         id: UUID(),
-        barcode:"123456789013",
+        barcode:"1234567890133",
         name: "Crisp Apple Juice",
         imageURL: "apple_juice",
         ingredients: [
@@ -681,7 +680,7 @@ let sampleProducts: [Product] = [
         ))
     ),Product(
         id: UUID(),
-        barcode:"123456789014",
+        barcode:"1234567890144",
         name: "Mango Juice",
         imageURL: "mango_juice",
         ingredients: [
@@ -721,7 +720,7 @@ let sampleProducts: [Product] = [
 
     ),Product(
         id: UUID(),
-        barcode:"123456789015",
+        barcode:"1234567890155",
         name: "Mixed Berry Juice",
         imageURL: "mixed_berry_juice",
         ingredients: [
@@ -762,7 +761,7 @@ let sampleProducts: [Product] = [
         ),
     Product(
             id: UUID(),
-            barcode:"123456789016",
+            barcode:"1234567890166",
             name: "Multigrain Bread",
             imageURL: "multi",
             ingredients: [
@@ -812,7 +811,7 @@ let sampleProducts: [Product] = [
         ),
         Product(
             id: UUID(),
-            barcode:"123456789017",
+            barcode:"1234567890177",
             name: "Croissant",
             imageURL: "croissant",
             ingredients: [
@@ -861,7 +860,7 @@ let sampleProducts: [Product] = [
         ),
         Product(
             id: UUID(),
-            barcode:"123456789018",
+            barcode:"1234567890188",
             name: "Blueberry Muffin",
             imageURL: "muffin",
             ingredients: [
@@ -911,7 +910,7 @@ let sampleProducts: [Product] = [
         ),
         Product(
             id: UUID(),
-            barcode:"123456789019",
+            barcode:"1234567890199",
             name: "Chocolate Cookie",
             imageURL: "cookie",
             ingredients: [
@@ -960,7 +959,7 @@ let sampleProducts: [Product] = [
         ),
         Product(
             id: UUID(),
-            barcode:"123456789020",
+            barcode:"1234567890200",
             name: "Banana Bread",
             imageURL: "banana",
             ingredients: [
@@ -1011,7 +1010,7 @@ let sampleProducts: [Product] = [
         ),
     Product(
         id: UUID(),
-        barcode:"123456789021",
+        barcode:"1234567890211",
         name: "Peanut Butter",
         imageURL: "peanut",
         ingredients: [Ingredients["Sugar"]!, Ingredients["Salt"]!],
@@ -1055,7 +1054,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        barcode:"123456789022",
+        barcode:"1234567890222",
         name: "Soybean Oil",
         imageURL: "soybean",
         ingredients: [Ingredients["Soybean Oil"]!],
@@ -1098,7 +1097,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        barcode:"123456789023",
+        barcode:"1234567890233",
         name: "Potato Chips",
         imageURL: "potato",
         ingredients: [Ingredients["Salt"]!],
@@ -1141,7 +1140,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        barcode:"123456789024",
+        barcode:"1234567890244",
         name: "Milk",
         imageURL: "milk",
         ingredients: [],
@@ -1183,7 +1182,7 @@ let sampleProducts: [Product] = [
         ))
     ),Product(
         id: UUID(),
-        barcode:"123456789025",
+        barcode:"1234567890255",
         name: "Oats",
         imageURL: "oats",
         ingredients: [Ingredients["Rolled Oats"]!],
@@ -1226,7 +1225,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        barcode:"123456789026",
+        barcode:"1234567890266",
         name: "Cornflakes",
         imageURL: "flakes",
         ingredients: [Ingredients["Corn"]!, Ingredients["Sugar"]!, Ingredients["Salt"]!],
@@ -1268,7 +1267,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        barcode:"123456789027",
+        barcode:"1234567890277",
         name: "Pancake Mix",
         imageURL: "pancake",
         ingredients: [Ingredients["Flour"]!, Ingredients["Sugar"]!, Ingredients["Baking Powder"]!],
@@ -1310,7 +1309,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        barcode:"123456789028",
+        barcode:"1234567890288",
         name: "Granola Bar",
         imageURL: "granola",
         ingredients: [Ingredients["Oats"]!, Ingredients["Honey"]!, Ingredients["Almonds"]!],
@@ -1351,7 +1350,7 @@ let sampleProducts: [Product] = [
         ))
     ),Product(
         id: UUID(),
-        barcode:"123456789029",
+        barcode:"1234567890299",
         name: "Cheddar Cheese",
         imageURL: "cheddar",
         ingredients: [Ingredients["Milk"]!, Ingredients["Salt"]!, Ingredients["Enzymes"]!],
@@ -1393,7 +1392,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        barcode:"123456789030",
+        barcode:"1234567890300",
         name: "Yogurt",
         imageURL: "yogurt",
         ingredients: [Ingredients["Milk"]!, Ingredients["Live Cultures"]!],
@@ -1435,7 +1434,7 @@ let sampleProducts: [Product] = [
     ),
     Product(
         id: UUID(),
-        barcode:"123456789031",
+        barcode:"1234567890311",
         name: "Butter",
         imageURL: "butter",
         ingredients: [Ingredients["Cream"]!, Ingredients["Salt"]!],
