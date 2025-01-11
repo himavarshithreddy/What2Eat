@@ -200,6 +200,17 @@ class LoginViewController: UIViewController {
         }
         resetPassword(forEmail: email)
     }
+    private func highlightField(_ textField: UITextField) {
+            textField.layer.borderColor = UIColor.red.cgColor
+            textField.layer.borderWidth = 1.0
+            textField.layer.cornerRadius = 5.0
+        }
+
+        // Function to remove the red border when the user starts editing
+        @objc private func textFieldEditingDidBegin(_ textField: UITextField) {
+            textField.layer.borderColor = UIColor.clear.cgColor
+            textField.layer.borderWidth = 0
+        }
 
     @IBAction func ContinueAsGuest(_ sender: Any) {
         self.navigateToTabBarController()

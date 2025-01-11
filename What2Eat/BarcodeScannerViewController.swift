@@ -79,7 +79,21 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
             captureSession?.addOutput(metadataOutput)
             
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-            metadataOutput.metadataObjectTypes = [.ean8, .ean13, .pdf417] // Set barcode types
+            metadataOutput.metadataObjectTypes = [
+                    .aztec,
+                    .code39,
+                    .code39Mod43,
+                    .code93,
+                    .code128,
+                    .dataMatrix,
+                    .ean8,
+                    .ean13,
+                    .interleaved2of5,
+                    .itf14,
+                    .pdf417,
+                    .qr,
+                    .upce
+                ] // Set barcode types
         }
         
      
