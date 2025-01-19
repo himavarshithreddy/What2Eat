@@ -7,6 +7,7 @@
 
 import UIKit
 import WebKit
+import QuartzCore
 import FirebaseAuth
 
 class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UITableViewDelegate,UITableViewDataSource {
@@ -15,15 +16,14 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
+    @IBOutlet var ScanNowButton: UIButton!
     @IBOutlet var UserName: UILabel!
     @IBOutlet var RecentScansTableView: UITableView!
    
-    
-    
     @IBOutlet var HomeImage: UIImageView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        HomeImage.transform = CGAffineTransform(rotationAngle: .pi*1.833)
+        HomeImage.transform = CGAffineTransform(rotationAngle: .pi*1.845)
         collectionView.delegate = self
         RecentScansTableView.delegate = self
         RecentScansTableView.dataSource = self
@@ -33,6 +33,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
       
         HomeHeight.constant = CGFloat((sampleUser.recentlyViewedProducts.count * 85)+800)
         updateUserName()
+        scanNowButtonUI()
        
         // Do any additional setup after loading the view.
     }
@@ -43,6 +44,14 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
                 UserName.text = "Hi, Guest"
             }
         }
+    
+    func scanNowButtonUI() {
+     
+    
+        ScanNowButton.layer.borderWidth=4
+        ScanNowButton.layer.borderColor=UIColor(red: 254/255, green: 231/255, blue: 206/255, alpha:0.8).cgColor
+        ScanNowButton.layer.masksToBounds = true
+    }
    
     override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
@@ -185,9 +194,6 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
 
       
     
-    @IBAction func ProfileButton(_ sender: Any) {
-        
-    }
    
         
 }

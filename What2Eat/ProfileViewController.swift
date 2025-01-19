@@ -3,8 +3,8 @@ import FirebaseAuth
 import Firebase
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    let options = ["Edit Health Info", "Edit Personal Info"]
-    let icons = ["square.and.pencil", "person.text.rectangle"]
+    let options = ["Edit Health Info"]
+    let icons = ["square.and.pencil"]
     
     @IBOutlet var SignOutButton: UIButton!
     @IBOutlet var UserName: UILabel!
@@ -16,7 +16,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableview.dataSource = self
         
         if let user = Auth.auth().currentUser {
-            UserName.text = user.displayName
+            UserName.text = user.displayName ?? "Guest"
             SignOutButton.setTitle("Sign Out", for: .normal)  // Show "Sign Out" if user is signed in
         } else {
             UserName.text = "Guest"  // Display "Guest" or any default name if no user is signed in
@@ -39,7 +39,15 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
-            performSegue(withIdentifier: "EditHealthInfo", sender: self)
+            if let user = Auth.auth().currentUser {
+                        // Proceed to the Edit Health Info screen if the user is signed in
+                        performSegue(withIdentifier: "EditHealthInfo", sender: self)
+                    } else {
+                        // Show an alert if the user is not signed in
+                        let alert = UIAlertController(title: "Sign In Required", message: "You need to be signed in to edit your health info.", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                        present(alert, animated: true, completion: nil)
+                    }
         }
     }
 

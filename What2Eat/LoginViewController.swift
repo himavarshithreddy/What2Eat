@@ -6,15 +6,17 @@ import FirebaseFirestore
 
 class LoginViewController: UIViewController {
     
-    @IBOutlet var emailTextField: UITextField!
-    @IBOutlet var passwordTextField: UITextField!
+    @IBOutlet var phoneTextField: UITextField!
+    @IBOutlet var verificationCodeTextField: UITextField!
     
+    @IBOutlet var sendCodeButton: UIButton!
+    var verificationID: String?
     // Declare the activity indicator
     var activityIndicator: UIActivityIndicatorView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        verificationCodeTextField.isHidden = true
         guard let clientID = FirebaseApp.app()?.options.clientID else { fatalError("Google client ID not found") }
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
         // Initialize the activity indicator
@@ -23,46 +25,78 @@ class LoginViewController: UIViewController {
         view.addSubview(activityIndicator)
     }
     
-    @IBAction func loginButtonTapped(_ sender: Any) {
-        guard let email = emailTextField.text, !email.isEmpty,
-              let password = passwordTextField.text, !password.isEmpty else {
-            showAlert(message: "Please fill in all fields.")
-            return
-        }
-        
-        // Show the activity indicator (loading)
-        activityIndicator.startAnimating()
-        view.isUserInteractionEnabled = false // Disable user interaction to prevent further taps
-        
-        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            // Hide the activity indicator
-            self.activityIndicator.stopAnimating()
-            self.view.isUserInteractionEnabled = true // Re-enable user interaction
-            
-            if let error = error {
-                // Show error in alert box
-                self.showAlert(message: "Login error: \(error.localizedDescription)")
-                return
-            }
-            
-            // If login is successful, navigate to the Tab Bar Controller
-            if let user = authResult?.user {
-                print("User logged in: \(user.email ?? "No email")")
-                self.fetchUserData(uid: user.uid) { userData in
-                    // Map the fetched data to the User model
-                    _ = Users(
-                       name: userData["name"] as? String ?? "",
-                        dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
-                        allergies: userData["allergies"] as? [String] ?? [],
-                        recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
-                    )
-                    self.navigateToTabBarController()
+    @IBAction func sendCodeButtonTapped(_ sender: Any) {
+            // If the text field is not empty and it's the first step (send code)
+            if verificationCodeTextField.isHidden {
+                guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
+                    showAlert(message: "Please enter a valid phone number.")
+                    return
                 }
                 
+                // Show activity indicator
+                activityIndicator.startAnimating()
+                view.isUserInteractionEnabled = false // Disable user interaction
+                
+                PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
+                    self.activityIndicator.stopAnimating()
+                    self.view.isUserInteractionEnabled = true // Enable user interaction
+                    
+                    if let error = error {
+                        self.showAlert(message: "Error sending verification code: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    // Save the verification ID for later use when verifying the code
+                    self.verificationID = verificationID
+                    
+                    // Show the verification code field and change the button text
+                    self.verificationCodeTextField.isHidden = false
+                    self.sendCodeButton.setTitle("Verify Code", for: .normal)
+                }
+            } else {
+                // If the verification code text field is visible, verify the code
+                guard let verificationCode = verificationCodeTextField.text, !verificationCode.isEmpty else {
+                    showAlert(message: "Please enter the verification code.")
+                    return
+                }
+                
+                guard let verificationID = self.verificationID else {
+                    showAlert(message: "Verification ID not found.")
+                    return
+                }
+                
+                let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
+                
+                // Sign in the user with the phone number credential
+                activityIndicator.startAnimating()
+                view.isUserInteractionEnabled = false // Disable user interaction
+                
+                Auth.auth().signIn(with: credential) { authResult, error in
+                    self.activityIndicator.stopAnimating()
+                    self.view.isUserInteractionEnabled = true // Enable user interaction
+                    
+                    if let error = error {
+                        self.showAlert(message: "Error verifying code: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    // If login is successful, navigate to the Tab Bar Controller
+                    if let user = authResult?.user {
+                        print("User logged in: \(user.phoneNumber ?? "No phone number")")
+                        self.fetchUserData(uid: user.uid) { userData in
+                            _ = Users(
+                               name: userData["name"] as? String ?? "",
+                                dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
+                                allergies: userData["allergies"] as? [String] ?? [],
+                                recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
+                            )
+                            self.navigateToTabBarController()
+                        }
+                    }
+                }
             }
         }
-    }
-    
+            
     private func navigateToTabBarController() {
         // Get the active window from UIWindowScene (iOS 13+)
         if let windowScene = view.window?.windowScene {
@@ -175,31 +209,7 @@ class LoginViewController: UIViewController {
         }
     }
 
-    func resetPassword(forEmail email: String) {
-        Auth.auth().sendPasswordReset(withEmail: email) { error in
-            if let error = error {
-                // Handle error
-                let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                self.present(alert, animated: true)
-                return
-            }
-            // Inform the user that the reset email has been sent
-            let alert = UIAlertController(title: "Success", message: "Password reset email sent.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self.present(alert, animated: true)
-        }
-    }
-    @IBAction func resetPasswordButtonTapped(_ sender: UIButton) {
-        guard let email = emailTextField.text, !email.isEmpty else {
-            // Handle empty email field
-            let alert = UIAlertController(title: "Error", message: "Please enter your email address.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self.present(alert, animated: true)
-            return
-        }
-        resetPassword(forEmail: email)
-    }
+
     private func highlightField(_ textField: UITextField) {
             textField.layer.borderColor = UIColor.red.cgColor
             textField.layer.borderWidth = 1.0

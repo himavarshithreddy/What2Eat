@@ -17,8 +17,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         super.viewDidLoad()
         configureScanningFrame()
         self.tabBarController?.tabBar.isHidden = true
-        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonTapped))
-            navigationItem.leftBarButtonItem = backButton
+      
         setupCamera()
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -255,20 +254,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         }
     }
 
-    @objc func backButtonTapped() {
-       
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let scanViewController = storyboard.instantiateViewController(withIdentifier: "HomeScreen") as? HomeViewController {
-              navigationController?.setViewControllers([scanViewController], animated: true)
-          }
-
-    }
-    @IBAction func ScannerSwitcherButton(_ sender: UIButton) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let scanViewController = storyboard.instantiateViewController(withIdentifier: "ScanwithLabel") as? ScanWithLabelViewController {
-              navigationController?.setViewControllers([scanViewController], animated: true)
-          }
-    }
+ 
     @IBAction func TorchTapped(_ sender: Any) {
         toggleFlashlight()
     }

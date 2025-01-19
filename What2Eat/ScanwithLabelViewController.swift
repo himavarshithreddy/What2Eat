@@ -192,11 +192,13 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     }
     @objc func backButtonTapped() {
        
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let scanViewController = storyboard.instantiateViewController(withIdentifier: "HomeScreen") as? HomeViewController {
-              navigationController?.setViewControllers([scanViewController], animated: true)
+//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//        if let scanViewController = storyboard.instantiateViewController(withIdentifier: "HomeScreen") as? HomeViewController {
+//              navigationController?.setViewControllers([scanViewController], animated: true)
+//          }
+        if let homeVC = navigationController?.viewControllers.first(where: { $0 is HomeViewController }) {
+              navigationController?.popToViewController(homeVC, animated: true)
           }
-
     }
     @objc func toggleFlashlight() {
         guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }
