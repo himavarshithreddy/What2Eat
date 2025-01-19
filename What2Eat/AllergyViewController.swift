@@ -4,6 +4,7 @@ import FirebaseFirestore
 
 class AllergyViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
+    @IBOutlet var progressView: UIProgressView!
     @IBOutlet weak var allergyLabel: UILabel!
     @IBOutlet weak var collectionView: UICollectionView!
     
@@ -73,6 +74,7 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
                     self.selectedAllergens = allergies.compactMap { allergen in
                         return Allergen(rawValue: allergen)
                     }
+                    
                     // Update UI: Select the buttons based on fetched data
                     self.updateUIWithSelectedAllergens()
                 }
@@ -223,7 +225,9 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
             } else {
                 print("Allergies updated successfully.")
                 self.showAlert(message: "Allergies updated successfully.")
+                self.progressView.setProgress(0.5, animated: true)
             }
+            
         }
     }
     

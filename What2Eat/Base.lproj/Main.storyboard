@@ -2504,13 +2504,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Do you have any Allergies ?" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gpE-iK-Pdb">
-                                <rect key="frame" x="30" y="116" width="271" height="27"/>
+                                <rect key="frame" x="30" y="137" width="271" height="27"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="22"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="gJd-Ed-l7F">
-                                <rect key="frame" x="20" y="223" width="362" height="500"/>
+                                <rect key="frame" x="20" y="244" width="362" height="500"/>
                                 <color key="backgroundColor" red="0.94117647059999998" green="0.91372549020000005" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="500" id="4Bs-Ei-FAx"/>
@@ -2567,6 +2567,17 @@
                                     <segue destination="ldP-JC-NfR" kind="show" id="2yP-TM-2AJ"/>
                                 </connections>
                             </button>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.050000000000000003" translatesAutoresizingMaskIntoConstraints="NO" id="dLf-Tv-5hv">
+                                <rect key="frame" x="30" y="121" width="342" height="6"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="6" id="CAq-sP-g2z"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </progressView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="t35-il-o69"/>
                         <color key="backgroundColor" red="0.94117647059999998" green="0.91372549020000005" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -2575,8 +2586,11 @@
                             <constraint firstItem="gJd-Ed-l7F" firstAttribute="leading" secondItem="t35-il-o69" secondAttribute="leading" constant="20" id="RJh-Ts-HUw"/>
                             <constraint firstItem="oRC-1E-bjI" firstAttribute="leading" secondItem="t35-il-o69" secondAttribute="leading" constant="33" id="T9f-JC-zZq"/>
                             <constraint firstItem="gJd-Ed-l7F" firstAttribute="top" secondItem="gpE-iK-Pdb" secondAttribute="bottom" constant="80" id="W3t-0v-1MF"/>
-                            <constraint firstItem="gpE-iK-Pdb" firstAttribute="top" secondItem="t35-il-o69" secondAttribute="top" constant="10" id="dsH-xS-7CN"/>
+                            <constraint firstItem="dLf-Tv-5hv" firstAttribute="top" secondItem="t35-il-o69" secondAttribute="top" constant="15" id="WYw-sA-uOr"/>
+                            <constraint firstItem="t35-il-o69" firstAttribute="trailing" secondItem="dLf-Tv-5hv" secondAttribute="trailing" constant="30" id="Wck-2u-v3Z"/>
                             <constraint firstItem="t35-il-o69" firstAttribute="bottom" secondItem="oRC-1E-bjI" secondAttribute="bottom" constant="20" id="hFM-od-Jqk"/>
+                            <constraint firstItem="dLf-Tv-5hv" firstAttribute="leading" secondItem="t35-il-o69" secondAttribute="leading" constant="30" id="mHc-yY-aev"/>
+                            <constraint firstItem="gpE-iK-Pdb" firstAttribute="top" secondItem="dLf-Tv-5hv" secondAttribute="bottom" constant="10" id="oow-3R-PHl"/>
                             <constraint firstItem="t35-il-o69" firstAttribute="trailing" secondItem="oRC-1E-bjI" secondAttribute="trailing" constant="32" id="uUn-sn-JXc"/>
                             <constraint firstItem="gpE-iK-Pdb" firstAttribute="leading" secondItem="t35-il-o69" secondAttribute="leading" constant="30" id="whk-08-TOp"/>
                         </constraints>
@@ -2591,6 +2605,7 @@
                     <connections>
                         <outlet property="allergyLabel" destination="gpE-iK-Pdb" id="ueC-gb-gHM"/>
                         <outlet property="collectionView" destination="gJd-Ed-l7F" id="wL0-rm-5SF"/>
+                        <outlet property="progressView" destination="dLf-Tv-5hv" id="3o9-dC-aeW"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qM9-rP-lua" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2606,13 +2621,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="What are your dietary restrictions and concerns?" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wXE-ch-y3t">
-                                <rect key="frame" x="30" y="116.00000000000001" width="352" height="52.666666666666671"/>
+                                <rect key="frame" x="30" y="132" width="352" height="52.666666666666657"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="22"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="88C-JG-M9x">
-                                <rect key="frame" x="20" y="208.66666666666663" width="362" height="500.00000000000011"/>
+                                <rect key="frame" x="20" y="224.66666666666663" width="362" height="500"/>
                                 <color key="backgroundColor" red="0.94117647059999998" green="0.91372549020000005" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="500" id="qCB-3h-UEM"/>
@@ -2668,17 +2683,31 @@
                                     <action selector="SaveButtonTapped:" destination="ldP-JC-NfR" eventType="touchUpInside" id="yeB-FQ-DlD"/>
                                 </connections>
                             </button>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="bhc-CN-unL">
+                                <rect key="frame" x="30" y="116" width="342" height="6"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="6" id="z8A-jG-CDC"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </progressView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="DnF-80-sTV"/>
                         <color key="backgroundColor" red="0.94117647059999998" green="0.91372549020000005" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="bhc-CN-unL" firstAttribute="leading" secondItem="DnF-80-sTV" secondAttribute="leading" constant="30" id="6Xo-w1-U3a"/>
                             <constraint firstItem="DnF-80-sTV" firstAttribute="trailing" secondItem="wXE-ch-y3t" secondAttribute="trailing" constant="20" id="88G-Yj-4GH"/>
                             <constraint firstItem="SJS-dH-DPW" firstAttribute="leading" secondItem="DnF-80-sTV" secondAttribute="leading" constant="33" id="AcH-n2-rt0"/>
                             <constraint firstItem="88C-JG-M9x" firstAttribute="leading" secondItem="DnF-80-sTV" secondAttribute="leading" constant="20" id="Fzh-qU-1mz"/>
                             <constraint firstItem="DnF-80-sTV" firstAttribute="trailing" secondItem="SJS-dH-DPW" secondAttribute="trailing" constant="32" id="Kux-XN-OjC"/>
+                            <constraint firstItem="bhc-CN-unL" firstAttribute="top" secondItem="DnF-80-sTV" secondAttribute="top" constant="10" id="N6Z-ne-yoj"/>
                             <constraint firstItem="DnF-80-sTV" firstAttribute="bottom" secondItem="SJS-dH-DPW" secondAttribute="bottom" constant="20" id="ZGl-jr-yDJ"/>
                             <constraint firstItem="wXE-ch-y3t" firstAttribute="leading" secondItem="DnF-80-sTV" secondAttribute="leading" constant="30" id="eP2-UV-Wxd"/>
-                            <constraint firstItem="wXE-ch-y3t" firstAttribute="top" secondItem="DnF-80-sTV" secondAttribute="top" constant="10" id="iG8-oT-iID"/>
+                            <constraint firstItem="wXE-ch-y3t" firstAttribute="top" secondItem="bhc-CN-unL" secondAttribute="bottom" constant="10" id="iG8-oT-iID"/>
+                            <constraint firstItem="DnF-80-sTV" firstAttribute="trailing" secondItem="bhc-CN-unL" secondAttribute="trailing" constant="30" id="q3O-Of-8gK"/>
                             <constraint firstItem="DnF-80-sTV" firstAttribute="trailing" secondItem="88C-JG-M9x" secondAttribute="trailing" constant="20" id="sjF-Dy-YwJ"/>
                             <constraint firstItem="88C-JG-M9x" firstAttribute="top" secondItem="wXE-ch-y3t" secondAttribute="bottom" constant="40" id="z4p-Zo-xYt"/>
                         </constraints>
@@ -2688,6 +2717,7 @@
                         <outlet property="SaveButton" destination="SJS-dH-DPW" id="bo8-UU-jtv"/>
                         <outlet property="collectionView" destination="88C-JG-M9x" id="Ls3-Us-wlO"/>
                         <outlet property="dietaryLabel" destination="wXE-ch-y3t" id="kj4-C7-PXi"/>
+                        <outlet property="progressView" destination="bhc-CN-unL" id="WaJ-PL-Qu4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="G99-VK-suY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

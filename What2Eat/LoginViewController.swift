@@ -80,17 +80,22 @@ class LoginViewController: UIViewController {
                         return
                     }
                     
-                    // If login is successful, navigate to the Tab Bar Controller
                     if let user = authResult?.user {
                         print("User logged in: \(user.phoneNumber ?? "No phone number")")
                         self.fetchUserData(uid: user.uid) { userData in
-                            _ = Users(
-                               name: userData["name"] as? String ?? "",
-                                dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
-                                allergies: userData["allergies"] as? [String] ?? [],
-                                recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
-                            )
-                            self.navigateToTabBarController()
+                            if userData.isEmpty {
+                                // User document does not exist, create a new one
+                                self.createNewUser(uid: user.uid, name: "Guest")
+                            } else {
+                                // User data exists, proceed
+                                _ = Users(
+                                    name: userData["name"] as? String ?? "",
+                                    dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
+                                    allergies: userData["allergies"] as? [String] ?? [],
+                                    recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
+                                )
+                                self.navigateToTabBarController()
+                            }
                         }
                     }
                 }
