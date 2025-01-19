@@ -43,15 +43,7 @@ class DietaryCell: UICollectionViewCell {
         dietaryButton.configuration = config
     }
 
- 
     func setSelectedState(isSelected: Bool) {
-        if isSelected {
-            dietaryButton.backgroundColor = UIColor.green // or another highlight color
-            dietaryButton.layer.cornerRadius = 8
-        } else {
-            dietaryButton.backgroundColor = UIColor.clear
-            dietaryButton.layer.cornerRadius = 8
-        }
+        isSelectedDietary = isSelected
     }
-
 }

@@ -7,19 +7,23 @@
 
 import UIKit
 import WebKit
+import FirebaseFirestore
 import QuartzCore
 import FirebaseAuth
 
 class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UITableViewDelegate,UITableViewDataSource {
     
     
+ 
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
+  
+    @IBOutlet var noRecentScansLabel: UILabel!
     @IBOutlet var ScanNowButton: UIButton!
     @IBOutlet var UserName: UILabel!
     @IBOutlet var RecentScansTableView: UITableView!
-   
+    var recentScansProducts: [(name: String, healthScore: Int, imageURL: String)] = []
     @IBOutlet var HomeImage: UIImageView!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,43 +34,54 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         
         collectionView.dataSource = self
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
-      
-        HomeHeight.constant = CGFloat((sampleUser.recentlyViewedProducts.count * 85)+800)
+        
+        HomeHeight.constant = CGFloat((sampleUser.recentScans.count * 85)+800)
         updateUserName()
         scanNowButtonUI()
-       
+        fetchRecentScans()
+        noRecentScansLabel.isHidden = true
+        
+        
         // Do any additional setup after loading the view.
     }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        fetchRecentScans()
+    }
     func updateUserName() {
-            if let user = Auth.auth().currentUser {
-                UserName.text = "Hi, \(user.displayName ?? "Guest")"
-            } else {
-                UserName.text = "Hi, Guest"
-            }
+        if let user = Auth.auth().currentUser {
+            let fullName = user.displayName ?? "Guest"
+            let firstName = fullName.components(separatedBy: " ").first ?? fullName
+            UserName.text = "Hi, \(firstName)"
+        } else {
+            UserName.text = "Hi, Guest"
         }
+    }
+    
     
     func scanNowButtonUI() {
-     
-    
+        
+        
         ScanNowButton.layer.borderWidth=4
         ScanNowButton.layer.borderColor=UIColor(red: 254/255, green: 231/255, blue: 206/255, alpha:0.8).cgColor
         ScanNowButton.layer.masksToBounds = true
     }
-   
+    
     override func viewDidLayoutSubviews() {
-            super.viewDidLayoutSubviews()
-            let accessoryView = UIButton()
-            let image = UIImage(named:"profile")
-
-            accessoryView.setImage(image, for: .normal)
-            accessoryView.frame.size = CGSize(width: 34, height: 34)
-            let largeTitleView = navigationController?.navigationBar.subviews.first { subview in
-                return String(describing: type(of: subview)) == "_UINavigationBarLargeTitleView"
-            }
-            largeTitleView?.perform (Selector(("setAccessoryView:")), with: accessoryView)
-            largeTitleView?.perform (Selector(("setAlignAccessoryViewToTitleBaseline:")), with: nil)
-            largeTitleView?.perform(Selector (("updateContent") ))
+        super.viewDidLayoutSubviews()
+        let accessoryView = UIButton()
+        let image = UIImage(named:"profile")
+        
+        accessoryView.setImage(image, for: .normal)
+        accessoryView.frame.size = CGSize(width: 34, height: 34)
+        let largeTitleView = navigationController?.navigationBar.subviews.first { subview in
+            return String(describing: type(of: subview)) == "_UINavigationBarLargeTitleView"
         }
+        largeTitleView?.perform (Selector(("setAccessoryView:")), with: accessoryView)
+        largeTitleView?.perform (Selector(("setAlignAccessoryViewToTitleBaseline:")), with: nil)
+        largeTitleView?.perform(Selector (("updateContent") ))
+    }
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
@@ -75,7 +90,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-
+        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PickforyouCell", for: indexPath) as! HomePickForYouCell
         let pick = sampleUser.picksforyou[indexPath.row]
         cell.pickImage.image = UIImage(named: pick.imageURL)
@@ -88,14 +103,14 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         
         if pick.healthScore < 40 {
             cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
-                }
+        }
         else if pick.healthScore < 75 {
-                
+            
             cell.pickview.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
-                }
+        }
         else if pick.healthScore <= 100 {
             cell.pickview.layer.backgroundColor = UIColor.systemGreen.cgColor
-                }
+        }
         cell.layer.cornerRadius = 14
         return cell
         
@@ -109,9 +124,9 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.6), heightDimension: .absolute(300))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-          
+            
             let section = NSCollectionLayoutSection(group: group)
-          
+            
             section.orthogonalScrollingBehavior = .continuous
             return section
             
@@ -122,13 +137,13 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        sampleUser.recentlyViewedProducts.count
+        recentScansProducts.count
     }
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "RecentScansCell", for: indexPath) as! RecentScansCell
-        let product = sampleUser.recentlyViewedProducts[indexPath.row]
+        let product = recentScansProducts[indexPath.row]
         cell.ProductImage.image = UIImage(named: product.imageURL)
         cell.ProductName.text = product.name
         cell.ProductScore.text = "\(product.healthScore)"
@@ -136,29 +151,29 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         
         if product.healthScore < 40 {
             cell.ProductScoreView.layer.backgroundColor = UIColor.systemRed.cgColor
-                }
+        }
         else if product.healthScore < 75 {
-                
+            
             cell.ProductScoreView.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
-                }
+        }
         else if product.healthScore <= 100 {
             cell.ProductScoreView.layer.backgroundColor = UIColor.systemGreen.cgColor
-                }
+        }
         cell.layer.cornerRadius = 8
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         70
     }
     // MARK: - Table View Methods
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       
-        let selectedProduct = sampleUser.recentlyViewedProducts[indexPath.row]
-     
+        
+        let selectedProduct = recentScansProducts[indexPath.row]
+        
         performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
     }
-   
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
         let verticalPadding: CGFloat = 4
@@ -171,29 +186,115 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     
     
     func getCategoryName(for categoryId: UUID) -> String {
-            if let category = Categories.first(where: { $0.id == categoryId }) {
-                return category.name
-            }
-            return "Unknown Category"
+        if let category = Categories.first(where: { $0.id == categoryId }) {
+            return category.name
         }
+        return "Unknown Category"
+    }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-            if segue.identifier == "showproductdetailsfromhome",
-               let destinationVC = segue.destination as? ProductDetailsViewController,
-               let selectedProduct = sender as? Product {
-                destinationVC.product = selectedProduct
-            }
-    
+        if segue.identifier == "showproductdetailsfromhome",
+           let destinationVC = segue.destination as? ProductDetailsViewController,
+           let selectedProduct = sender as? Product {
+            destinationVC.product = selectedProduct
         }
-
-        // MARK: - Collection View Methods
-        func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-            let selectedProduct = sampleUser.picksforyou[indexPath.row]
-           
-            performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
-        }
-
-      
-    
-   
         
+    }
+    
+    // MARK: - Collection View Methods
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedProduct = sampleUser.picksforyou[indexPath.row]
+        
+        performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
+    }
+    
+    func fetchRecentScans() {
+        // Get a reference to Firestore
+        let db = Firestore.firestore()
+        
+        // Get the current user's ID
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("User is not logged in.")
+            self.toggleTableViewVisibility(isEmpty: true)
+            return
+        }
+        
+        // Fetch the user document from Firestore
+        let userRef = db.collection("users").document(userId)
+        
+        userRef.getDocument { (document, error) in
+            if let error = error {
+                print("Error fetching user document: \(error)")
+                return
+            }
+            
+            // Ensure the document exists
+            guard let document = document, document.exists else {
+                print("User document does not exist.")
+                return
+            }
+            
+            // Fetch the recentScans field (assuming it's an array of product IDs)
+            if let recentScans = document.data()?["recentScans"] as? [String] {
+                // Print the product IDs
+                self.fetchProductsDetails(from: recentScans)
+            } else {
+                print("No recent scans found for this user.")
+                self.toggleTableViewVisibility(isEmpty: true)
+            }
+        }
+    }
+    func toggleTableViewVisibility(isEmpty: Bool) {
+        if isEmpty {
+            RecentScansTableView.isHidden = true
+            noRecentScansLabel.isHidden = false  // Show the label
+        } else {
+            RecentScansTableView.isHidden = false
+            noRecentScansLabel.isHidden = true  // Hide the label
+        }
+    }
+    
+    func fetchProductsDetails(from productIDs: [String]) {
+        let db = Firestore.firestore()
+        
+        // Create an empty array to store the products' details
+        var productsDetails: [(name: String, healthScore: Int, imageURL: String)] = []
+        
+        // Loop through the product IDs and fetch the details for each product
+        let dispatchGroup = DispatchGroup()
+        
+        for productId in productIDs {
+            dispatchGroup.enter()
+            let productRef = db.collection("products").document(productId)
+            
+            productRef.getDocument { (document, error) in
+                if let error = error {
+                    print("Error fetching product document: \(error)")
+                } else {
+                    // Ensure the document exists
+                    guard let document = document, document.exists else {
+                        print("Product document does not exist for ID: \(productId)")
+                        dispatchGroup.leave()
+                        return
+                    }
+                    
+                    // Extract necessary fields (name, score, and imageURL)
+                    if let name = document.data()?["name"] as? String,
+                       let healthScore = document.data()?["healthScore"] as? Int,
+                       let imageURL = document.data()?["imageURL"] as? String {
+                        // Append the product details to the array
+                        productsDetails.append((name: name, healthScore: healthScore, imageURL: imageURL))
+                    }
+                }
+                dispatchGroup.leave()
+            }
+        }
+        
+        // Once all product details are fetched, update the table view
+        dispatchGroup.notify(queue: .main) {
+            self.recentScansProducts = productsDetails
+            self.RecentScansTableView.reloadData()
+        }
+    }
 }
+        
+

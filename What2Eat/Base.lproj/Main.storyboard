@@ -345,20 +345,20 @@
                                 </userDefinedRuntimeAttributes>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2m5-Yk-bGi">
-                                <rect key="frame" x="20" y="441" width="362" height="350"/>
+                                <rect key="frame" x="20" y="441" width="362" height="301"/>
                                 <connections>
                                     <segue destination="Eyb-eY-FJl" kind="embed" identifier="showSummary" id="J91-f6-G34"/>
                                 </connections>
                             </containerView>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mo6-FP-u5l">
-                                <rect key="frame" x="20" y="441" width="362" height="350"/>
+                                <rect key="frame" x="20" y="441" width="362" height="301"/>
                                 <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <connections>
                                     <segue destination="iFd-It-RIp" kind="embed" identifier="showIngredients" id="gL9-0x-Fty"/>
                                 </connections>
                             </containerView>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XNt-39-NXS">
-                                <rect key="frame" x="20" y="441" width="362" height="350"/>
+                                <rect key="frame" x="20" y="441" width="362" height="301"/>
                                 <connections>
                                     <segue destination="uTM-N3-rBK" kind="embed" identifier="showNutrition" id="EIJ-be-9dQ"/>
                                 </connections>
@@ -441,11 +441,11 @@
             <objects>
                 <viewController title="Summary" id="Eyb-eY-FJl" customClass="SummaryViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="YnV-LU-jRL">
-                        <rect key="frame" x="0.0" y="0.0" width="362" height="350"/>
+                        <rect key="frame" x="0.0" y="0.0" width="362" height="301"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tEi-dd-JZk">
-                                <rect key="frame" x="0.0" y="0.0" width="362" height="350"/>
+                                <rect key="frame" x="0.0" y="0.0" width="362" height="301"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HcJ-xM-khT">
                                         <rect key="frame" x="0.0" y="0.0" width="362" height="1062"/>
@@ -891,11 +891,11 @@
             <objects>
                 <viewController title="Ingredients" id="iFd-It-RIp" customClass="IngredientsViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="dN3-dS-5kE">
-                        <rect key="frame" x="0.0" y="0.0" width="362" height="350"/>
+                        <rect key="frame" x="0.0" y="0.0" width="362" height="301"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" contentViewInsetsToSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zFF-og-AIe">
-                                <rect key="frame" x="0.0" y="42" width="362" height="308"/>
+                                <rect key="frame" x="0.0" y="42" width="362" height="259"/>
                                 <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <color key="sectionIndexBackgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <prototypes>
@@ -1075,7 +1075,7 @@
             <objects>
                 <viewController title="Nutrition" id="uTM-N3-rBK" customClass="NutritionViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="e6o-l2-uAa">
-                        <rect key="frame" x="0.0" y="0.0" width="362" height="350"/>
+                        <rect key="frame" x="0.0" y="0.0" width="362" height="301"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Nutrition Info" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RSd-bW-2yX">
@@ -1091,7 +1091,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="AbT-zL-0cv">
-                                <rect key="frame" x="0.0" y="41.666666666666657" width="362" height="274.33333333333326"/>
+                                <rect key="frame" x="0.0" y="41.666666666666671" width="362" height="225.33333333333331"/>
                                 <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="NutritionCell" rowHeight="50" id="FJD-IJ-nxU" customClass="NutritionCell" customModule="What2Eat" customModuleProvider="target">
@@ -1163,7 +1163,7 @@
         <!--Home View Controller-->
         <scene sceneID="SKY-BT-17G">
             <objects>
-                <viewController storyboardIdentifier="HomeScreen" id="E6p-Le-Nu5" customClass="HomeViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HomeScreen" extendedLayoutIncludesOpaqueBars="YES" id="E6p-Le-Nu5" customClass="HomeViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="TD2-RU-RIz">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1415,16 +1415,26 @@
                                                     </tableViewCell>
                                                 </prototypes>
                                             </tableView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Haven’t scanned anything yet? Let's find something healthy to explore! " textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rXM-5y-zsy">
+                                                <rect key="frame" x="20" y="685.66666666666663" width="362" height="48"/>
+                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
+                                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                         </subviews>
                                         <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <constraints>
+                                            <constraint firstItem="rXM-5y-zsy" firstAttribute="leading" secondItem="aG0-wb-num" secondAttribute="leading" constant="20" id="1po-vK-Dal"/>
                                             <constraint firstItem="9aT-6V-Dvm" firstAttribute="top" secondItem="aLp-KI-ZWA" secondAttribute="bottom" constant="20" id="2zo-EA-WGS"/>
                                             <constraint firstItem="hnR-M9-pei" firstAttribute="top" secondItem="yLI-9Y-DFf" secondAttribute="bottom" constant="20" id="4JT-hT-k6i"/>
+                                            <constraint firstItem="rXM-5y-zsy" firstAttribute="top" secondItem="hnR-M9-pei" secondAttribute="bottom" constant="20" id="6cJ-pt-J8Y"/>
                                             <constraint firstAttribute="trailing" secondItem="bL7-3b-BnY" secondAttribute="trailing" constant="20" id="BCA-Uk-DCt"/>
                                             <constraint firstItem="yLI-9Y-DFf" firstAttribute="leading" secondItem="aG0-wb-num" secondAttribute="leading" constant="20" id="U1h-St-9TN"/>
                                             <constraint firstItem="aLp-KI-ZWA" firstAttribute="leading" secondItem="aG0-wb-num" secondAttribute="leading" id="Uxb-92-RVp"/>
                                             <constraint firstItem="bL7-3b-BnY" firstAttribute="leading" secondItem="aG0-wb-num" secondAttribute="leading" constant="20" id="Xg5-cc-q2f"/>
+                                            <constraint firstItem="rXM-5y-zsy" firstAttribute="centerX" secondItem="aG0-wb-num" secondAttribute="centerX" id="YFt-7q-2A7"/>
                                             <constraint firstAttribute="trailing" secondItem="aLp-KI-ZWA" secondAttribute="trailing" id="b4a-lG-vcM"/>
+                                            <constraint firstAttribute="trailing" secondItem="rXM-5y-zsy" secondAttribute="trailing" constant="20" id="f3O-Xs-QxH"/>
                                             <constraint firstItem="yLI-9Y-DFf" firstAttribute="top" secondItem="9aT-6V-Dvm" secondAttribute="bottom" constant="20" id="hFa-ky-OCo"/>
                                             <constraint firstAttribute="trailing" secondItem="yLI-9Y-DFf" secondAttribute="trailing" constant="20" id="jsJ-eK-RFH"/>
                                             <constraint firstItem="hnR-M9-pei" firstAttribute="leading" secondItem="aG0-wb-num" secondAttribute="leading" constant="20" id="kr0-9t-rhS"/>
@@ -1453,14 +1463,16 @@
                             <constraint firstAttribute="bottom" secondItem="rjQ-9w-4dg" secondAttribute="bottom" id="nTW-5r-PoY"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" leftItemsSupplementBackButton="YES" id="RBN-is-lI8">
-                        <barButtonItem key="rightBarButtonItem" title="profile" image="profile" landscapeImage="profile" largeContentSizeImage="profile" style="plain" changesSelectionAsPrimaryAction="YES" id="Up2-UG-Uf1">
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" id="RBN-is-lI8">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="profile" image="profile" landscapeImage="profile" largeContentSizeImage="profile" style="plain" id="Up2-UG-Uf1">
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <segue destination="EpU-Kp-tf1" kind="show" id="4sV-sh-tLP"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="HomeHeight" destination="vtq-0C-fYy" id="mNv-6H-saK"/>
                         <outlet property="HomeImage" destination="m6e-Vk-0J1" id="Kg1-ty-pw2"/>
@@ -1468,6 +1480,7 @@
                         <outlet property="ScanNowButton" destination="R3d-2w-lyN" id="i0N-Y1-hTS"/>
                         <outlet property="UserName" destination="P5K-xK-Ers" id="2sl-s9-Rcj"/>
                         <outlet property="collectionView" destination="yLI-9Y-DFf" id="pLM-xz-ftr"/>
+                        <outlet property="noRecentScansLabel" destination="rXM-5y-zsy" id="4So-MU-D5N"/>
                         <segue destination="6Wh-5a-MyP" kind="show" id="svc-9P-8Lr"/>
                         <segue destination="6Wh-5a-MyP" kind="show" identifier="showproductdetailsfromhome" id="0rE-kq-IOP"/>
                     </connections>
@@ -2405,7 +2418,7 @@
                                 </constraints>
                             </imageView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="QWX-e1-1PX">
-                                <rect key="frame" x="16" y="313" width="370" height="176"/>
+                                <rect key="frame" x="16" y="313" width="370" height="127"/>
                                 <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ProfileCell" id="kgI-DT-tcC" customClass="ProfileTableViewCell" customModule="What2Eat" customModuleProvider="target">
@@ -2452,7 +2465,7 @@
                                 <sections/>
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="p8n-35-Byc">
-                                <rect key="frame" x="33" y="727" width="337" height="54"/>
+                                <rect key="frame" x="33" y="678" width="337" height="54"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="4YQ-lO-aZb"/>
                                 </constraints>
@@ -2554,7 +2567,7 @@
                                 </cells>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oRC-1E-bjI">
-                                <rect key="frame" x="33" y="717" width="337" height="54"/>
+                                <rect key="frame" x="33" y="668" width="337" height="54"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="vt3-84-bsQ"/>
                                 </constraints>
@@ -2671,7 +2684,7 @@
                                 </cells>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SJS-dH-DPW">
-                                <rect key="frame" x="33" y="717" width="337" height="54"/>
+                                <rect key="frame" x="33" y="668" width="337" height="54"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="raO-Z1-3je"/>
                                 </constraints>
@@ -2733,7 +2746,6 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="K28-82-nqM">
                         <rect key="frame" x="0.0" y="62" width="402" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <navigationBarAppearance key="compactAppearance"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>

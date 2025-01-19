@@ -92,7 +92,7 @@ class LoginViewController: UIViewController {
                                     name: userData["name"] as? String ?? "",
                                     dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
                                     allergies: userData["allergies"] as? [String] ?? [],
-                                    recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
+                                    recentScans: userData["recentScans"] as? [String] ?? []
                                 )
                                 self.navigateToTabBarController()
                             }
@@ -157,7 +157,7 @@ class LoginViewController: UIViewController {
                             name: userData["name"] as? String ?? "",
                             dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
                             allergies: userData["allergies"] as? [String] ?? [],
-                            recentlyViewedProducts: userData["recentlyViewedProducts"] as? [String] ?? []
+                            recentScans: userData["recentScans"] as? [String] ?? []
                         )
                         // Continue to the next screen
                         self.navigateToTabBarController()
@@ -198,7 +198,7 @@ class LoginViewController: UIViewController {
             "name": name,
             "dietaryRestrictions": [],
             "allergies": [],
-            "recentlyViewedProducts": []
+            "recentScans": []
         ]
         
         // Create the document in the 'users' collection with the user's UID as document ID

@@ -11,7 +11,6 @@ import FirebaseFirestore
 
 class DietaryViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout  {
 
-    @IBOutlet var progressView: UIProgressView!
     @IBOutlet weak var dietaryLabel: UILabel!
     
     @IBOutlet weak var SaveButton: UIButton!
@@ -43,7 +42,6 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     override func viewDidLoad() {
                super.viewDidLoad()
                setupCollectionView()
-        loadUserDietaryRestrictions()
         
            }
            
@@ -52,48 +50,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                collectionView.delegate = self
                collectionView.dataSource = self
            }
-    private func loadUserDietaryRestrictions() {
-         guard let uid = Auth.auth().currentUser?.uid else {
-             print("No user is logged in")
-             showAlert(message: "User not logged in.")
-             return
-         }
-
-         let db = Firestore.firestore()
-         let userDocument = db.collection("users").document(uid)
-
-         userDocument.getDocument { [weak self] (document, error) in
-             if let document = document, document.exists {
-                 if let dietaryRestrictions = document.data()?["dietaryRestrictions"] as? [String] {
-                     // Convert the dietary restrictions from strings back to the DietaryRestriction enum
-                     self?.selectedDietaryRestrictions = dietaryRestrictions.compactMap {
-                         self?.dietaryRestrictionMapping[$0]
-                     }
-
-                     // Pre-select the dietary options
-                     self?.updateButtonSelections()
-                 }
-             } else {
-                 print("Document does not exist")
-             }
-         }
-     }
-
-     private func updateButtonSelections() {
-         // Iterate over the cells and select the ones that match the user's restrictions
-         for index in 0..<dietaryOptions.count {
-             let dietaryOption = dietaryOptions[index]
-             guard let mappedRestriction = dietaryRestrictionMapping[dietaryOption] else { continue }
-
-             // Check if the dietary restriction is selected
-             if selectedDietaryRestrictions.contains(mappedRestriction) {
-                 if let cell = collectionView.cellForItem(at: IndexPath(row: index, section: 0)) as? DietaryCell {
-                     cell.setSelectedState(isSelected: true)
-                 }
-             }
-         }
-     }
-
+           
            func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
                return dietaryOptions.count
            }
@@ -219,7 +176,6 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
             } else {
                 print("Dietary restrictions updated successfully.")
                 self.showAlert(message: "Dietary restrictions updated successfully.")
-                self.progressView.setProgress(1, animated: true)
                 // Change button text to indicate success
                 self.SaveButton.setTitle("Saved", for: .normal)
             }
