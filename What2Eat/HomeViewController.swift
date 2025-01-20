@@ -35,7 +35,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         collectionView.dataSource = self
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
         
-        HomeHeight.constant = CGFloat((sampleUser.recentScans.count * 85)+800)
+        HomeHeight.constant = CGFloat((recentScansProducts.count * 85)+800)
         updateUserName()
         scanNowButtonUI()
         fetchRecentScans()
