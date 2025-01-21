@@ -18,7 +18,8 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
-  
+    @IBOutlet var recentScansSeeAll: UIButton!
+    
     @IBOutlet var noRecentScansLabel: UILabel!
     @IBOutlet var ScanNowButton: UIButton!
     @IBOutlet var UserName: UILabel!
@@ -256,10 +257,12 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     func toggleTableViewVisibility(isEmpty: Bool) {
         if isEmpty {
             RecentScansTableView.isHidden = true
-            noRecentScansLabel.isHidden = false  // Show the label
+            noRecentScansLabel.isHidden = false
+            recentScansSeeAll.isHidden = true// Show the label
         } else {
             RecentScansTableView.isHidden = false
-            noRecentScansLabel.isHidden = true  // Hide the label
+            noRecentScansLabel.isHidden = true
+            recentScansSeeAll.isHidden = false// Hide the label
         }
     }
     
