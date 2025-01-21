@@ -8,7 +8,7 @@
 //    var dietaryRestrictions: [DietaryRestriction]
 //    var allergies: [Allergen]
 //    var picksforyou: [Product]
-//    var recentlyViewedProducts : [Product]
+//    var recentScans : [Product]
 //    var ratings: [UUID: Int]
 //}
 //
@@ -1479,7 +1479,7 @@
 //    dietaryRestrictions: [.glutenFree, .dairyFree],
 //    allergies: [.peanuts, .wheat],
 //    picksforyou:  [sampleProducts[3], sampleProducts[9], sampleProducts[3]],
-//    recentlyViewedProducts: [sampleProducts[12],sampleProducts[2],sampleProducts[4],sampleProducts[7]],
+//    recentScans: [sampleProducts[12],sampleProducts[2],sampleProducts[4],sampleProducts[7]],
 //    ratings: [UUID(): 4,UUID(): 5]
 //)
 //
