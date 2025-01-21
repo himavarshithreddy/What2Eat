@@ -1,6 +1,8 @@
 import UIKit
 import AVFoundation
 import Vision
+import FirebaseAuth
+import FirebaseFirestore
 
 class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate,AVCaptureMetadataOutputObjectsDelegate {
     
@@ -227,6 +229,24 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
     private func displayResult(with barcode: String) {
         if let matchingProduct = sampleProducts.first(where: { $0.barcode == barcode }) {
                 // If a matching product is found, navigate to the ProductDetailsViewController
+            fetchProductIdFromFirebase(barcode: barcode) { [weak self] productId in
+                  guard let self = self else { return }
+                  
+                  if let productId = productId {
+                      print("Fetched Product ID from Firebase: \(productId)")
+                      
+                      // Save the productId to the user's recent scans in Firebase
+                      self.saveToRecentScans(productId: productId) { success in
+                          if success {
+                              print("Product ID successfully saved to recent scans.")
+                          } else {
+                              print("Failed to save Product ID to recent scans.")
+                          }
+                      }
+                  } else {
+                      print("No Product ID found for the given barcode in Firebase")
+                  }
+              }
                 navigateToProductDetails(with: matchingProduct)
             } else {
                 // If no matching product is found, show an alert
@@ -264,5 +284,47 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         imagePicker.delegate = self
         imagePicker.allowsEditing = false
                 present(imagePicker, animated: true)
+    }
+    private func saveToRecentScans(productId: String, completion: @escaping (Bool) -> Void) {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("User not logged in.")
+            completion(false)
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(userId)
+        
+        userRef.updateData([
+            "recentScans": FieldValue.arrayUnion([productId]) // Add productId to the array
+        ]) { error in
+            if let error = error {
+                print("Error updating recent scans: \(error)")
+                completion(false)
+            } else {
+                completion(true)
+            }
+        }
+    }
+    private func fetchProductIdFromFirebase(barcode: String, completion: @escaping (String?) -> Void) {
+        let db = Firestore.firestore()
+        
+        db.collection("products")
+            .whereField("barcode", isEqualTo: barcode)
+            .getDocuments { (querySnapshot, error) in
+                if let error = error {
+                    print("Error fetching product ID: \(error)")
+                    completion(nil)
+                    return
+                }
+                
+                guard let document = querySnapshot?.documents.first else {
+                    completion(nil)
+                    return
+                }
+                
+                let productId = document.documentID
+                completion(productId)
+            }
     }
 }

@@ -1165,11 +1165,11 @@
             <objects>
                 <viewController storyboardIdentifier="HomeScreen" extendedLayoutIncludesOpaqueBars="YES" id="E6p-Le-Nu5" customClass="HomeViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="TD2-RU-RIz">
-                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="742"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rjQ-9w-4dg">
-                                <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                                <rect key="frame" x="0.0" y="0.0" width="402" height="742"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aG0-wb-num">
                                         <rect key="frame" x="0.0" y="0.0" width="402" height="1200"/>
@@ -1463,9 +1463,10 @@
                             <constraint firstAttribute="bottom" secondItem="rjQ-9w-4dg" secondAttribute="bottom" id="nTW-5r-PoY"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout" top="YES"/>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" id="RBN-is-lI8">
-                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="profile" image="profile" landscapeImage="profile" largeContentSizeImage="profile" style="plain" id="Up2-UG-Uf1">
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" id="RBN-is-lI8">
+                        <barButtonItem key="rightBarButtonItem" title="profile" image="profile" landscapeImage="profile" largeContentSizeImage="profile" style="plain" changesSelectionAsPrimaryAction="YES" id="Up2-UG-Uf1">
                             <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <connections>
                                 <segue destination="EpU-Kp-tf1" kind="show" id="4sV-sh-tLP"/>
@@ -2746,6 +2747,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="K28-82-nqM">
                         <rect key="frame" x="0.0" y="62" width="402" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <navigationBarAppearance key="compactAppearance"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>

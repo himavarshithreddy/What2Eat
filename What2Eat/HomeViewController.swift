@@ -35,7 +35,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         collectionView.dataSource = self
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
         
-        HomeHeight.constant = CGFloat((recentScansProducts.count * 85)+800)
+       
         updateUserName()
         scanNowButtonUI()
         fetchRecentScans()
@@ -208,6 +208,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     }
     
     func fetchRecentScans() {
+        HomeHeight.constant = CGFloat((recentScansProducts.count * 85)+850)
         // Get a reference to Firestore
         let db = Firestore.firestore()
         
@@ -234,9 +235,10 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
             }
             
             // Fetch the recentScans field (assuming it's an array of product IDs)
-            if let recentScans = document.data()?["recentScans"] as? [String] {
+            if let recentScans = document.data()?["recentScans"] as? [String], !recentScans.isEmpty {
                 // Print the product IDs
                 self.fetchProductsDetails(from: recentScans)
+                self.toggleTableViewVisibility(isEmpty: false)
             } else {
                 print("No recent scans found for this user.")
                 self.toggleTableViewVisibility(isEmpty: true)
