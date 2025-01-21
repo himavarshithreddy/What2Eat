@@ -1327,8 +1327,8 @@
                                                 <color key="textColor" systemColor="systemGrayColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="yLI-9Y-DFf">
-                                                <rect key="frame" x="20" y="252" width="362" height="320.00000000000006"/>
+                                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="yLI-9Y-DFf">
+                                                <rect key="frame" x="20" y="291.66666666666669" width="362" height="320.00000000000006"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="320" id="0Ea-Mi-cgF"/>
@@ -1421,6 +1421,14 @@
                                                     </collectionViewCell>
                                                 </cells>
                                             </collectionView>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2FH-0c-3rV">
+                                                <rect key="frame" x="307" y="635.66666666666663" width="79" height="31"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" image="chevron.right" catalog="system" imagePlacement="trailing" title="See all" imagePadding="2">
+                                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="11"/>
+                                                    <fontDescription key="titleFontDescription" type="system" pointSize="14"/>
+                                                </buttonConfiguration>
+                                            </button>
                                         </subviews>
                                         <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <constraints>
@@ -1429,6 +1437,8 @@
                                             <constraint firstItem="hnR-M9-pei" firstAttribute="top" secondItem="yLI-9Y-DFf" secondAttribute="bottom" constant="20" id="4JT-hT-k6i"/>
                                             <constraint firstItem="rXM-5y-zsy" firstAttribute="top" secondItem="hnR-M9-pei" secondAttribute="bottom" constant="20" id="6cJ-pt-J8Y"/>
                                             <constraint firstAttribute="trailing" secondItem="bL7-3b-BnY" secondAttribute="trailing" constant="20" id="BCA-Uk-DCt"/>
+                                            <constraint firstAttribute="trailing" secondItem="2FH-0c-3rV" secondAttribute="trailing" constant="16" id="Cyl-qe-Vd7"/>
+                                            <constraint firstItem="2FH-0c-3rV" firstAttribute="top" secondItem="yLI-9Y-DFf" secondAttribute="bottom" constant="24" id="OTN-ID-Pgz"/>
                                             <constraint firstItem="yLI-9Y-DFf" firstAttribute="leading" secondItem="aG0-wb-num" secondAttribute="leading" constant="20" id="U1h-St-9TN"/>
                                             <constraint firstItem="aLp-KI-ZWA" firstAttribute="leading" secondItem="aG0-wb-num" secondAttribute="leading" id="Uxb-92-RVp"/>
                                             <constraint firstItem="bL7-3b-BnY" firstAttribute="leading" secondItem="aG0-wb-num" secondAttribute="leading" constant="20" id="Xg5-cc-q2f"/>
@@ -1482,6 +1492,7 @@
                         <outlet property="UserName" destination="P5K-xK-Ers" id="2sl-s9-Rcj"/>
                         <outlet property="collectionView" destination="yLI-9Y-DFf" id="pLM-xz-ftr"/>
                         <outlet property="noRecentScansLabel" destination="rXM-5y-zsy" id="4So-MU-D5N"/>
+                        <outlet property="recentScansSeeAll" destination="2FH-0c-3rV" id="ir2-m2-jF2"/>
                         <segue destination="6Wh-5a-MyP" kind="show" id="svc-9P-8Lr"/>
                         <segue destination="6Wh-5a-MyP" kind="show" identifier="showproductdetailsfromhome" id="0rE-kq-IOP"/>
                     </connections>

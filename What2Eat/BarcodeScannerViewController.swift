@@ -286,26 +286,39 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
                 present(imagePicker, animated: true)
     }
     private func saveToRecentScans(productId: String, completion: @escaping (Bool) -> Void) {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            print("User not logged in.")
-            completion(false)
-            return
-        }
-        
-        let db = Firestore.firestore()
-        let userRef = db.collection("users").document(userId)
-        
-        userRef.updateData([
-            "recentScans": FieldValue.arrayUnion([productId]) // Add productId to the array
-        ]) { error in
-            if let error = error {
-                print("Error updating recent scans: \(error)")
-                completion(false)
-            } else {
-                completion(true)
+        if let userId = Auth.auth().currentUser?.uid {
+            // User is logged in, save to Firestore
+            let db = Firestore.firestore()
+            let userRef = db.collection("users").document(userId)
+            
+            userRef.updateData([
+                "recentScans": FieldValue.arrayUnion([productId]) // Add productId to the array
+            ]) { error in
+                if let error = error {
+                    print("Error updating recent scans: \(error)")
+                    completion(false)
+                } else {
+                    completion(true)
+                }
             }
+        } else {
+            // User is not logged in, save locally
+            saveScanLocally(productId: productId)
+            completion(true)
         }
     }
+
+    private func saveScanLocally(productId: String) {
+        let defaults = UserDefaults.standard
+        
+        var localScans = defaults.array(forKey: "localRecentScans") as? [String] ?? []
+        if !localScans.contains(productId) {
+            localScans.append(productId)
+            defaults.set(localScans, forKey: "localRecentScans")
+            print("Saved scan locally: \(productId)")
+        }
+    }
+
     private func fetchProductIdFromFirebase(barcode: String, completion: @escaping (String?) -> Void) {
         let db = Firestore.firestore()
         
