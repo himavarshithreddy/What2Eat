@@ -208,43 +208,51 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     }
     
     func fetchRecentScans() {
-        HomeHeight.constant = CGFloat((recentScansProducts.count * 85)+850)
-        // Get a reference to Firestore
+        // Adjust the table height based on the number of items
+        HomeHeight.constant = CGFloat((recentScansProducts.count * 85) + 850)
+        
         let db = Firestore.firestore()
         
-        // Get the current user's ID
-        guard let userId = Auth.auth().currentUser?.uid else {
-            print("User is not logged in.")
-            self.toggleTableViewVisibility(isEmpty: true)
-            return
-        }
-        
-        // Fetch the user document from Firestore
-        let userRef = db.collection("users").document(userId)
-        
-        userRef.getDocument { (document, error) in
-            if let error = error {
-                print("Error fetching user document: \(error)")
-                return
-            }
+        // Check if the user is logged in
+        if let userId = Auth.auth().currentUser?.uid {
+            // User is logged in, fetch recent scans from Firestore
+            let userRef = db.collection("users").document(userId)
             
-            // Ensure the document exists
-            guard let document = document, document.exists else {
-                print("User document does not exist.")
-                return
+            userRef.getDocument { (document, error) in
+                if let error = error {
+                    print("Error fetching user document: \(error)")
+                    return
+                }
+                
+                // Ensure the document exists
+                guard let document = document, document.exists else {
+                    print("User document does not exist.")
+                    self.toggleTableViewVisibility(isEmpty: true)
+                    return
+                }
+                
+                // Fetch the recentScans field (assuming it's an array of product IDs)
+                if let recentScans = document.data()?["recentScans"] as? [String], !recentScans.isEmpty {
+                    self.fetchProductsDetails(from: recentScans)
+                    self.toggleTableViewVisibility(isEmpty: false)
+                } else {
+                    print("No recent scans found for this user.")
+                    self.toggleTableViewVisibility(isEmpty: true)
+                }
             }
-            
-            // Fetch the recentScans field (assuming it's an array of product IDs)
-            if let recentScans = document.data()?["recentScans"] as? [String], !recentScans.isEmpty {
-                // Print the product IDs
-                self.fetchProductsDetails(from: recentScans)
+        } else {
+            // User is not logged in, fetch recent scans from local storage
+            if let localRecentScans = UserDefaults.standard.array(forKey: "localRecentScans") as? [String], !localRecentScans.isEmpty {
+                print("Fetching recent scans from local storage.")
+                self.fetchProductsDetails(from: localRecentScans)
                 self.toggleTableViewVisibility(isEmpty: false)
             } else {
-                print("No recent scans found for this user.")
+                print("No recent scans found in local storage.")
                 self.toggleTableViewVisibility(isEmpty: true)
             }
         }
     }
+
     func toggleTableViewVisibility(isEmpty: Bool) {
         if isEmpty {
             RecentScansTableView.isHidden = true
