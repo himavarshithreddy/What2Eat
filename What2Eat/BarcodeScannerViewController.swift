@@ -228,39 +228,49 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
     // MARK: - Display Alert with Barcode Result
     private func displayResult(with barcode: String) {
         if let matchingProduct = sampleProducts.first(where: { $0.barcode == barcode }) {
-                // If a matching product is found, navigate to the ProductDetailsViewController
+            // First fetch the product ID
             fetchProductIdFromFirebase(barcode: barcode) { [weak self] productId in
-                  guard let self = self else { return }
-                  
-                  if let productId = productId {
-                      print("Fetched Product ID from Firebase: \(productId)")
-                      
-                      // Save the productId to the user's recent scans in Firebase
-                      self.saveToRecentScans(productId: productId) { success in
-                          if success {
-                              print("Product ID successfully saved to recent scans.")
-                          } else {
-                              print("Failed to save Product ID to recent scans.")
-                          }
-                      }
-                  } else {
-                      print("No Product ID found for the given barcode in Firebase")
-                  }
-              }
-                navigateToProductDetails(with: matchingProduct)
-            } else {
-                // If no matching product is found, show an alert
-                let alert = UIAlertController(title: "Product Not Found",
-                                              message: "The scanned barcode does not match any products in the database.\(barcode)",
-                                              preferredStyle: .alert)
+                guard let self = self else { return }
                 
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
-                    DispatchQueue.global(qos: .background).async {
-                        self?.captureSession?.startRunning()
+                if let productId = productId {
+                    print("Fetched Product ID from Firebase: \(productId)")
+                    
+                    // Save to recent scans and navigate only after saving is complete
+                    self.saveToRecentScans(productId: productId) { success in
+                        if success {
+                            DispatchQueue.main.async {
+                                self.navigateToProductDetails(with: matchingProduct)
+                            }
+                        } else {
+                            print("Failed to save Product ID to recent scans.")
+                            // Still navigate even if save fails
+                            DispatchQueue.main.async {
+                                self.navigateToProductDetails(with: matchingProduct)
+                            }
+                        }
                     }
-                }))
-                present(alert, animated: true)
-            }        }
+                } else {
+                    print("No Product ID found for the given barcode in Firebase")
+                    // Navigate even if no product ID found
+                    DispatchQueue.main.async {
+                        self.navigateToProductDetails(with: matchingProduct)
+                    }
+                }
+            }
+        } else {
+            // If no matching product is found, show an alert
+            let alert = UIAlertController(title: "Product Not Found",
+                                        message: "The scanned barcode does not match any products in the database.\(barcode)",
+                                        preferredStyle: .alert)
+            
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
+                DispatchQueue.global(qos: .background).async {
+                    self?.captureSession?.startRunning()
+                }
+            }))
+            present(alert, animated: true)
+        }
+    }
     private func navigateToProductDetails(with product: Product) {
         // Instantiate the ProductDetailsViewController from the storyboard
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -291,14 +301,43 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
             let db = Firestore.firestore()
             let userRef = db.collection("users").document(userId)
             
-            userRef.updateData([
-                "recentScans": FieldValue.arrayUnion([productId]) // Add productId to the array
-            ]) { error in
+            userRef.getDocument { document, error in
                 if let error = error {
-                    print("Error updating recent scans: \(error)")
+                    print("Error fetching user document: \(error)")
                     completion(false)
-                } else {
-                    completion(true)
+                    return
+                }
+                
+                // Ensure the document exists
+                guard let document = document, document.exists else {
+                    print("User document does not exist.")
+                    completion(false)
+                    return
+                }
+                
+                // Get current recent scans
+                if var recentScans = document.data()?["recentScans"] as? [String] {
+                    // Check if the productId already exists in the array
+                    if recentScans.contains(productId) {
+                        print("Product ID already exists in recent scans.")
+                        completion(true)  // Return early here to prevent further execution
+                        return
+                    }else{
+                        
+                        // Add productId to the recentScans array
+                        recentScans.append(productId)
+                        userRef.updateData([
+                            "recentScans": recentScans
+                        ]) { error in
+                            if let error = error {
+                                print("Error updating recent scans: \(error)")
+                                completion(false)
+                            } else {
+                                print("Product ID successfully saved to recent scans.")
+                                completion(true)
+                            }
+                        }
+                    }
                 }
             }
         } else {
@@ -308,6 +347,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         }
     }
 
+
     private func saveScanLocally(productId: String) {
         let defaults = UserDefaults.standard
         
@@ -316,8 +356,11 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
             localScans.append(productId)
             defaults.set(localScans, forKey: "localRecentScans")
             print("Saved scan locally: \(productId)")
+        } else {
+            print("Product ID already exists in local recent scans.")
         }
     }
+
 
     private func fetchProductIdFromFirebase(barcode: String, completion: @escaping (String?) -> Void) {
         let db = Firestore.firestore()
