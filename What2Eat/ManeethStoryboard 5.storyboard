@@ -347,7 +347,7 @@
         <image name="barcode.viewfinder" catalog="system" width="128" height="115"/>
         <image name="home" width="960" height="542.5"/>
         <image name="icons8-google-48" width="24" height="24"/>
-        <image name="profile" width="152" height="164"/>
+        <image name="profile" width="50" height="50"/>
         <image name="text.viewfinder" catalog="system" width="128" height="115"/>
         <systemColor name="systemOrangeColor">
             <color red="1" green="0.58431372549019611" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
