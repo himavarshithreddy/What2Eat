@@ -236,7 +236,7 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
             }
 
             guard let document = document, document.exists,
-                  let allergenList = document.data()?["allergens"] as? [String] else {
+                  let allergenList = document.data()?["allergies"] as? [String] else {
                 print("No allergens found for user.")
                 self?.userAllergens = []
                 self?.AlertView.isHidden = true
