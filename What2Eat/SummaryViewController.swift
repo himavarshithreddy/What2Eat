@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseFirestore
 
 class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDataSource {
     var product: Product?
@@ -23,9 +25,8 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
     var userRating: Int = 0
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let product = product {
-            userAllergens = product.getAllergensForUser(sampleUser) // Replace sampleUser with actual user
-        }
+        fetchUserAllergensFromFirebase()
+    
         if let productId = product?.id {
             if let savedRating = loadUserRatingFromUserDefaults(productId: productId) {
                 userRating = savedRating
@@ -213,6 +214,63 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
         // Update the UI
         setStarRating(product.userRating)
         NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
+    }
+
+    func fetchUserAllergensFromFirebase() {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("User not logged in. Unable to fetch allergens.")
+            userAllergens = [] // Clear allergens if no user is logged in
+            AlertView.isHidden = true
+            return
+        }
+
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(userId)
+
+        userRef.getDocument { [weak self] (document, error) in
+            if let error = error {
+                print("Error fetching user allergens: \(error.localizedDescription)")
+                self?.userAllergens = []
+                self?.AlertView.isHidden = true
+                return
+            }
+
+            guard let document = document, document.exists,
+                  let allergenList = document.data()?["allergies"] as? [String] else {
+                print("No allergens found for user.")
+                self?.userAllergens = []
+                self?.AlertView.isHidden = true
+                return
+            }
+
+            // Map allergen strings to the Allergen enum
+            let allUserAllergens = allergenList.compactMap { Allergen(rawValue: $0) }
+
+            // Filter allergens to match the product's ingredients
+            if let productIngredients = self?.product?.ingredients {
+                self?.userAllergens = allUserAllergens.filter { allergen in
+                    // Check if any ingredient contains the allergen (case-insensitive)
+                    productIngredients.contains { ingredient in
+                        ingredient.name.lowercased().contains(allergen.rawValue.lowercased())
+                    }
+                }
+            }
+
+            // Update the alert view with the filtered allergens
+            self?.updateAlertView()
+        }
+    }
+
+
+    func updateAlertView() {
+        let allergenCount = userAllergens.count
+        if allergenCount == 0 {
+            AlertView.isHidden = true
+        } else {
+            AlertView.isHidden = false
+            AlertViewHeight.constant = CGFloat(allergenCount * 25 + 38)
+            AlertTableView.reloadData()
+        }
     }
 
 
