@@ -249,13 +249,18 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
             // Filter allergens to match the product's ingredients
             if let productIngredients = self?.product?.ingredients {
                 self?.userAllergens = allUserAllergens.filter { allergen in
-                    productIngredients.contains(where: { $0.caseInsensitiveCompare(allergen.rawValue) == .orderedSame })
+                    // Check if any ingredient contains the allergen (case-insensitive)
+                    productIngredients.contains { ingredient in
+                        ingredient.name.lowercased().contains(allergen.rawValue.lowercased())
+                    }
                 }
             }
 
-            // Update the alert view with the filtered allergens            self?.updateAlertView()
+            // Update the alert view with the filtered allergens
+            self?.updateAlertView()
         }
     }
+
 
     func updateAlertView() {
         let allergenCount = userAllergens.count
