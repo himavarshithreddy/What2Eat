@@ -244,12 +244,19 @@ class SummaryViewController: UIViewController,UITableViewDelegate, UITableViewDa
             }
 
             // Map allergen strings to the Allergen enum
-            self?.userAllergens = allergenList.compactMap { Allergen(rawValue: $0) }
+            let allUserAllergens = allergenList.compactMap { Allergen(rawValue: $0) }
 
-            // Update UI based on the fetched allergens
-            self?.updateAlertView()
+            // Filter allergens to match the product's ingredients
+            if let productIngredients = self?.product?.ingredients {
+                self?.userAllergens = allUserAllergens.filter { allergen in
+                    productIngredients.contains(where: { $0.caseInsensitiveCompare(allergen.rawValue) == .orderedSame })
+                }
+            }
+
+            // Update the alert view with the filtered allergens            self?.updateAlertView()
         }
     }
+
     func updateAlertView() {
         let allergenCount = userAllergens.count
         if allergenCount == 0 {
