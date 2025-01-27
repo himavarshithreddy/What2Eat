@@ -27,20 +27,7 @@ class ExploreViewController: UIViewController,UICollectionViewDelegate,UICollect
                 SearchBar.delegate=self
         fetchCategoriesFromFirebase()
         // Set the navigation bar title text attributes to black color
-           navigationController?.navigationBar.titleTextAttributes = [
-               NSAttributedString.Key.foregroundColor: UIColor.black,
-               NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 34) // Adjust font size as needed
-           ]
-           
-           // Set the large title appearance if using large titles
-           let appearance = UINavigationBarAppearance()
-           appearance.largeTitleTextAttributes = [
-               NSAttributedString.Key.foregroundColor: UIColor.black,
-               NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 34)
-           ]
-           navigationController?.navigationBar.standardAppearance = appearance
-           navigationController?.navigationBar.scrollEdgeAppearance = appearance
-                // Do any additional setup after loading the view.
+       
             }
     func fetchCategoriesFromFirebase() {
         db.collection("categories").getDocuments { (querySnapshot, error) in
