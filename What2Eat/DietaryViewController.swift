@@ -13,6 +13,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
 
     @IBOutlet weak var dietaryLabel: UILabel!
     
+    @IBOutlet var progressView: UIProgressView!
     @IBOutlet weak var SaveButton: UIButton!
     
     @IBOutlet weak var collectionView: UICollectionView!

@@ -14,15 +14,36 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         tableview.delegate = self
         tableview.dataSource = self
+        updateUserName()
         
-        if let user = Auth.auth().currentUser {
-            UserName.text = user.displayName ?? "Guest"
-            SignOutButton.setTitle("Sign Out", for: .normal)  // Show "Sign Out" if user is signed in
-        } else {
-            UserName.text = "Guest"  // Display "Guest" or any default name if no user is signed in
-            SignOutButton.setTitle("Sign In", for: .normal)  // Show "Sign In" if no user is signed in
-        }
     }
+    func updateUserName() {
+           guard let userId = Auth.auth().currentUser?.uid else {
+               UserName.text = "Guest"
+               SignOutButton.setTitle("Sign In", for: .normal)
+               return
+           }
+
+           let db = Firestore.firestore()
+           let userRef = db.collection("users").document(userId)
+           
+           userRef.getDocument { (document, error) in
+               if let error = error {
+                   print("Error fetching user document: \(error.localizedDescription)")
+                   self.UserName.text = "Guest"
+                   return
+               }
+               
+               if let document = document, document.exists, let fullName = document.data()?["name"] as? String {
+                   let firstName = fullName.components(separatedBy: " ").first ?? fullName
+                   self.UserName.text = "Hi, \(firstName)"
+                   self.SignOutButton.setTitle("Sign Out", for: .normal)
+               } else {
+                   self.UserName.text = "Guest"
+                   self.SignOutButton.setTitle("Sign In", for: .normal)
+               }
+           }
+       }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return options.count

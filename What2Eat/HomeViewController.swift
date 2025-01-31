@@ -54,15 +54,33 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
        
     }
     func updateUserName() {
-        if let user = Auth.auth().currentUser {
-            let fullName = user.displayName ?? "Guest"
-            let firstName = fullName.components(separatedBy: " ").first ?? fullName
-            UserName.text = "Hi, \(firstName)"
-        } else {
+        guard let userId = Auth.auth().currentUser?.uid else {
             UserName.text = "Hi, Guest"
+            return
+        }
+
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(userId)
+
+        userRef.getDocument { (document, error) in
+            if let error = error {
+                print("Error fetching user document: \(error.localizedDescription)")
+                self.UserName.text = "Hi, Guest"
+                return
+            }
+
+            guard let document = document, document.exists,
+                  let fullName = document.data()?["name"] as? String else {
+                print("No username found for user.")
+                self.UserName.text = "Hi, Guest"
+                return
+            }
+
+            let firstName = fullName.components(separatedBy: " ").first ?? fullName
+            self.UserName.text = "Hi, \(firstName)"
         }
     }
-    
+
     
     func scanNowButtonUI() {
         
