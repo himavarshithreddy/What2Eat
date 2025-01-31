@@ -2746,7 +2746,7 @@
                         <outlet property="SaveButton" destination="SJS-dH-DPW" id="bo8-UU-jtv"/>
                         <outlet property="collectionView" destination="88C-JG-M9x" id="Ls3-Us-wlO"/>
                         <outlet property="dietaryLabel" destination="wXE-ch-y3t" id="kj4-C7-PXi"/>
-                        <outlet property="progressView" destination="bhc-CN-unL" id="WaJ-PL-Qu4"/>
+                        <outlet property="progressView" destination="bhc-CN-unL" id="0mo-hW-5oe"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="G99-VK-suY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
