@@ -32,7 +32,7 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
         return selectedList?.products.count ?? 0
     }
     @objc func handleProductChange(_ notification: Notification) {
-        guard let unsavedProduct = notification.object as? Product else { return }
+        guard let unsavedProduct = notification.object as? ProductData else { return }
         selectedList?.products.removeAll { $0.id == unsavedProduct.id }
         SavedProductsTableView.reloadData()
     }
@@ -74,8 +74,8 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
         override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             if segue.identifier == "showProductDetailsfromSaved",
                let destinationVC = segue.destination as? ProductDetailsViewController,
-               let selectedProduct = sender as? Product {
-                destinationVC.products = selectedProduct
+               let selectedProduct = sender as? ProductData {
+                destinationVC.product = selectedProduct
             }
         }
     

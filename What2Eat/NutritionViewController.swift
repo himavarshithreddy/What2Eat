@@ -9,7 +9,7 @@ import UIKit
 
 class NutritionViewController: UIViewController,UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var NutritionTableView: UITableView!
-    var product: Product?
+    var product: ProductData?
     
     
     override func viewDidLoad() {
@@ -35,21 +35,21 @@ class NutritionViewController: UIViewController,UITableViewDelegate, UITableView
 
                 switch nutrition.name {
                 case "Calories":
-                    nutritionValue = Double(product?.nutritionInfo.energy ?? 0)
+                    nutritionValue = Double(/*product?.nutritionInfo.energy ??*/ 0)
                 case "Fats":
-                    nutritionValue = product?.nutritionInfo.fats ?? 0
+                    nutritionValue = /*product?.nutritionInfo.fats ??*/ 0
                 case "Sugars":
-                    nutritionValue = product?.nutritionInfo.sugars ?? 0
+                    nutritionValue = /*product?.nutritionInfo.sugars ??*/ 0
                 case "Protein":
-                    nutritionValue = product?.nutritionInfo.protein ?? 0
+                    nutritionValue = /*product?.nutritionInfo.protein ??*/ 0
                 case "Sodium":
-                    nutritionValue = product?.nutritionInfo.sodium ?? 0
+                    nutritionValue = /*product?.nutritionInfo.sodium ??*/ 0
                 case "Carbohydrates":
-                    nutritionValue = product?.nutritionInfo.carbohydrates ?? 0
+                    nutritionValue = /*product?.nutritionInfo.carbohydrates ??*/ 0
                 case "Vitamin B":
-                    nutritionValue = product?.nutritionInfo.vitaminB ?? 0
+                    nutritionValue = /*product?.nutritionInfo.vitaminB ??*/ 0
                 case "Iron":
-                    nutritionValue = product?.nutritionInfo.iron ?? 0
+                    nutritionValue = /*product?.nutritionInfo.iron ??*/ 0
                 default:
                     break
                 }

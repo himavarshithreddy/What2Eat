@@ -222,8 +222,8 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showproductdetailsfromhome",
            let destinationVC = segue.destination as? ProductDetailsViewController,
-           let selectedProduct = sender as? Product {
-            destinationVC.products = selectedProduct
+           let selectedProduct = sender as? ProductData {
+            destinationVC.product = selectedProduct
         }
         
     }
