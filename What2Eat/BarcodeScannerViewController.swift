@@ -166,7 +166,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
            
             if let firstBarcode = observations.first,
                let payloadString = firstBarcode.payloadStringValue {
-//                displayResult(with: payloadString)
+                displayResult(with: payloadString)
                 
             }
         }
@@ -220,69 +220,58 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
             captureSession?.stopRunning()
             
             // Show result in an alert
-//            displayResult(with: stringValue)
+            displayResult(with: stringValue)
             break
         }
     }
     
-//    // MARK: - Display Alert with Barcode Result
-//    private func displayResult(with barcode: String) {
-//        if let matchingProduct = sampleProducts.first(where: { $0.barcode == barcode }) {
-//            // First fetch the product ID
-//            fetchProductIdFromFirebase(barcode: barcode) { [weak self] productId in
-//                guard let self = self else { return }
-//                
-//                if let productId = productId {
-//                    print("Fetched Product ID from Firebase: \(productId)")
-//                    
-//                    // Save to recent scans and navigate only after saving is complete
-//                    self.saveToRecentScans(productId: productId) { success in
-//                        if success {
-//                            DispatchQueue.main.async {
-//                                self.navigateToProductDetails(with: matchingProduct)
-//                            }
-//                        } else {
-//                            print("Failed to save Product ID to recent scans.")
-//                            // Still navigate even if save fails
-//                            DispatchQueue.main.async {
-//                                self.navigateToProductDetails(with: matchingProduct)
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    print("No Product ID found for the given barcode in Firebase")
-//                    // Navigate even if no product ID found
-//                    DispatchQueue.main.async {
-//                        self.navigateToProductDetails(with: matchingProduct)
-//                    }
-//                }
-//            }
-//        } else {
-//            // If no matching product is found, show an alert
-//            let alert = UIAlertController(title: "Product Not Found",
-//                                        message: "The scanned barcode does not match any products in the database.\(barcode)",
-//                                        preferredStyle: .alert)
-//            
-//            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak self] _ in
-//                DispatchQueue.global(qos: .background).async {
-//                    self?.captureSession?.startRunning()
-//                }
-//            }))
-//            present(alert, animated: true)
-//        }
-//    }
-    private func navigateToProductDetails(with product: ProductData) {
+   // MARK: - Display Alert with Barcode Result
+    private func displayResult(with barcode: String) {
+        // Fetch the product ID from Firebase based on the scanned barcode.
+        fetchProductIdFromFirebase(barcode: barcode) { [weak self] productId in
+            guard let self = self else { return }
+            
+            if let productId = productId {
+                print("Fetched Product ID from Firebase: \(productId)")
+                
+                // Save the product ID to recent scans.
+                self.saveToRecentScans(productId: productId) { success in
+                    // Regardless of whether saving succeeded, navigate to the details screen.
+                    DispatchQueue.main.async {
+                        self.navigateToProductDetails(with: productId)
+                    }
+                }
+            } else {
+                print("No Product ID found for the given barcode in Firebase")
+                // If no product ID is found for the scanned barcode, show an alert.
+                DispatchQueue.main.async {
+                    let alert = UIAlertController(title: "Product Not Found",
+                                                  message: "The scanned barcode does not match any products in the database.",
+                                                  preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                        DispatchQueue.global(qos: .background).async {
+                            self.captureSession?.startRunning()
+                        }
+                    }))
+                    self.present(alert, animated: true)
+                }
+            }
+        }
+    }
+
+    private func navigateToProductDetails(with productId: String) {
         // Instantiate the ProductDetailsViewController from the storyboard
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let productDetailsVC = storyboard.instantiateViewController(withIdentifier: "ProductDetailsViewController") as? ProductDetailsViewController {
             
-            // Pass the product to the ProductDetailsViewController
-            productDetailsVC.product = product
+            // Pass the product ID to the ProductDetailsViewController.
+            productDetailsVC.productId = productId
             
-            // Navigate to the ProductDetailsViewController
+            // Navigate to the ProductDetailsViewController.
             navigationController?.pushViewController(productDetailsVC, animated: true)
         }
     }
+
 
  
     @IBAction func TorchTapped(_ sender: Any) {

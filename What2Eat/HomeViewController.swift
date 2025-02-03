@@ -36,13 +36,10 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         collectionView.dataSource = self
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
         
-       
         updateUserName()
         scanNowButtonUI()
         noRecentScansLabel.isHidden = true
         
-        
-        // Do any additional setup after loading the view.
     }
    
     override func viewDidAppear(_ animated: Bool) {
@@ -51,8 +48,10 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
                 // Adjust the HomeHeight after the data has been fetched and the table view is updated
                 self.HomeHeight.constant = CGFloat(min(recentScansProducts.count,4) * 75 + 750)
             }
+        updateUserName()
        
     }
+    
     func updateUserName() {
         guard let userId = Auth.auth().currentUser?.uid else {
             UserName.text = "Hi, Guest"
@@ -90,20 +89,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         ScanNowButton.layer.masksToBounds = true
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let accessoryView = UIButton()
-        let image = UIImage(named:"profile")
-        
-        accessoryView.setImage(image, for: .normal)
-        accessoryView.frame.size = CGSize(width: 34, height: 34)
-        let largeTitleView = navigationController?.navigationBar.subviews.first { subview in
-            return String(describing: type(of: subview)) == "_UINavigationBarLargeTitleView"
-        }
-        largeTitleView?.perform (Selector(("setAccessoryView:")), with: accessoryView)
-        largeTitleView?.perform (Selector(("setAlignAccessoryViewToTitleBaseline:")), with: nil)
-        largeTitleView?.perform(Selector (("updateContent") ))
-    }
+  
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
@@ -167,7 +153,12 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "RecentScansCell", for: indexPath) as! RecentScansCell
         let product = recentScansProducts[indexPath.row]
-        cell.ProductImage.image = UIImage(named: product.imageURL)
+        if let url = URL(string: product.imageURL) {
+            cell.ProductImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product"))
+        } else {
+            cell.ProductImage.image = UIImage(named: "placeholder_product")
+        }
+
         cell.ProductName.text = product.name
         cell.ProductScore.text = "\(product.healthScore)"
         cell.ProductScoreView.layer.cornerRadius = cell.ProductScoreView.frame.height/2

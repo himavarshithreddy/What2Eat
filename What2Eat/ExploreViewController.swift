@@ -153,6 +153,7 @@ class ExploreViewController: UIViewController, UICollectionViewDelegate, UIColle
                    destination.categoryId = String(selectedCategory.id) 
                }
     }
+    
 
     // MARK: - Search Bar Action
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
