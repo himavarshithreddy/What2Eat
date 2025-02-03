@@ -54,8 +54,8 @@ class SearchResultsViewController: UIViewController,UITableViewDelegate,UITableV
         override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             if segue.identifier == "showproductfromresults",
                let destinationVC = segue.destination as? ProductDetailsViewController,
-               let selectedProduct = sender as? Product {
-                destinationVC.products = selectedProduct
+               let selectedProduct = sender as? ProductData {
+                destinationVC.product = selectedProduct
             }
         }
 

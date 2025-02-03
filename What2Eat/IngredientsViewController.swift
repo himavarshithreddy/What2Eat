@@ -1,7 +1,7 @@
 import UIKit
 
 class IngredientsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate {
-    var product: Product?
+    var product: ProductData?
     @IBOutlet weak var ingredientsTableView: UITableView!
   
     var ingredients: [Ingredient] = []
@@ -24,9 +24,9 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "IngredientCell", for: indexPath) as! IngredientCell
         let ingredient = product!.ingredients[indexPath.row]
-        cell.ingredientLabel.text = ingredient.name
-        cell.riskLevelLabel.text = ingredient.riskLevel.rawValue
-        cell.riskLevelLabel.textColor = ingredient.riskColor
+        cell.ingredientLabel.text = ingredient
+        cell.riskLevelLabel.text = /*ingredient.riskLevel.rawValue*/ "low"
+        cell.riskLevelLabel.textColor = UIColor.darkGray /*ingredient.riskColor*/
         cell.accessoryType = .detailButton
         return cell
     }
@@ -49,12 +49,12 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
             if let ingredientDetailVC = storyboard.instantiateViewController(withIdentifier: "IngredientDetailViewController") as? IngredientDetailViewController {
                 
                 // Pass the data to the IngredientDetailViewController
-                ingredientDetailVC.riskLevelText = ingredient.riskLevel.rawValue
-                ingredientDetailVC.riskLevelColor = ingredient.riskColor
-                ingredientDetailVC.ingredientName = ingredient.name
-                ingredientDetailVC.nutritionalInfoText = ingredient.nutritionalInfo
-                ingredientDetailVC.potentialConcernsText = ingredient.potentialConcerns
-                ingredientDetailVC.descriptionText = ingredient.description
+//                ingredientDetailVC.riskLevelText = ingredient.riskLevel.rawValue
+//                ingredientDetailVC.riskLevelColor = ingredient.riskColor
+//                ingredientDetailVC.ingredientName = ingredient.name
+//                ingredientDetailVC.nutritionalInfoText = ingredient.nutritionalInfo
+//                ingredientDetailVC.potentialConcernsText = ingredient.potentialConcerns
+//                ingredientDetailVC.descriptionText = ingredient.description
 
               
                 ingredientDetailVC.modalPresentationStyle = .pageSheet

@@ -135,7 +135,7 @@ struct Product {
 struct SavedList{
     let id: UUID
     let name: String
-    var products: [Product]
+    var products: [ProductData]
     let iconName: UIImage
 }
 
@@ -164,13 +164,14 @@ struct ProductData: Codable {
     let ingredients: [String]
     let artificialIngredients: [String]
     let nutritionInfo: [String: String]  // Dynamic dictionary to accommodate varying nutrition fields
-    let userRating: Double
-    let numberOfRatings: Int
+    var userRating: Float
+    var numberOfRatings: Int
     let categoryId: String
     let pros: [String]
     let cons: [String]
     let healthScore: Double
 }
+
 // Categories Data
 let Categories: [Category] = [
     Category(id: UUID(), name: "Cakes & Bakes", imageName: "cakesandbakes"),
@@ -1521,9 +1522,7 @@ var sampleLists: [SavedList] = [
         id: UUID(),
         name: "Snacks",
         products: [
-            sampleProducts[10],
-            sampleProducts[11],
-            sampleProducts[12]
+            
         ],
         iconName: UIImage(systemName: "popcorn")!
     ),
@@ -1531,9 +1530,7 @@ var sampleLists: [SavedList] = [
         id: UUID(),
         name: "Healthy choices",
         products: [
-            sampleProducts[0],
-            sampleProducts[8],
-            sampleProducts[3],
+            
         ],
         iconName: UIImage(systemName: "heart")!
     ),
@@ -1541,18 +1538,14 @@ var sampleLists: [SavedList] = [
         id: UUID(),
         name: "Workout",
         products: [
-            sampleProducts[2],
-            sampleProducts[1],
-            sampleProducts[6],
+           
         ],
         iconName: UIImage(systemName: "figure.run")!
     ),SavedList(
         id: UUID(),
         name: "Kids",
         products: [
-            sampleProducts[9],
-            sampleProducts[7],
-            sampleProducts[4],
+            
         ],
         iconName: UIImage(systemName: "figure.2.and.child.holdinghands")!
     )

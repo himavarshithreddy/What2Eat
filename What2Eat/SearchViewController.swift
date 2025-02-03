@@ -96,8 +96,8 @@ class SearchViewController: UIViewController,UITableViewDelegate,UITableViewData
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showProductDetailFromSearch" {
             if let destinationVC = segue.destination as? ProductDetailsViewController,
-               let product = sender as? Product {
-                destinationVC.products = product
+               let product = sender as? ProductData {
+                destinationVC.product = product
             }
         } else if segue.identifier == "showSearchResults" {
             if let destinationVC = segue.destination as? SearchResultsViewController,

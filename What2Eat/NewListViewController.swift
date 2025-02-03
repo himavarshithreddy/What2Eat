@@ -8,7 +8,7 @@
 import UIKit
 
 class NewListViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource,UICollectionViewDelegateFlowLayout {
-    var product: Product?
+    var product: ProductData?
     var selectedIcon: String?
 
     @IBOutlet var saveButton: UIBarButtonItem!

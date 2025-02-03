@@ -198,8 +198,8 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showproductdetailsfromrecentscans",
            let destinationVC = segue.destination as? ProductDetailsViewController,
-           let selectedProduct = sender as? Product {
-            destinationVC.products = selectedProduct
+           let selectedProduct = sender as? ProductData {
+            destinationVC.product = selectedProduct
         }
     }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
