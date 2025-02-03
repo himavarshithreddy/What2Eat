@@ -19,7 +19,7 @@ class AllergyCell: UICollectionViewCell {
         config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
         
         allergyButton.configuration = config
-        allergyButton.layer.borderWidth = 0.5
+        allergyButton.layer.borderWidth = 1
         allergyButton.layer.cornerRadius = 15
         allergyButton.layer.borderColor = UIColor.black.cgColor
         

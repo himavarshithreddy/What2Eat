@@ -18,6 +18,7 @@ class DietaryCell: UICollectionViewCell {
     private func setupButton() {
         var config = UIButton.Configuration.filled()
         config.baseBackgroundColor = UIColor.white
+        config.cornerStyle = .capsule
         config.baseForegroundColor = .black
         config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
         
