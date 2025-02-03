@@ -1,79 +1,109 @@
-//
-//  ExploreProductsViewController.swift
-//  What2Eat
-//
-//  Created by admin20 on 05/11/24.
-//
-
 import UIKit
+import FirebaseFirestore
+import SDWebImage
 
-class ExploreProductsViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
-   
-    var category: Category?
-    var filteredProducts: [Product] = []
+class ExploreProductsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    let db = Firestore.firestore()
+    var categoryId: String?
+    var filteredProducts: [ProductList] = [] // Directly storing products here
+
     @IBOutlet weak var ExploreProductsTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-     ExploreProductsTableView.delegate = self
-     ExploreProductsTableView.dataSource = self
-       
-        if let category = category {
-                   self.navigationItem.title = category.name  // Set title based on category
-                   // Filter ExploreProductslist based on selected category
-                   filteredProducts = sampleProducts.filter { $0.categoryId == category.id }
-               }
+        
+        ExploreProductsTableView.delegate = self
+        ExploreProductsTableView.dataSource = self
+        
+        fetchProductsForCategory()
     }
     
+    func fetchProductsForCategory() {
+        guard let categoryId = categoryId else {
+            print("❌ Category ID not found")
+            return
+        }
+        
+        db.collection("products")
+            .whereField("categoryId", isEqualTo: categoryId)
+            .getDocuments(source: .default) { (querySnapshot, error) in
+                if let error = error {
+                    print("Error fetching products: \(error.localizedDescription)")
+                    return
+                }
+                
+                self.filteredProducts = [] // Clear previous results
+                
+                querySnapshot?.documents.forEach { document in
+                    let data = document.data()
+                    
+                    if let name = data["name"] as? String,
+                       let imageUrl = data["imageURL"] as? String,
+                       let healthScore = data["healthScore"] as? Int {
+                        let productId = document.documentID
+                        
+                        let product = ProductList(id: productId,name: name, healthScore: healthScore, imageURL: imageUrl)
+                        self.filteredProducts.append(product)
+                    }
+                }
+                
+                print("✅ Products in category \(categoryId): \(self.filteredProducts)")
+                
+                // Refresh UI
+                DispatchQueue.main.async {
+                    self.ExploreProductsTableView.reloadData()
+                }
+            }
+    }
+    
+    // MARK: - TableView DataSource & Delegate
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        filteredProducts.count
+        return filteredProducts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ExploreProductsCell", for: indexPath) as! ExploreProductsCell
         let product = filteredProducts[indexPath.row]
+        
+        // Set Health Score Circle Color
         if product.healthScore < 40 {
-                   cell.ExploreScoreCircle.layer.backgroundColor = UIColor.systemRed.cgColor
-                }
-                else if product.healthScore < 75 {
-                
-                    cell.ExploreScoreCircle.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
-                }
-                else if product.healthScore < 100 {
-                    cell.ExploreScoreCircle.layer.backgroundColor = UIColor.systemGreen.cgColor
-                }
+            cell.ExploreScoreCircle.layer.backgroundColor = UIColor.systemRed.cgColor
+        } else if product.healthScore < 75 {
+            cell.ExploreScoreCircle.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
+        } else {
+            cell.ExploreScoreCircle.layer.backgroundColor = UIColor.systemGreen.cgColor
+        }
         
         cell.ExploreProductsName.text = product.name
-        cell.ExploreProductsImage.image = UIImage(named: product.imageURL)
-        cell.ExploreScoreCircle.layer.cornerRadius = 20
         cell.ExploreScoretext.text = String(product.healthScore)
-        return cell
-    }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        70
-    }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            let selectedProduct = filteredProducts[indexPath.row]
-            performSegue(withIdentifier: "showProductDetails", sender: selectedProduct)
+        cell.ExploreScoreCircle.layer.cornerRadius = 20
+        
+        // Load image using SDWebImage
+        if let imageUrl = URL(string: product.imageURL) {
+            cell.ExploreProductsImage.sd_setImage(with: imageUrl, placeholderImage: UIImage(named: "placeholder_product"))
         }
         
-        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-            if segue.identifier == "showProductDetails",
-               let destinationVC = segue.destination as? ProductDetailsViewController,
-               let selectedProduct = sender as? Product {
-                destinationVC.product = selectedProduct
-            }
-        }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        return cell
     }
-    */
-   
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedProductId = filteredProducts[indexPath.row].id
+        performSegue(withIdentifier: "showProductDetails", sender: selectedProductId)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showProductDetails",
+           let destinationVC = segue.destination as? ProductDetailsViewController,
+           let productId = sender as? String {
+            destinationVC.productId = productId
+        }
+    }
 }
+
+

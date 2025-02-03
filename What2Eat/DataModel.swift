@@ -144,20 +144,32 @@ struct Category {
     let id: UUID
     let name: String
     let imageName: String
-    
+}
+struct category {
+    let id: Int
+    let name: String
+    let imageName: String
+}
+struct ProductList {
+    let id:String
+    let name: String
+    let healthScore: Int
+    let imageURL: String
 }
 // Categories Data
 let Categories: [Category] = [
-    Category(id: UUID(), name: "Bakery", imageName: "bakeryImage"),
-    Category(id: UUID(), name: "Juices", imageName: "juicesImage"),
-    Category(id: UUID(), name: "Dairy", imageName: "dairyImage"),
-    Category(id: UUID(), name: "Breakfast", imageName: "breakfastImage"),
-    Category(id: UUID(), name: "Frozen Food", imageName: "frozenfoodImage"),
-    Category(id: UUID(), name: "Cereal Bars", imageName: "cerealBarsImage"),
-    Category(id: UUID(), name: "Sauces", imageName: "saucesImage"),
-    Category(id: UUID(), name: "Bakery", imageName: "bakeryImage"),
-    Category(id: UUID(), name: "Juices", imageName: "juicesImage"),
-    Category(id: UUID(), name: "Desserts", imageName: "dessertsImage")
+    Category(id: UUID(), name: "Cakes & Bakes", imageName: "cakesandbakes"),
+    Category(id: UUID(), name: "Biscuits", imageName: "biscuits"),
+    Category(id: UUID(), name: "Breakfast", imageName: "breakfast"),
+    Category(id: UUID(), name: "Chocolates & Desserts", imageName: "chocolates"),
+    Category(id: UUID(), name: "Cold Drinks and Juices", imageName: "colddrinks"),
+    Category(id: UUID(), name: "Dairy & Bread", imageName: "dairy"),
+    Category(id: UUID(), name: "Oil , Masalas & more", imageName: "oilandmasalas"),
+    Category(id: UUID(), name: "Instant Foods", imageName: "instantfoods"),
+    Category(id: UUID(), name: "Chips and Munchies", imageName: "chips"),
+    Category(id: UUID(), name: "Suppliments & more", imageName: "suppliments"),
+    Category(id: UUID(), name: "Tea , Coffee and more", imageName: "teacoffee"),
+    Category(id: UUID(), name: "Miscellaneous", imageName: "Miscellaneous")
 ]
 
 // MARK: - Nutrition Model

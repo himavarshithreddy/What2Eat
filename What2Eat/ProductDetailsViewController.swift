@@ -2,6 +2,7 @@ import UIKit
 
 class ProductDetailsViewController: UIViewController {
     var product: Product?
+    var productId: String?
     private var isSaved: Bool {
             return isProductInAnyList(product!)
         }
