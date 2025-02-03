@@ -97,7 +97,7 @@ class SearchViewController: UIViewController,UITableViewDelegate,UITableViewData
         if segue.identifier == "showProductDetailFromSearch" {
             if let destinationVC = segue.destination as? ProductDetailsViewController,
                let product = sender as? Product {
-                destinationVC.product = product
+                destinationVC.products = product
             }
         } else if segue.identifier == "showSearchResults" {
             if let destinationVC = segue.destination as? SearchResultsViewController,

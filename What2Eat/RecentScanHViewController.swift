@@ -199,7 +199,7 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
         if segue.identifier == "showproductdetailsfromrecentscans",
            let destinationVC = segue.destination as? ProductDetailsViewController,
            let selectedProduct = sender as? Product {
-            destinationVC.product = selectedProduct
+            destinationVC.products = selectedProduct
         }
     }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
