@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseFirestore
 import FirebaseAuth
+import SDWebImage
 
 class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -29,7 +30,11 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "RecentScansHCell", for: indexPath) as! RecentScanHTableViewCell
         let product = recentScansProducts[indexPath.row]
-        cell.recentScanImage.image = UIImage(named: product.imageURL)
+        if let url = URL(string: product.imageURL) {
+            cell.recentScanImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product"))
+        } else {
+            cell.recentScanImage.image = UIImage(named: "placeholder_product")
+        }
         cell.recentScanName.text = product.name
         cell.recentScanText.text = "\(product.healthScore)"
         cell.recentScanCircle.layer.cornerRadius = cell.recentScanCircle.frame.height/2

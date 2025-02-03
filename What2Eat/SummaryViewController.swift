@@ -433,64 +433,6 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     
     
-    // MARK: - User Allergens
-    
-//    func fetchUserAllergensFromFirebase() {
-//        guard let userId = Auth.auth().currentUser?.uid else {
-//            print("User not logged in. Unable to fetch allergens.")
-//            userAllergens = []
-//            AlertView.isHidden = true
-//            return
-//        }
-//
-//        let db = Firestore.firestore()
-//        let userRef = db.collection("users").document(userId)
-//
-//        userRef.getDocument { [weak self] (document, error) in
-//            if let error = error {
-//                print("Error fetching user allergens: \(error.localizedDescription)")
-//                self?.userAllergens = []
-//                self?.AlertView.isHidden = true
-//                return
-//            }
-//
-//            guard let document = document, document.exists,
-//                  let allergenList = document.data()?["allergies"] as? [String] else {
-//                print("No allergens found for user.")
-//                self?.userAllergens = []
-//                self?.AlertView.isHidden = true
-//                return
-//            }
-//
-//            // Map allergen strings to the Allergen enum
-//            let allUserAllergens = allergenList.compactMap { Allergen(rawValue: $0) }
-//
-//            // Filter allergens to match the product's ingredients if available
-//            if let productIngredients = self?.product?.ingredients {
-//                self?.userAllergens = allUserAllergens.filter { allergen in
-//                    productIngredients.contains { ingredient in
-//                        ingredient.lowercased().contains(allergen.rawValue.lowercased())
-//                    }
-//                }
-//            } else {
-//                self?.userAllergens = []
-//            }
-//
-//            // Update the alert view with the filtered allergens
-//            self?.updateAlertView()
-//        }
-//    }
-//    
-//    func updateAlertView() {
-//        let allergenCount = userAllergens.count
-//        if allergenCount == 0 {
-//            AlertView.isHidden = true
-//        } else {
-//            AlertView.isHidden = false
-//            AlertViewHeight.constant = CGFloat(allergenCount * 25 + 38)
-//            AlertTableView.reloadData()
-//        }
-//    }
     
     
     // MARK: - Public Update Method
@@ -512,7 +454,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             // Reload the summary table view to reflect new data
             self.SummaryTableView.reloadData()
             
-            // Now that product is available, fetch allergens again to update alert view
+            
             
         }
     }

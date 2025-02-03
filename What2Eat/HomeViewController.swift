@@ -10,6 +10,7 @@ import WebKit
 import FirebaseFirestore
 import QuartzCore
 import FirebaseAuth
+import SDWebImage
 
 class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UITableViewDelegate,UITableViewDataSource {
     
