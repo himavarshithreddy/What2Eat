@@ -75,7 +75,7 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
             if segue.identifier == "showProductDetailsfromSaved",
                let destinationVC = segue.destination as? ProductDetailsViewController,
                let selectedProduct = sender as? Product {
-                destinationVC.product = selectedProduct
+                destinationVC.products = selectedProduct
             }
         }
     

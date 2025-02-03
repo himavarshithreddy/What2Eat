@@ -1,10 +1,14 @@
 import UIKit
+import FirebaseFirestore
+import FirebaseAuth
+import SDWebImage
 
 class ProductDetailsViewController: UIViewController {
-    var product: Product?
+    var product: ProductData?
+    var products:Product?
     var productId: String?
     private var isSaved: Bool {
-            return isProductInAnyList(product!)
+            return isProductInAnyList(products!)
         }
     @IBOutlet weak var progressView: UIView!
 
@@ -22,13 +26,22 @@ class ProductDetailsViewController: UIViewController {
 
        override func viewDidLoad() {
            super.viewDidLoad()
-           guard let product = product else {
-                 print("Product is nil")
-                 return
-             }
+          
+           guard let productId = productId else {
+                  print("❌ No productId found!")
+                  return
+              }
+           fetchProductDetails(productId: productId) { [weak self] fetchedProduct in
+                   guard let self = self, let fetchedProduct = fetchedProduct else { return }
+                   
+                   self.product = fetchedProduct
+                   self.setupProductDetails()
+                   self.setProgress(to: CGFloat(fetchedProduct.healthScore) / 100)
+               }
+              
+            
            setupCircularProgressBar()
-           setupProductDetails()
-           setProgress(to: CGFloat(product.healthScore)/100)
+         
            self.view.bringSubviewToFront(SummarySegmentView)
            let bookmarkButton = UIBarButtonItem(
                        image: UIImage(systemName: isSaved ? "bookmark.fill" : "bookmark"),
@@ -47,18 +60,18 @@ class ProductDetailsViewController: UIViewController {
           // Check the identifier of each segue and pass `product` to each child view controller
           if segue.identifier == "showSummary",
              let summaryVC = segue.destination as? SummaryViewController {
-              summaryVC.product = product
+              summaryVC.product = products
           } else if segue.identifier == "showIngredients",
                     let ingredientsVC = segue.destination as? IngredientsViewController {
-              ingredientsVC.product = product
+              ingredientsVC.product = products
           } else if segue.identifier == "showNutrition",
                     let nutritionVC = segue.destination as? NutritionViewController {
-              nutritionVC.product = product
+              nutritionVC.product = products
           }
         else if segue.identifier == "Createnewlist",
                 let navigationController = segue.destination as? UINavigationController,
                            let newListVC = navigationController.topViewController as? NewListViewController {
-                            newListVC.product = product
+                            newListVC.product = products
           }
       }
 
@@ -80,7 +93,7 @@ class ProductDetailsViewController: UIViewController {
         guard let savedProduct = notification.object as? Product else { return }
         
         // Check if the saved product matches the current product
-        if savedProduct.id == product?.id {
+        if savedProduct.id == products?.id {
             updateBookmarkIcon(for: navigationItem.rightBarButtonItem!)
         }
     }
@@ -152,7 +165,7 @@ class ProductDetailsViewController: UIViewController {
 
             if isSaved {
 
-                removeProductFromAllLists(product)
+                removeProductFromAllLists(products!)
                 NotificationCenter.default.post(name: Notification.Name("ProductUnsaved"), object: product)
                 print("\(product.name) removed from lists")
             } else {
@@ -160,7 +173,7 @@ class ProductDetailsViewController: UIViewController {
                 let actionSheet = UIAlertController(title: "Select a List to add to", message: nil, preferredStyle: .actionSheet)
                 for (index, list) in sampleLists.enumerated() {
                     let action = UIAlertAction(title: list.name, style: .default) { _ in
-                        self.addProductToList(at: index, product: product)
+                        self.addProductToList(at: index, product: self.products!)
                         NotificationCenter.default.post(name: Notification.Name("ProductSaved"), object: product)
                         self.updateBookmarkIcon(for: sender)
                     }
@@ -225,5 +238,59 @@ class ProductDetailsViewController: UIViewController {
                 ProductImage.image = UIImage(named: product.imageURL)
             }
         }
-   
+    func fetchProductDetails(productId: String, completion: @escaping (ProductData?) -> Void) {
+        let db = Firestore.firestore()
+        db.collection("products").document(productId).getDocument(source: .default) { (document, error) in
+            if let error = error {
+                print("❌ Error fetching product details: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            if let document = document, document.exists, let data = document.data() {
+                print("✅ Product Details Fetched: \(data)")
+
+                // Extracting basic product details
+                let name = data["name"] as? String ?? "Unknown"
+                let barcode = data["barcode"] as? String ?? ""
+                let imageURL = data["imageURL"] as? String ?? ""
+                let ingredients = data["ingredients"] as? [String] ?? []
+                let artificialIngredients = data["artificialIngredients"] as? [String] ?? []
+                let pros = data["pros"] as? [String] ?? []
+                let cons = data["cons"] as? [String] ?? []
+                let userRating = data["userRating"] as? Double ?? 0.0
+                let numberOfRatings = data["numberOfRatings"] as? Int ?? 0
+                let categoryId = data["categoryId"] as? String ?? ""
+                let healthScore = data["healthScore"] as? Double ?? 0.0
+
+                // Handling dynamic nutritionInfo
+                let nutritionInfo = data["nutritionInfo"] as? [String: String] ?? [:]
+
+                // Create Product instance
+                let fetchedProduct = ProductData(
+                    id: productId,
+                    barcode: barcode,
+                    name: name,
+                    imageURL: imageURL,
+                    ingredients: ingredients,
+                    artificialIngredients: artificialIngredients,
+                    nutritionInfo: nutritionInfo,
+                    userRating: userRating,
+                    numberOfRatings: numberOfRatings,
+                    categoryId: categoryId,
+                    pros: pros,
+                    cons: cons,
+                    healthScore: healthScore
+                )
+
+                completion(fetchedProduct)
+                print(fetchedProduct)
+            } else {
+                print("⚠️ No product found with ID: \(productId)")
+                completion(nil)
+            }
+        }
+    }
+
+
     }

@@ -55,7 +55,7 @@ class SearchResultsViewController: UIViewController,UITableViewDelegate,UITableV
             if segue.identifier == "showproductfromresults",
                let destinationVC = segue.destination as? ProductDetailsViewController,
                let selectedProduct = sender as? Product {
-                destinationVC.product = selectedProduct
+                destinationVC.products = selectedProduct
             }
         }
 

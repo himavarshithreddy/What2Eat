@@ -156,6 +156,21 @@ struct ProductList {
     let healthScore: Int
     let imageURL: String
 }
+struct ProductData: Codable {
+    let id: String
+    let barcode: String
+    let name: String
+    let imageURL: String
+    let ingredients: [String]
+    let artificialIngredients: [String]
+    let nutritionInfo: [String: String]  // Dynamic dictionary to accommodate varying nutrition fields
+    let userRating: Double
+    let numberOfRatings: Int
+    let categoryId: String
+    let pros: [String]
+    let cons: [String]
+    let healthScore: Double
+}
 // Categories Data
 let Categories: [Category] = [
     Category(id: UUID(), name: "Cakes & Bakes", imageName: "cakesandbakes"),

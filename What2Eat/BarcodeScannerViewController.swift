@@ -277,7 +277,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         if let productDetailsVC = storyboard.instantiateViewController(withIdentifier: "ProductDetailsViewController") as? ProductDetailsViewController {
             
             // Pass the product to the ProductDetailsViewController
-            productDetailsVC.product = product
+            productDetailsVC.products = product
             
             // Navigate to the ProductDetailsViewController
             navigationController?.pushViewController(productDetailsVC, animated: true)

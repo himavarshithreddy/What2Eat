@@ -48,7 +48,7 @@ class ExploreProductsViewController: UIViewController, UITableViewDelegate, UITa
                     }
                 }
                 
-                print("✅ Products in category \(categoryId): \(self.filteredProducts)")
+              
                 
                 // Refresh UI
                 DispatchQueue.main.async {

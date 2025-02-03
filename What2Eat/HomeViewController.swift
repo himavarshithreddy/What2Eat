@@ -223,7 +223,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         if segue.identifier == "showproductdetailsfromhome",
            let destinationVC = segue.destination as? ProductDetailsViewController,
            let selectedProduct = sender as? Product {
-            destinationVC.product = selectedProduct
+            destinationVC.products = selectedProduct
         }
         
     }
