@@ -355,7 +355,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         let db = Firestore.firestore()
         
         db.collection("products")
-            .whereField("barcode", isEqualTo: barcode)
+            .whereField("barcodes", arrayContains: barcode) // 🔍 Search in array
             .getDocuments { (querySnapshot, error) in
                 if let error = error {
                     print("Error fetching product ID: \(error)")
@@ -372,4 +372,5 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
                 completion(productId)
             }
     }
+
 }

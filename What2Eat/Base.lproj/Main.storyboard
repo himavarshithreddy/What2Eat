@@ -61,7 +61,7 @@
                                         <rect key="frame" x="0.0" y="247.33333333333334" width="362" height="110.33333333333334"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mail.and.text.magnifyingglass" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="5dT-na-d8l">
-                                                <rect key="frame" x="0.0" y="25.666666666666664" width="60" height="59.999999999999993"/>
+                                                <rect key="frame" x="0.0" y="25.666666666666668" width="60" height="59.999999999999957"/>
                                                 <color key="tintColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="60" id="9og-rZ-i5a"/>
@@ -293,7 +293,7 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="166" height="178"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="99" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="By1-bb-Iwe">
-                                                        <rect key="frame" x="57" y="69" width="53" height="48"/>
+                                                        <rect key="frame" x="57" y="69" width="55" height="48"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
                                                         <color key="textColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -812,7 +812,7 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="5Ut-FI-k4O">
                                         <rect key="frame" x="0.0" y="146" width="370" height="45.666666666666657"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Nutritional Information" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SjH-VV-vne">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Regulatory Status" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SjH-VV-vne">
                                                 <rect key="frame" x="0.0" y="0.0" width="370" height="21.666666666666668"/>
                                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
                                                 <nil key="textColor"/>
@@ -878,8 +878,8 @@
                     <connections>
                         <outlet property="IngredientName" destination="p4i-Zf-8Lp" id="wI5-cO-Alm"/>
                         <outlet property="descriptionLabel" destination="Apz-5E-A1T" id="CeD-RE-LnU"/>
-                        <outlet property="nutritionalInfoLabel" destination="XgP-sJ-5xU" id="TUQ-kn-Ncu"/>
                         <outlet property="potentialConcernsLabel" destination="Ukt-6p-VjP" id="b38-A1-kbu"/>
+                        <outlet property="regulatoryStatusLabel" destination="XgP-sJ-5xU" id="TUQ-kn-Ncu"/>
                         <outlet property="riskLevelLabel" destination="xpP-nU-2lU" id="2JX-vc-OQ4"/>
                     </connections>
                 </viewController>
@@ -915,7 +915,7 @@
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qBv-TK-LOc">
                                                     <rect key="frame" x="242" y="16.666666666666664" width="76" height="16.666666666666664"/>
-                                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="76" id="j09-dv-d9x"/>
                                                     </constraints>
@@ -924,7 +924,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
-                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="0.49788755664652568" colorSpace="custom" customColorSpace="displayP3"/>
                                             <constraints>
                                                 <constraint firstItem="dQL-2T-R8c" firstAttribute="leading" secondItem="Zv1-MF-Nly" secondAttribute="leadingMargin" id="Ev4-90-BRx"/>
                                                 <constraint firstItem="qBv-TK-LOc" firstAttribute="top" secondItem="Zv1-MF-Nly" secondAttribute="topMargin" constant="5.6666666666666714" id="Oza-cL-Dc5"/>
@@ -934,7 +934,7 @@
                                                 <constraint firstAttribute="trailing" secondItem="qBv-TK-LOc" secondAttribute="trailing" id="jYK-d6-lEb"/>
                                             </constraints>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="0.4978875566" colorSpace="custom" customColorSpace="displayP3"/>
                                         <color key="tintColor" systemColor="systemGrayColor"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">

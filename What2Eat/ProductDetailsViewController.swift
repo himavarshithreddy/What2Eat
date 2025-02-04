@@ -9,7 +9,7 @@ class ProductDetailsViewController: UIViewController {
             // Whenever the product is updated, pass it on to the child view controllers if available.
             if let product = product {
                 summaryVC?.updateWithProduct(product)
-//                ingredientsVC?.updateWithProduct(product)
+                ingredientsVC?.updateWithProduct(product)
 //                nutritionVC?.updateWithProduct(product)
             }
         }
@@ -59,10 +59,10 @@ class ProductDetailsViewController: UIViewController {
                 self.setupProductDetails()
                 self.setProgress(to: CGFloat(fetchedProduct.healthScore) / 100)
                 self.view.bringSubviewToFront(self.SummarySegmentView)
-                
+              
                 // Explicitly update the child view controllers if they are already loaded.
                 self.summaryVC?.updateWithProduct(fetchedProduct)
-//                self.ingredientsVC?.updateWithProduct(fetchedProduct)
+                self.ingredientsVC?.updateWithProduct(fetchedProduct)
 //                self.nutritionVC?.updateWithProduct(fetchedProduct)
             }
         }
@@ -89,9 +89,11 @@ class ProductDetailsViewController: UIViewController {
             // Update immediately if product is already available
             if let product = product { vc.updateWithProduct(product) }
         } else if segue.identifier == "showIngredients",
+                  
                   let vc = segue.destination as? IngredientsViewController {
-//            ingredientsVC = vc
-//            if let product = product { vc.updateWithProduct(product) }
+            
+            ingredientsVC = vc
+            if let product = product { vc.updateWithProduct(product) }
         } else if segue.identifier == "showNutrition",
                   let vc = segue.destination as? NutritionViewController {
             nutritionVC = vc
@@ -312,7 +314,7 @@ class ProductDetailsViewController: UIViewController {
                     cons: cons.isEmpty ? [] : cons,  // Use an empty array if no cons
                     healthScore: healthScore
                 )
-                
+                self.product = fetchedProduct
                 completion(fetchedProduct)
             } else {
                 print("⚠️ No product found with ID: \(productId)")
