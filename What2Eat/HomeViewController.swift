@@ -15,7 +15,7 @@ import SDWebImage
 class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UITableViewDelegate,UITableViewDataSource {
     
     
- 
+    
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
@@ -25,9 +25,10 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     @IBOutlet var ScanNowButton: UIButton!
     @IBOutlet var UserName: UILabel!
     @IBOutlet var RecentScansTableView: UITableView!
-   
+    
     @IBOutlet var HomeImage: UIImageView!
     override func viewDidLoad() {
+       
         super.viewDidLoad()
         HomeImage.transform = CGAffineTransform(rotationAngle: .pi*1.845)
         collectionView.delegate = self
@@ -42,15 +43,15 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         noRecentScansLabel.isHidden = true
         
     }
-   
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         fetchRecentScans {
-                // Adjust the HomeHeight after the data has been fetched and the table view is updated
-                self.HomeHeight.constant = CGFloat(min(recentScansProducts.count,4) * 75 + 750)
-            }
+            // Adjust the HomeHeight after the data has been fetched and the table view is updated
+            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count,4) * 75 + 750)
+        }
         updateUserName()
-       
+        
     }
     
     func updateUserName() {
@@ -58,29 +59,29 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
             UserName.text = "Hi, Guest"
             return
         }
-
+        
         let db = Firestore.firestore()
         let userRef = db.collection("users").document(userId)
-
+        
         userRef.getDocument { (document, error) in
             if let error = error {
                 print("Error fetching user document: \(error.localizedDescription)")
                 self.UserName.text = "Hi, Guest"
                 return
             }
-
+            
             guard let document = document, document.exists,
                   let fullName = document.data()?["name"] as? String else {
                 print("No username found for user.")
                 self.UserName.text = "Hi, Guest"
                 return
             }
-
+            
             let firstName = fullName.components(separatedBy: " ").first ?? fullName
             self.UserName.text = "Hi, \(firstName)"
         }
     }
-
+    
     
     func scanNowButtonUI() {
         
@@ -90,7 +91,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         ScanNowButton.layer.masksToBounds = true
     }
     
-  
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
@@ -159,7 +160,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         } else {
             cell.ProductImage.image = UIImage(named: "placeholder_product")
         }
-
+        
         cell.ProductName.text = product.name
         cell.ProductScore.text = "\(product.healthScore)"
         cell.ProductScoreView.layer.cornerRadius = cell.ProductScoreView.frame.height/2
@@ -185,13 +186,13 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let selectedProductDetails = recentScansProducts[indexPath.row]
-            
-            // Find the product in sampleProducts based on the name
-            if let selectedProduct = sampleProducts.first(where: { $0.name == selectedProductDetails.name }) {
-                performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
-            } else {
-                print("Product not found in sampleProducts for name: \(selectedProductDetails.name)")
-            }
+        
+        // Find the product in sampleProducts based on the name
+        if let selectedProduct = sampleProducts.first(where: { $0.name == selectedProductDetails.name }) {
+            performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
+        } else {
+            print("Product not found in sampleProducts for name: \(selectedProductDetails.name)")
+        }
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
@@ -229,8 +230,8 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     
     func fetchRecentScans(completion: @escaping () -> Void){
         // Adjust the table height based on the number of items
-      
-
+        
+        
         let db = Firestore.firestore()
         
         // Check if the user is logged in
@@ -275,7 +276,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
             }
         }
     }
-
+    
     func toggleTableViewVisibility(isEmpty: Bool) {
         if isEmpty {
             RecentScansTableView.isHidden = true
@@ -331,6 +332,9 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
             completion()
         }
     }
+    
+    
+    
+    
+    
 }
-        
-

@@ -34,6 +34,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         SummaryTableView.delegate = self
         AlertTableView.dataSource = self
         AlertTableView.delegate = self
+        AlertView.isHidden = true
         SummaryTableView.estimatedRowHeight = 30
         SummaryTableView.rowHeight = 40
 
