@@ -57,7 +57,7 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
                    }
            }
            
-        
+         
            return cell
        }
     
