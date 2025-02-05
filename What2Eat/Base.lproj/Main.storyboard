@@ -2418,7 +2418,7 @@
         <!--Profile-->
         <scene sceneID="v7D-Rv-beK">
             <objects>
-                <viewController id="EpU-Kp-tf1" customClass="ProfileViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ProfileViewController" id="EpU-Kp-tf1" customClass="ProfileViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="hA2-xi-krP">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
