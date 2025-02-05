@@ -45,12 +45,19 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
            
            if let ingredient = product?.ingredients[indexPath.row] {
                cell.ingredientLabel.text = ingredient.description
-               let riskLevel = ingredientRiskLevels[ingredient.description] ?? "N/A"
-               cell.riskLevelLabel.text = riskLevel
-               cell.riskLevelLabel.textColor = UIColor.black
+               if let riskLevel = ingredientRiskLevels[ingredient.description] {
+                       let mapping = riskLevelDisplayAndColor(for: riskLevel)
+                       cell.riskLevelLabel.text = mapping.displayText
+                       cell.riskLevelLabel.textColor = mapping.color
+                       cell.riskLevelLabel.isHidden = false
+                       cell.accessoryType = .detailButton
+                   } else {
+                       cell.riskLevelLabel.isHidden = true
+                       cell.accessoryType = .none
+                   }
            }
            
-           cell.accessoryType = .detailButton
+        
            return cell
        }
     
@@ -73,33 +80,27 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         let db = Firestore.firestore()
         
         for ingredient in ingredients {
-            let ingredientName = ingredient.description
+            let formattedName = ingredient.description.lowercased().replacingOccurrences(of: "\\s+", with: "", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
+            print(formattedName)
             
-            db.collection("ingredients")
-                .whereField("IngredientName", isEqualTo: ingredientName)
-                .getDocuments { querySnapshot, error in
-                    
-                    if let error = error {
-                        print("Error fetching risk level for \(ingredientName): \(error.localizedDescription)")
-                        return
-                    }
-                    
-                    guard let snapshot = querySnapshot, !snapshot.documents.isEmpty else {
-                        print("No document found for \(ingredientName)")
-                        return
-                    }
-                    
-                    // Assuming there's only one document per ingredient name
-                    let document = snapshot.documents[0]
-                    let data = document.data()
-                    
-                    let riskLevel = data["RiskLevel"] as? String ?? "Unknown"
-                    
-                    DispatchQueue.main.async {
-                        self.ingredientRiskLevels[ingredientName] = riskLevel
-                        self.ingredientsTableView.reloadData()
-                    }
+            db.collection("ingredients").document(formattedName).getDocument { document, error in
+                if let error = error {
+                    print("Error fetching risk level for \(ingredient.description): \(error.localizedDescription)")
+                    return
                 }
+                
+                guard let document = document, document.exists, let data = document.data() else {
+                    print("No document found for \(ingredient.description)")
+                    return
+                }
+                
+                let riskLevel = data["RiskLevel"] as? String ?? "N/A"
+                
+                DispatchQueue.main.async {
+                    self.ingredientRiskLevels[ingredient.description] = riskLevel
+                    self.ingredientsTableView.reloadData()
+                }
+            }
         }
     }
 
@@ -115,43 +116,51 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
               fetchIngredientDetails(ingredientName)
           }
       }
+    func riskLevelDisplayAndColor(for riskLevel: String) -> (displayText: String, color: UIColor) {
+          switch riskLevel.lowercased() {
+          case "risk-free":
+              return ("Risk-free", UIColor.systemGreen)
+          case "low":
+              return ("Low Risk", UIColor(red: 152/255, green: 168/255, blue: 124/255, alpha: 1))
+          case "medium":
+              return ("Medium Risk", UIColor(red: 204/255, green: 85/255, blue: 0/255, alpha: 1))
+          case "high":
+              return ("High Risk", UIColor.red)
+          default:
+              return (riskLevel, UIColor.black)
+          }
+      }
     func fetchIngredientDetails(_ ingredientName: String) {
         let db = Firestore.firestore()
+        let formattedName = ingredientName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        db.collection("ingredients")
-          .whereField("IngredientName", isEqualTo: ingredientName)
-          .getDocuments { (querySnapshot, error) in
-              
-              if let error = error {
-                  print("Error fetching details for \(ingredientName): \(error.localizedDescription)")
-                  return
-              }
-              
-              guard let snapshot = querySnapshot, !snapshot.documents.isEmpty else {
-                  print("No document found for \(ingredientName)")
-                  return
-              }
-              
-              // Assuming there's only one document per ingredientName:
-              let document = snapshot.documents[0]
-              let data = document.data()
-              
-              print("Snapshot data for \(ingredientName): \(data)")
-              
-              let details = IngredientDetail(
-                  name: ingredientName,
-                  description: data["Description"] as? String ?? "No description",
-                  potentialConcern: data["PotentialConcern"] as? String ?? "No concerns",
-                  regulatoryStatus: data["RegulatoryStatus"] as? String ?? "No info",
-                  riskLevel: data["RiskLevel"] as? String ?? "Unknown"
-              )
-              
-              self.ingredientDetailsCache[ingredientName] = details
-              
-              DispatchQueue.main.async {
-                  self.presentIngredientDetails(details)
-              }
-          }
+        db.collection("ingredients").document(formattedName).getDocument { document, error in
+            if let error = error {
+                print("Error fetching details for \(ingredientName): \(error.localizedDescription)")
+                return
+            }
+            
+            guard let document = document, document.exists, let data = document.data() else {
+                print("No document found for \(ingredientName)")
+                return
+            }
+            
+            print("Snapshot data for \(ingredientName): \(data)")
+            
+            let details = IngredientDetail(
+                name: ingredientName,
+                description: data["Description"] as? String ?? "No description",
+                potentialConcern: data["PotentialConcern"] as? String ?? "No concerns",
+                regulatoryStatus: data["RegulatoryStatus"] as? String ?? "No info",
+                riskLevel: data["RiskLevel"] as? String ?? "N/A"
+            )
+            
+            self.ingredientDetailsCache[ingredientName] = details
+            
+            DispatchQueue.main.async {
+                self.presentIngredientDetails(details)
+            }
+        }
     }
 
         // Show ingredient details in popup
@@ -160,8 +169,9 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
             if let ingredientDetailVC = storyboard.instantiateViewController(withIdentifier: "IngredientDetailViewController") as? IngredientDetailViewController {
                 
                 ingredientDetailVC.ingredientName = details.name
-                ingredientDetailVC.riskLevelText = details.riskLevel
-                ingredientDetailVC.riskLevelColor = UIColor.black
+                let mapping = riskLevelDisplayAndColor(for: details.riskLevel)
+                            ingredientDetailVC.riskLevelText = mapping.displayText
+                            ingredientDetailVC.riskLevelColor = mapping.color
                 ingredientDetailVC.descriptionText = details.description
                 ingredientDetailVC.potentialConcernsText = details.potentialConcern
                 ingredientDetailVC.regulatoryStatus = details.regulatoryStatus

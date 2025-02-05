@@ -259,10 +259,10 @@ class ProductDetailsViewController: UIViewController {
         if let product = product {
             ProductName.text = product.name
             if let url = URL(string: product.imageURL) {
-                        ProductImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product"))
+                        ProductImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product_nobg"))
                     } else {
                         // Fallback: if the URL is invalid, try to load from assets
-                        ProductImage.image = UIImage(named:"placeholder_product")
+                        ProductImage.image = UIImage(named:"placeholder_product_nobg")
                     }
         }
     }
