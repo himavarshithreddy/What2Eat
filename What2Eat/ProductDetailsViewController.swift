@@ -10,7 +10,7 @@ class ProductDetailsViewController: UIViewController {
             if let product = product {
                 summaryVC?.updateWithProduct(product)
                 ingredientsVC?.updateWithProduct(product)
-//                nutritionVC?.updateWithProduct(product)
+                nutritionVC?.updateWithProduct(product)
             }
         }
     }
@@ -63,7 +63,7 @@ class ProductDetailsViewController: UIViewController {
                 // Explicitly update the child view controllers if they are already loaded.
                 self.summaryVC?.updateWithProduct(fetchedProduct)
                 self.ingredientsVC?.updateWithProduct(fetchedProduct)
-//                self.nutritionVC?.updateWithProduct(fetchedProduct)
+               self.nutritionVC?.updateWithProduct(fetchedProduct)
             }
         }
         
@@ -97,7 +97,7 @@ class ProductDetailsViewController: UIViewController {
         } else if segue.identifier == "showNutrition",
                   let vc = segue.destination as? NutritionViewController {
             nutritionVC = vc
-//            if let product = product { vc.updateWithProduct(product) }
+            if let product = product { vc.updateWithProduct(product) }
         } else if segue.identifier == "Createnewlist",
                   let navigationController = segue.destination as? UINavigationController,
                   let newListVC = navigationController.topViewController as? NewListViewController {

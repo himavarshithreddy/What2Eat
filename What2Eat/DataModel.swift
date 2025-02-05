@@ -468,12 +468,14 @@ let savedlistImages = [
                "cross.case", "pills", "figure.walk", "figure.walk.circle",
                "figure.run", "figure.strengthtraining.traditional", "bandage"
 ]
-struct recentSearchs{
-    var products: [Product]
-    var searchQueries: [String]
+struct RecentItem: Codable {
+    enum ItemType: String, Codable {
+        case query  // A search query entered by the user
+        case product // A product that was selected
+    }
+    
+    let id: String      // Either the Firestore product ID or a generated UUID for queries
+    let name: String    // The search query text or the product name
+    let type: ItemType  // Indicates whether this item is a query or a product
 }
-var recentSearch = recentSearchs(products: [sampleProducts[1],
-                                            sampleProducts[2],
-                                            sampleProducts[3]],
-                                  searchQueries: [])
 
