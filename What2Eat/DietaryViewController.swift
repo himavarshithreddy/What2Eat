@@ -10,7 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 class DietaryViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout  {
-
+    
     @IBOutlet weak var dietaryLabel: UILabel!
     @IBOutlet var progressView: UIProgressView!
     @IBOutlet weak var SaveButton: UIButton!
@@ -39,13 +39,13 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     ]
     
     var selectedDietaryRestrictions: [DietaryRestriction] = []
-       
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
         fetchUserDietaryRestrictions()
     }
-           
+    
     private func setupCollectionView() {
         collectionView.collectionViewLayout = createCompositionalLayout()
         collectionView.delegate = self
@@ -90,11 +90,11 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
             }
         }
     }
-           
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return dietaryOptions.count
     }
-           
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DietaryCell", for: indexPath) as! DietaryCell
         let dietaryOption = dietaryOptions[indexPath.row]
@@ -124,7 +124,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
         sender.isSelected.toggle()
         sender.backgroundColor = sender.isSelected ? .systemBlue : .clear
     }
-           
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let title = dietaryOptions[indexPath.item]
         let font = UIFont.systemFont(ofSize: 17)
@@ -136,7 +136,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
         
         return CGSize(width: width, height: height)
     }
-           
+    
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         return UICollectionViewCompositionalLayout { [weak self] sectionIndex, environment -> NSCollectionLayoutSection? in
             guard let self = self else { return nil }
@@ -180,7 +180,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
             return section
         }
     }
-           
+    
     private func createRowGroup(withCount count: Int, item: NSCollectionLayoutItem) -> NSCollectionLayoutGroup {
         let items = Array(repeating: item, count: count)
         
@@ -214,7 +214,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                     self.showAlert(message: "Error updating dietary restrictions: \(error.localizedDescription)")
                 } else {
                     print("Dietary restrictions updated successfully.")
-                    self.showAlert(message: "Dietary restrictions updated successfully.")
+                    self.showAlert(message: "Health Info updated successfully.")
                     self.SaveButton.setTitle("Saved", for: .normal)
                     self.progressView.setProgress(1.0, animated: true)
                 }
