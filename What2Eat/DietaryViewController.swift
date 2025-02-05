@@ -198,42 +198,51 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     }
     
     @IBAction func SaveButtonTapped(_ sender: Any) {
-        // Convert the selected dietary restrictions to an array of strings
         let selectedDietaryNames = selectedDietaryRestrictions.map { $0.rawValue }
         
         if let uid = Auth.auth().currentUser?.uid {
-            // User is logged in, update Firestore
+            // Firestore update
             let db = Firestore.firestore()
             let userDocument = db.collection("users").document(uid)
             
-            userDocument.updateData([
-                "dietaryRestrictions": selectedDietaryNames
-            ]) { error in
+            userDocument.updateData(["dietaryRestrictions": selectedDietaryNames]) { error in
                 if let error = error {
-                    print("Error updating dietary restrictions: \(error.localizedDescription)")
                     self.showAlert(message: "Error updating dietary restrictions: \(error.localizedDescription)")
                 } else {
-                    print("Dietary restrictions updated successfully.")
-                    self.showAlert(message: "Health Info updated successfully.")
-                    self.SaveButton.setTitle("Saved", for: .normal)
                     self.progressView.setProgress(1.0, animated: true)
-                    
+                    self.showAlert(message: "Health Info updated successfully.") {
+                        // Navigate back to Profile
+                        self.navigateBackToProfile()
+                    }
                 }
             }
         } else {
-            // User is not logged in, save dietary restrictions locally using UserDefaults
-            let defaults = UserDefaults.standard
-            defaults.set(selectedDietaryNames, forKey: "localDietaryRestrictions")
-            print("Dietary restrictions saved locally: \(selectedDietaryNames)")
-            self.showAlert(message: "Dietary restrictions updated locally.")
-            self.SaveButton.setTitle("Saved", for: .normal)
+            // Local save
+            UserDefaults.standard.set(selectedDietaryNames, forKey: "localDietaryRestrictions")
             self.progressView.setProgress(1.0, animated: true)
+            self.showAlert(message: "Dietary restrictions updated locally.") {
+                // Navigate back to Profile
+                self.navigateBackToProfile()
+            }
+        }
+    }
+
+    private func navigateBackToProfile() {
+        if let navController = self.navigationController {
+            for viewController in navController.viewControllers {
+                if viewController is ProfileViewController {
+                    navController.popToViewController(viewController, animated: true)
+                    break
+                }
+            }
         }
     }
     
-    private func showAlert(message: String) {
+    private func showAlert(message: String, completion: (() -> Void)? = nil) {
         let alertController = UIAlertController(title: "Update Status", message: message, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        let okAction = UIAlertAction(title: "OK", style: .default) { _ in
+            completion?()
+        }
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)
     }
