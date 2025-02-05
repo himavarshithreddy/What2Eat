@@ -907,14 +907,14 @@
                                             <rect key="frame" x="0.0" y="0.0" width="318" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dQL-2T-R8c">
-                                                    <rect key="frame" x="19.999999999999996" y="11" width="39.666666666666657" height="28"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dQL-2T-R8c">
+                                                    <rect key="frame" x="20" y="11" width="198" height="28"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qBv-TK-LOc">
-                                                    <rect key="frame" x="242" y="16.666666666666664" width="76" height="16.666666666666664"/>
+                                                    <rect key="frame" x="237" y="16.666666666666664" width="76" height="16.666666666666664"/>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="76" id="j09-dv-d9x"/>
@@ -928,10 +928,11 @@
                                             <constraints>
                                                 <constraint firstItem="dQL-2T-R8c" firstAttribute="leading" secondItem="Zv1-MF-Nly" secondAttribute="leadingMargin" id="Ev4-90-BRx"/>
                                                 <constraint firstItem="qBv-TK-LOc" firstAttribute="top" secondItem="Zv1-MF-Nly" secondAttribute="topMargin" constant="5.6666666666666714" id="Oza-cL-Dc5"/>
+                                                <constraint firstAttribute="trailing" secondItem="dQL-2T-R8c" secondAttribute="trailing" constant="100" id="RgO-fq-o8p"/>
                                                 <constraint firstItem="dQL-2T-R8c" firstAttribute="centerY" secondItem="Zv1-MF-Nly" secondAttribute="centerY" id="b1Z-Rf-mh0"/>
                                                 <constraint firstItem="dQL-2T-R8c" firstAttribute="top" secondItem="Zv1-MF-Nly" secondAttribute="topMargin" id="bSm-xn-mNo"/>
                                                 <constraint firstItem="qBv-TK-LOc" firstAttribute="centerY" secondItem="Zv1-MF-Nly" secondAttribute="centerY" id="fVP-g6-r2E"/>
-                                                <constraint firstAttribute="trailing" secondItem="qBv-TK-LOc" secondAttribute="trailing" id="jYK-d6-lEb"/>
+                                                <constraint firstAttribute="trailing" secondItem="qBv-TK-LOc" secondAttribute="trailing" constant="5" id="jYK-d6-lEb"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="0.4978875566" colorSpace="custom" customColorSpace="displayP3"/>
