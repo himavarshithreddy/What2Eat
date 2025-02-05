@@ -217,6 +217,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                     self.showAlert(message: "Health Info updated successfully.")
                     self.SaveButton.setTitle("Saved", for: .normal)
                     self.progressView.setProgress(1.0, animated: true)
+                    
                 }
             }
         } else {
