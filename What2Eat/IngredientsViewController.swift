@@ -132,8 +132,7 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
       }
     func fetchIngredientDetails(_ ingredientName: String) {
         let db = Firestore.firestore()
-        let formattedName = ingredientName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        
+        let formattedName = ingredientName.description.lowercased().replacingOccurrences(of: "\\s+", with: "", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
         db.collection("ingredients").document(formattedName).getDocument { document, error in
             if let error = error {
                 print("Error fetching details for \(ingredientName): \(error.localizedDescription)")
@@ -141,7 +140,7 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
             }
             
             guard let document = document, document.exists, let data = document.data() else {
-                print("No document found for \(ingredientName)")
+                print("No document found for \(formattedName)")
                 return
             }
             

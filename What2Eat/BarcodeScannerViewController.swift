@@ -285,70 +285,32 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
                 present(imagePicker, animated: true)
     }
     private func saveToRecentScans(productId: String, completion: @escaping (Bool) -> Void) {
-        if let userId = Auth.auth().currentUser?.uid {
-            // User is logged in, save to Firestore
-            let db = Firestore.firestore()
-            let userRef = db.collection("users").document(userId)
-            
-            userRef.getDocument { document, error in
-                if let error = error {
-                    print("Error fetching user document: \(error)")
-                    completion(false)
-                    return
-                }
-                
-                // Ensure the document exists
-                guard let document = document, document.exists else {
-                    print("User document does not exist.")
-                    completion(false)
-                    return
-                }
-                
-                // Get current recent scans
-                if var recentScans = document.data()?["recentScans"] as? [String] {
-                    // Check if the productId already exists in the array
-                    if recentScans.contains(productId) {
-                        print("Product ID already exists in recent scans.")
-                        completion(true)  // Return early here to prevent further execution
-                        return
-                    }else{
-                        
-                        // Add productId to the recentScans array
-                        recentScans.append(productId)
-                        userRef.updateData([
-                            "recentScans": recentScans
-                        ]) { error in
-                            if let error = error {
-                                print("Error updating recent scans: \(error)")
-                                completion(false)
-                            } else {
-                                print("Product ID successfully saved to recent scans.")
-                                completion(true)
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // User is not logged in, save locally
-            saveScanLocally(productId: productId)
-            completion(true)
-        }
+        // Store scans locally using UserDefaults
+        saveScanLocally(productId: productId)
+        completion(true)
     }
-
 
     private func saveScanLocally(productId: String) {
         let defaults = UserDefaults.standard
         
-        var localScans = defaults.array(forKey: "localRecentScans") as? [String] ?? []
-        if !localScans.contains(productId) {
-            localScans.append(productId)
-            defaults.set(localScans, forKey: "localRecentScans")
-            print("Saved scan locally: \(productId)")
-        } else {
-            print("Product ID already exists in local recent scans.")
+        // Get the current list of recent scans, or create an empty array if none exist
+        var localScans = defaults.array(forKey: "localRecentScans") as? [[String: Any]] ?? []
+        
+        // Check if the productId already exists, remove it if found
+        if let index = localScans.firstIndex(where: { $0["productId"] as? String == productId }) {
+            localScans.remove(at: index)
         }
+        
+        // Add the new productId at the beginning of the array (last added is first)
+        let newScan = ["productId": productId, "index": Date().timeIntervalSince1970] as [String : Any] // Using the current timestamp as the index
+        localScans.insert(newScan, at: 0)
+        
+        // Save the updated array back to UserDefaults
+        defaults.set(localScans, forKey: "localRecentScans")
+        print("Saved scan locally: \(productId)")
     }
+
+
 
 
     private func fetchProductIdFromFirebase(barcode: String, completion: @escaping (String?) -> Void) {
