@@ -56,8 +56,13 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
             cell.ScoreCircle.layer.backgroundColor = UIColor.systemGreen.cgColor
         }
         cell.SavedProductsName.text = product!.name
-        cell.SavedProductsImage.image = UIImage(named: product!.imageURL)
-        cell.Scoretext.text = String(product!.healthScore)
+
+        if let url = URL(string: product!.imageURL) {
+            cell.SavedProductsImage.sd_setImage(with: url, placeholderImage: UIImage(named: product!.imageURL))
+        } else {
+            cell.SavedProductsImage.image = UIImage(named: "placeholder_product")
+        }
+        cell.Scoretext.text = String(Int(product!.healthScore))
         cell.ScoreCircle.layer.cornerRadius = 20
         return cell
         
