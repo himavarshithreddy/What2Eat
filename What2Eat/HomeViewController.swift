@@ -41,6 +41,10 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         updateUserName()
         scanNowButtonUI()
         noRecentScansLabel.isHidden = true
+        fetchRecentScans {
+            // Adjust the HomeHeight after the data has been fetched and the table view is updated
+            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count,4) * 75 + 750)
+        }
         
     }
     
@@ -183,17 +187,16 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         70
     }
     // MARK: - Table View Methods
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
         
-        let selectedProductDetails = recentScansProducts[indexPath.row]
-        
-        // Find the product in sampleProducts based on the name
-        if let selectedProduct = sampleProducts.first(where: { $0.name == selectedProductDetails.name }) {
-            performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
-        } else {
-            print("Product not found in sampleProducts for name: \(selectedProductDetails.name)")
+        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            let selectedProductDetails = recentScansProducts[indexPath.row]
+            
+            // Only pass the productId to the next screen
+            performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProductDetails.id)
         }
-    }
+
+    
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
@@ -212,13 +215,13 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         }
         return "Unknown Category"
     }
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showproductdetailsfromhome",
            let destinationVC = segue.destination as? ProductDetailsViewController,
-           let selectedProduct = sender as? ProductData {
-            destinationVC.product = selectedProduct
+           let productId = sender as? String {
+            destinationVC.productId = productId
         }
-        
     }
     
     // MARK: - Collection View Methods
@@ -228,54 +231,44 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
     }
     
-    func fetchRecentScans(completion: @escaping () -> Void){
-        // Adjust the table height based on the number of items
+    func fetchRecentScans(completion: @escaping () -> Void) {
+        // Fetch recent scans from local storage
+        let recentScans = getRecentScans() // Get sorted scans based on index
         
-        
-        let db = Firestore.firestore()
-        
-        // Check if the user is logged in
-        if let userId = Auth.auth().currentUser?.uid {
-            // User is logged in, fetch recent scans from Firestore
-            let userRef = db.collection("users").document(userId)
-            
-            userRef.getDocument { (document, error) in
-                if let error = error {
-                    print("Error fetching user document: \(error)")
-                    return
-                }
-                
-                // Ensure the document exists
-                guard let document = document, document.exists else {
-                    print("User document does not exist.")
-                    self.toggleTableViewVisibility(isEmpty: true)
-                    completion()
-                    return
-                }
-                
-                // Fetch the recentScans field (assuming it's an array of product IDs)
-                if let recentScans = document.data()?["recentScans"] as? [String], !recentScans.isEmpty {
-                    self.fetchProductsDetails(from: recentScans, completion: completion)
-                    self.toggleTableViewVisibility(isEmpty: false)
-                } else {
-                    print("No recent scans found for this user.")
-                    self.toggleTableViewVisibility(isEmpty: true)
-                    completion()
-                }
-            }
+        if !recentScans.isEmpty {
+            print("Fetching recent scans from local storage.")
+            self.fetchProductsDetails(from: recentScans, completion: completion)
+            self.toggleTableViewVisibility(isEmpty: false)
         } else {
-            // User is not logged in, fetch recent scans from local storage
-            if let localRecentScans = UserDefaults.standard.array(forKey: "localRecentScans") as? [String], !localRecentScans.isEmpty {
-                print("Fetching recent scans from local storage.")
-                self.fetchProductsDetails(from: localRecentScans, completion: completion)
-                self.toggleTableViewVisibility(isEmpty: false)
-            } else {
-                print("No recent scans found in local storage.")
-                self.toggleTableViewVisibility(isEmpty: true)
-                completion()
-            }
+            print("No recent scans found in local storage.")
+            self.toggleTableViewVisibility(isEmpty: true)
+            completion()
         }
     }
+
+    private func getRecentScans() -> [String] {
+        let defaults = UserDefaults.standard
+        
+        // Retrieve the scans
+        guard var localScans = defaults.array(forKey: "localRecentScans") as? [[String: Any]] else {
+            return []
+        }
+        
+        // Forcefully sort scans based on timestamp in descending order
+        // Ensure the most recent scan (highest timestamp) is first
+        localScans.sort { (scan1, scan2) -> Bool in
+            let timestamp1 = scan1["index"] as? TimeInterval ?? 0
+            let timestamp2 = scan2["index"] as? TimeInterval ?? 0
+            return timestamp1 > timestamp2
+        }
+        
+        // Extract only the product IDs in sorted order
+        let productIds = localScans.compactMap { $0["productId"] as? String }
+        
+        return productIds
+    }
+
+
     
     func toggleTableViewVisibility(isEmpty: Bool) {
         if isEmpty {
@@ -289,11 +282,11 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         }
     }
     
-    func fetchProductsDetails(from productIDs: [String], completion: @escaping () -> Void)  {
+    func fetchProductsDetails(from productIDs: [String], completion: @escaping () -> Void) {
         let db = Firestore.firestore()
         
         // Create an empty array to store the products' details
-        var productsDetails: [(name: String, healthScore: Int, imageURL: String)] = []
+        var productsDetails: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
         
         // Loop through the product IDs and fetch the details for each product
         let dispatchGroup = DispatchGroup()
@@ -313,12 +306,12 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
                         return
                     }
                     
-                    // Extract necessary fields (name, score, and imageURL)
+                    // Extract necessary fields (id, name, score, and imageURL)
                     if let name = document.data()?["name"] as? String,
                        let healthScore = document.data()?["healthScore"] as? Int,
                        let imageURL = document.data()?["imageURL"] as? String {
-                        // Append the product details to the array
-                        productsDetails.append((name: name, healthScore: healthScore, imageURL: imageURL))
+                        // Append the product details to the array, including product ID
+                        productsDetails.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL))
                     }
                 }
                 dispatchGroup.leave()
@@ -332,8 +325,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
             completion()
         }
     }
-    
-    
+
     
     
     
