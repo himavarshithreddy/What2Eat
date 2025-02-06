@@ -109,9 +109,10 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     // New: Update the right bar button item with the profile picture from Firebase
     func updateProfilePicture() {
-        // Ensure the user is logged in
+        // Check if the user is logged in
         guard let userId = Auth.auth().currentUser?.uid else {
-            print("User not logged in")
+            // Set default profile image if not logged in
+            setDefaultProfileImage()
             return
         }
         
@@ -121,6 +122,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         userRef.getDocument { (document, error) in
             if let error = error {
                 print("Error fetching user document for profile picture: \(error.localizedDescription)")
+                self.setDefaultProfileImage()
                 return
             }
             
@@ -129,6 +131,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                   let profileImageUrl = document.data()?["profileImageUrl"] as? String,
                   let url = URL(string: profileImageUrl) else {
                 print("No profileImageUrl found in user document")
+                self.setDefaultProfileImage()
                 return
             }
             
@@ -143,10 +146,27 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                         // Update the right bar button's image
                         self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
                     }
+                } else {
+                    // If download fails, set the default profile image
+                    DispatchQueue.main.async {
+                        self.setDefaultProfileImage()
+                    }
                 }
             })
         }
     }
+
+    private func setDefaultProfileImage() {
+        // Ensure you have an image in your assets named "default_profile"
+        if let defaultImage = UIImage(named: "default_profile") {
+            let size = CGSize(width: 32, height: 32)
+            let circularDefaultImage = defaultImage.circularImage(size: size)
+            self.rightbarButton.image = circularDefaultImage.withRenderingMode(.alwaysOriginal)
+        } else {
+            print("Default profile image not found")
+        }
+    }
+
     
     // MARK: - Collection View Methods
     func numberOfSections(in collectionView: UICollectionView) -> Int {
