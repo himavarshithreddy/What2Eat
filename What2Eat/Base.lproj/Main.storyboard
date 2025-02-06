@@ -1500,6 +1500,7 @@
                         <outlet property="collectionView" destination="yLI-9Y-DFf" id="pLM-xz-ftr"/>
                         <outlet property="noRecentScansLabel" destination="rXM-5y-zsy" id="4So-MU-D5N"/>
                         <outlet property="recentScansSeeAll" destination="2FH-0c-3rV" id="ir2-m2-jF2"/>
+                        <outlet property="rightbarButton" destination="Yc6-NH-Y1D" id="5uU-Lm-Brp"/>
                         <segue destination="6Wh-5a-MyP" kind="show" id="svc-9P-8Lr"/>
                         <segue destination="6Wh-5a-MyP" kind="show" identifier="showproductdetailsfromhome" id="0rE-kq-IOP"/>
                     </connections>
@@ -3045,8 +3046,8 @@
     <inferredMetricsTieBreakers>
         <segue reference="ZNK-Ra-eGc"/>
         <segue reference="0hp-Wk-kLE"/>
-        <segue reference="b8K-wW-ozR"/>
-        <segue reference="8P1-Ln-L6j"/>
+        <segue reference="2T7-wx-xBf"/>
+        <segue reference="0rE-kq-IOP"/>
     </inferredMetricsTieBreakers>
     <color key="tintColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
     <resources>

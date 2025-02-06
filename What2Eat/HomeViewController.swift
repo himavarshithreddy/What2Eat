@@ -12,9 +12,20 @@ import QuartzCore
 import FirebaseAuth
 import SDWebImage
 
-class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,UITableViewDelegate,UITableViewDataSource {
-    
-    
+// MARK: - UIImage Extension for Circular Cropping
+extension UIImage {
+    func circularImage(size: CGSize) -> UIImage {
+        let rect = CGRect(origin: .zero, size: size)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        UIBezierPath(ovalIn: rect).addClip()
+        self.draw(in: rect)
+        let circularImage = UIGraphicsGetImageFromCurrentImageContext() ?? self
+        UIGraphicsEndImageContext()
+        return circularImage
+    }
+}
+
+class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -25,37 +36,41 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     @IBOutlet var ScanNowButton: UIButton!
     @IBOutlet var UserName: UILabel!
     @IBOutlet var RecentScansTableView: UITableView!
-    
     @IBOutlet var HomeImage: UIImageView!
+    
+    // New Outlet for the Right Bar Button Item
+    @IBOutlet var rightbarButton: UIBarButtonItem!
+    
     override func viewDidLoad() {
-       
         super.viewDidLoad()
-        HomeImage.transform = CGAffineTransform(rotationAngle: .pi*1.845)
+        
+        HomeImage.transform = CGAffineTransform(rotationAngle: .pi * 1.845)
         collectionView.delegate = self
         RecentScansTableView.delegate = self
         RecentScansTableView.dataSource = self
-        
         collectionView.dataSource = self
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
         
         updateUserName()
         scanNowButtonUI()
         noRecentScansLabel.isHidden = true
+        
+        // New: Update the right bar button's image (profile picture)
+        updateProfilePicture()
+        
         fetchRecentScans {
             // Adjust the HomeHeight after the data has been fetched and the table view is updated
-            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count,4) * 75 + 750)
+            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 750)
         }
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         fetchRecentScans {
             // Adjust the HomeHeight after the data has been fetched and the table view is updated
-            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count,4) * 75 + 750)
+            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 750)
         }
         updateUserName()
-        
     }
     
     func updateUserName() {
@@ -86,25 +101,83 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         }
     }
     
-    
     func scanNowButtonUI() {
-        
-        
-        ScanNowButton.layer.borderWidth=4
-        ScanNowButton.layer.borderColor=UIColor(red: 254/255, green: 231/255, blue: 206/255, alpha:0.8).cgColor
+        ScanNowButton.layer.borderWidth = 4
+        ScanNowButton.layer.borderColor = UIColor(red: 254/255, green: 231/255, blue: 206/255, alpha: 0.8).cgColor
         ScanNowButton.layer.masksToBounds = true
     }
     
+    // New: Update the right bar button item with the profile picture from Firebase
+    func updateProfilePicture() {
+        // Check if the user is logged in
+        guard let userId = Auth.auth().currentUser?.uid else {
+            // Set default profile image if not logged in
+            setDefaultProfileImage()
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(userId)
+        
+        userRef.getDocument { (document, error) in
+            if let error = error {
+                print("Error fetching user document for profile picture: \(error.localizedDescription)")
+                self.setDefaultProfileImage()
+                return
+            }
+            
+            // Use "profileImageUrl" as the field name
+            guard let document = document, document.exists,
+                  let profileImageUrl = document.data()?["profileImageUrl"] as? String,
+                  let url = URL(string: profileImageUrl) else {
+                print("No profileImageUrl found in user document")
+                self.setDefaultProfileImage()
+                return
+            }
+            
+            // Use SDWebImageDownloader to download the image
+            SDWebImageDownloader.shared.downloadImage(with: url, completed: { image, data, error, finished in
+                if finished, let image = image {
+                    DispatchQueue.main.async {
+                        // Create a circular version of the image (adjust size as needed)
+                        let size = CGSize(width: 32, height: 32)
+                        let circularImage = image.circularImage(size: size)
+                        
+                        // Update the right bar button's image
+                        self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                    }
+                } else {
+                    // If download fails, set the default profile image
+                    DispatchQueue.main.async {
+                        self.setDefaultProfileImage()
+                    }
+                }
+            })
+        }
+    }
+
+    private func setDefaultProfileImage() {
+        // Ensure you have an image in your assets named "default_profile"
+        if let defaultImage = UIImage(named: "default_profile") {
+            let size = CGSize(width: 32, height: 32)
+            let circularDefaultImage = defaultImage.circularImage(size: size)
+            self.rightbarButton.image = circularDefaultImage.withRenderingMode(.alwaysOriginal)
+        } else {
+            print("Default profile image not found")
+        }
+    }
+
     
+    // MARK: - Collection View Methods
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
     }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         sampleUser.picksforyou.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PickforyouCell", for: indexPath) as! HomePickForYouCell
         let pick = sampleUser.picksforyou[indexPath.row]
         cell.pickImage.image = UIImage(named: pick.imageURL)
@@ -112,14 +185,12 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         cell.pickcategory.text = getCategoryName(for: pick.categoryId)
         
         cell.pickscoreLabel.text = "\(pick.healthScore)"
-        
-        cell.pickview.layer.cornerRadius = cell.pickview.frame.height/2
+        cell.pickview.layer.cornerRadius = cell.pickview.frame.height / 2
         
         if pick.healthScore < 40 {
             cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
         }
         else if pick.healthScore < 75 {
-            
             cell.pickview.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
         }
         else if pick.healthScore <= 100 {
@@ -127,34 +198,25 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         }
         cell.layer.cornerRadius = 14
         return cell
-        
     }
     
-    
     func generateLayout() -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout {(section,env)->NSCollectionLayoutSection? in
-            
+        let layout = UICollectionViewCompositionalLayout { (section, env) -> NSCollectionLayoutSection? in
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.9), heightDimension: .fractionalHeight(1.0))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.6), heightDimension: .absolute(300))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-            
             let section = NSCollectionLayoutSection(group: group)
-            
             section.orthogonalScrollingBehavior = .continuous
             return section
-            
-            
         }
-        
         return layout
-        
-    }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return min(recentScansProducts.count,4)
-        
     }
     
+    // MARK: - Table View Methods
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return min(recentScansProducts.count, 4)
+    }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "RecentScansCell", for: indexPath) as! RecentScansCell
@@ -167,13 +229,12 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         
         cell.ProductName.text = product.name
         cell.ProductScore.text = "\(product.healthScore)"
-        cell.ProductScoreView.layer.cornerRadius = cell.ProductScoreView.frame.height/2
+        cell.ProductScoreView.layer.cornerRadius = cell.ProductScoreView.frame.height / 2
         
         if product.healthScore < 40 {
             cell.ProductScoreView.layer.backgroundColor = UIColor.systemRed.cgColor
         }
         else if product.healthScore < 75 {
-            
             cell.ProductScoreView.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
         }
         else if product.healthScore <= 100 {
@@ -186,28 +247,22 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         70
     }
-    // MARK: - Table View Methods
-
-        
-        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            let selectedProductDetails = recentScansProducts[indexPath.row]
-            
-            // Only pass the productId to the next screen
-            performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProductDetails.id)
-        }
-
     
+    // MARK: - Table View Selection Methods
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedProductDetails = recentScansProducts[indexPath.row]
+        // Only pass the productId to the next screen
+        performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProductDetails.id)
+    }
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
-    {
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let verticalPadding: CGFloat = 4
         let maskLayer = CALayer()
         maskLayer.cornerRadius = 8
         maskLayer.backgroundColor = UIColor.black.cgColor
-        maskLayer.frame = CGRect(x: cell.bounds.origin.x, y: cell.bounds.origin.y, width: cell.bounds.width, height: cell.bounds.height).insetBy(dx: 0, dy: verticalPadding/2)
+        maskLayer.frame = CGRect(x: cell.bounds.origin.x, y: cell.bounds.origin.y, width: cell.bounds.width, height: cell.bounds.height).insetBy(dx: 0, dy: verticalPadding / 2)
         cell.layer.mask = maskLayer
     }
-    
     
     func getCategoryName(for categoryId: UUID) -> String {
         if let category = Categories.first(where: { $0.id == categoryId }) {
@@ -215,7 +270,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         }
         return "Unknown Category"
     }
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showproductdetailsfromhome",
            let destinationVC = segue.destination as? ProductDetailsViewController,
@@ -224,10 +279,9 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         }
     }
     
-    // MARK: - Collection View Methods
+    // MARK: - Collection View Selection
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedProduct = sampleUser.picksforyou[indexPath.row]
-        
         performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
     }
     
@@ -245,7 +299,7 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
             completion()
         }
     }
-
+    
     private func getRecentScans() -> [String] {
         let defaults = UserDefaults.standard
         
@@ -255,7 +309,6 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         }
         
         // Forcefully sort scans based on timestamp in descending order
-        // Ensure the most recent scan (highest timestamp) is first
         localScans.sort { (scan1, scan2) -> Bool in
             let timestamp1 = scan1["index"] as? TimeInterval ?? 0
             let timestamp2 = scan2["index"] as? TimeInterval ?? 0
@@ -267,18 +320,16 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
         
         return productIds
     }
-
-
     
     func toggleTableViewVisibility(isEmpty: Bool) {
         if isEmpty {
             RecentScansTableView.isHidden = true
             noRecentScansLabel.isHidden = false
-            recentScansSeeAll.isHidden = true// Show the label
+            recentScansSeeAll.isHidden = true
         } else {
             RecentScansTableView.isHidden = false
             noRecentScansLabel.isHidden = true
-            recentScansSeeAll.isHidden = false// Hide the label
+            recentScansSeeAll.isHidden = false
         }
     }
     
@@ -299,18 +350,15 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
                 if let error = error {
                     print("Error fetching product document: \(error)")
                 } else {
-                    // Ensure the document exists
                     guard let document = document, document.exists else {
                         print("Product document does not exist for ID: \(productId)")
                         dispatchGroup.leave()
                         return
                     }
                     
-                    // Extract necessary fields (id, name, score, and imageURL)
                     if let name = document.data()?["name"] as? String,
                        let healthScore = document.data()?["healthScore"] as? Int,
                        let imageURL = document.data()?["imageURL"] as? String {
-                        // Append the product details to the array, including product ID
                         productsDetails.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL))
                     }
                 }
@@ -318,15 +366,10 @@ class HomeViewController: UIViewController,UICollectionViewDelegate, UICollectio
             }
         }
         
-        // Once all product details are fetched, update the table view
         dispatchGroup.notify(queue: .main) {
             recentScansProducts = productsDetails
             self.RecentScansTableView.reloadData()
             completion()
         }
     }
-
-    
-    
-    
 }
