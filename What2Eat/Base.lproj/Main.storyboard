@@ -1020,7 +1020,7 @@
                                     <color key="baseBackgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <segue destination="QfX-0E-obw" kind="show" id="BPe-vb-ARZ"/>
+                                    <action selector="switchToLabelScan:" destination="AzM-uL-puC" eventType="touchUpInside" id="Ykl-Ro-5Ln"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -2182,10 +2182,48 @@
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fu2-fm-scb">
-                                <rect key="frame" x="20" y="137" width="362" height="600"/>
+                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QC5-cY-uu9">
+                                <rect key="frame" x="95" y="795" width="212" height="40"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="6Xv-QB-WOl"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="40" id="tA3-Z4-fO5"/>
+                                </constraints>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" imagePlacement="leading" title="Scan with Barcode" imagePadding="8">
+                                    <imageReference key="image" image="text.viewfinder" catalog="system" symbolScale="large"/>
+                                    <fontDescription key="titleFontDescription" type="system" weight="medium" pointSize="18"/>
+                                    <color key="baseBackgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="SwitchToBarcode:" destination="QfX-0E-obw" eventType="touchUpInside" id="mIG-tf-Epw"/>
+                                </connections>
+                            </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fu2-fm-scb">
+                                <rect key="frame" x="20" y="137" width="362" height="600"/>
+                                <subviews>
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hkw-a8-W4O">
+                                        <rect key="frame" x="146" y="510" width="70" height="70"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="70" id="cla-sa-u2K"/>
+                                            <constraint firstAttribute="height" constant="70" id="dxP-yh-nYO"/>
+                                        </constraints>
+                                        <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled">
+                                            <color key="baseBackgroundColor" white="0.9482033639143731" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="capturePhoto" destination="QfX-0E-obw" eventType="touchUpInside" id="UwC-6s-Uir"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="hkw-a8-W4O" firstAttribute="centerX" secondItem="Fu2-fm-scb" secondAttribute="centerX" id="1fz-O0-bbT"/>
+                                    <constraint firstAttribute="bottom" secondItem="hkw-a8-W4O" secondAttribute="bottom" constant="20" id="6t8-YD-ps0"/>
                                     <constraint firstAttribute="height" constant="600" id="r7J-Wa-qDB"/>
                                 </constraints>
                             </view>
@@ -2195,22 +2233,6 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hkw-a8-W4O">
-                                <rect key="frame" x="166" y="767" width="70" height="70"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="70" id="cla-sa-u2K"/>
-                                    <constraint firstAttribute="height" constant="70" id="dxP-yh-nYO"/>
-                                </constraints>
-                                <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled">
-                                    <color key="baseBackgroundColor" white="0.9482033639143731" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="capturePhoto" destination="QfX-0E-obw" eventType="touchUpInside" id="UwC-6s-Uir"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Zdx-l9-uR3"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -2221,15 +2243,15 @@
                             <constraint firstAttribute="bottom" secondItem="51R-Ng-ON1" secondAttribute="bottom" id="7gL-ZF-7Ch"/>
                             <constraint firstItem="UDg-cA-MZd" firstAttribute="centerX" secondItem="u35-Oc-oR5" secondAttribute="centerX" id="A7L-wz-Vv3"/>
                             <constraint firstItem="51R-Ng-ON1" firstAttribute="leading" secondItem="u35-Oc-oR5" secondAttribute="leading" id="GjS-P3-kWv"/>
-                            <constraint firstItem="hkw-a8-W4O" firstAttribute="centerX" secondItem="u35-Oc-oR5" secondAttribute="centerX" id="Iki-bO-c3k"/>
                             <constraint firstItem="g2g-ea-ics" firstAttribute="top" secondItem="u35-Oc-oR5" secondAttribute="top" id="KKX-Pp-tEX"/>
                             <constraint firstAttribute="bottom" secondItem="g2g-ea-ics" secondAttribute="bottom" id="LqO-bL-2pj"/>
                             <constraint firstItem="51R-Ng-ON1" firstAttribute="top" secondItem="u35-Oc-oR5" secondAttribute="top" id="Oja-oR-jTX"/>
                             <constraint firstItem="Zdx-l9-uR3" firstAttribute="trailing" secondItem="Fu2-fm-scb" secondAttribute="trailing" constant="20" id="Qse-cd-Apb"/>
+                            <constraint firstItem="QC5-cY-uu9" firstAttribute="centerX" secondItem="u35-Oc-oR5" secondAttribute="centerX" id="Rgr-6M-V0E"/>
                             <constraint firstAttribute="trailing" secondItem="51R-Ng-ON1" secondAttribute="trailing" id="WaK-UR-dKn"/>
                             <constraint firstAttribute="trailing" secondItem="g2g-ea-ics" secondAttribute="trailing" id="Z0T-gX-PWx"/>
                             <constraint firstItem="Fu2-fm-scb" firstAttribute="top" secondItem="UDg-cA-MZd" secondAttribute="bottom" constant="10" id="d8L-5a-sYF"/>
-                            <constraint firstItem="hkw-a8-W4O" firstAttribute="top" secondItem="Fu2-fm-scb" secondAttribute="bottom" constant="30" id="jdm-ed-XVK"/>
+                            <constraint firstItem="Zdx-l9-uR3" firstAttribute="bottom" secondItem="QC5-cY-uu9" secondAttribute="bottom" constant="5" id="jQI-Me-wge"/>
                             <constraint firstItem="Fu2-fm-scb" firstAttribute="centerY" secondItem="u35-Oc-oR5" secondAttribute="centerY" id="xHu-Ml-JZ7"/>
                         </constraints>
                     </view>
@@ -2248,18 +2270,12 @@
                                     <action selector="GalleryButtonTapped:" destination="QfX-0E-obw" id="fiG-KD-6Jm"/>
                                 </connections>
                             </barButtonItem>
-                            <barButtonItem title="Barcode" id="9f8-Aj-Lk4">
-                                <imageReference key="image" image="barcode.viewfinder" catalog="system" symbolScale="large"/>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <connections>
-                                    <action selector="SwtichtoBarcode:" destination="QfX-0E-obw" id="9g8-SH-Fpd"/>
-                                </connections>
-                            </barButtonItem>
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
                         <outlet property="CaptureButton" destination="hkw-a8-W4O" id="H27-9z-sRQ"/>
                         <outlet property="ScanningViewFrameHeight" destination="r7J-Wa-qDB" id="jI7-aU-i1s"/>
+                        <outlet property="SwitchLabelButton" destination="QC5-cY-uu9" id="qew-Lp-kif"/>
                         <outlet property="TorchIcon" destination="2nP-33-ruG" id="5wf-3L-Z9P"/>
                         <outlet property="cameraPreviewView" destination="51R-Ng-ON1" id="poC-xS-y01"/>
                         <outlet property="overlayView" destination="g2g-ea-ics" id="6LN-oN-SQW"/>
@@ -2268,7 +2284,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Gdv-bL-0DR" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1137" y="2746"/>
+            <point key="canvasLocation" x="1134.3283582089553" y="2745.9954233409608"/>
         </scene>
         <!--Explore Products View Controller-->
         <scene sceneID="pm5-3F-0aF">
@@ -3016,8 +3032,7 @@
     <inferredMetricsTieBreakers>
         <segue reference="ZNK-Ra-eGc"/>
         <segue reference="0hp-Wk-kLE"/>
-        <segue reference="BPe-vb-ARZ"/>
-        <segue reference="2T7-wx-xBf"/>
+        <segue reference="b8K-wW-ozR"/>
         <segue reference="8P1-Ln-L6j"/>
     </inferredMetricsTieBreakers>
     <color key="tintColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

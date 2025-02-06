@@ -8,6 +8,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     @IBOutlet weak var overlayView: UIView!
     @IBOutlet weak var scanningFrameView: UIView!
     
+    @IBOutlet weak var SwitchLabelButton: UIButton!
     @IBOutlet weak var ScanningViewFrameHeight: NSLayoutConstraint!
     @IBOutlet weak var TorchIcon: UIBarButtonItem!
     @IBOutlet weak var CaptureButton: UIButton!
@@ -111,6 +112,11 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         let cameraPreviewHeight = cameraPreviewView.bounds.height
         let scanningFrameHeight = CGFloat(cameraPreviewHeight * 0.7)
         ScanningViewFrameHeight.constant = scanningFrameHeight
+        SwitchLabelButton.layer.cornerRadius=8
+        SwitchLabelButton.layer.masksToBounds = true
+        SwitchLabelButton.layer.borderWidth = 1.5
+        SwitchLabelButton.clipsToBounds = true
+        SwitchLabelButton.layer.borderColor = UIColor.white.cgColor
     }
     
     // MARK: - Capture and Process Image
@@ -244,10 +250,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
        
         recognizeText(in: image)
     }
-    @IBAction func SwtichtoBarcode(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let scanViewController = storyboard.instantiateViewController(withIdentifier: "ScanwithBarcode") as? BarcodeScannerViewController {
-            navigationController?.setViewControllers([scanViewController], animated: true)
-          }
+    @IBAction func SwitchToBarcode(_ sender: Any) {
+        navigationController?.popViewController(animated: true)
     }
 }

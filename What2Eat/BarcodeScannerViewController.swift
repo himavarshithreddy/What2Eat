@@ -334,5 +334,11 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
                 completion(productId)
             }
     }
-
+    
+    @IBAction func switchToLabelScan(_ sender: Any) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let labelScanVC = storyboard.instantiateViewController(withIdentifier: "ScanwithLabel") as? ScanWithLabelViewController {
+            navigationController?.pushViewController(labelScanVC, animated: true)
+        }
+    }
 }
