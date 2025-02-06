@@ -2515,7 +2515,11 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Pw-u8-Ljk">
-                                <rect key="frame" x="177.66666666666666" y="211" width="47" height="34.333333333333343"/>
+                                <rect key="frame" x="188.66666666666666" y="211" width="25" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="25" id="BZt-2I-lJd"/>
+                                    <constraint firstAttribute="width" constant="25" id="IAh-5c-H8w"/>
+                                </constraints>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" image="plus" catalog="system"/>
                                 <connections>
