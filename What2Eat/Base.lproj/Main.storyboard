@@ -2432,7 +2432,7 @@
             </objects>
             <point key="canvasLocation" x="218" y="2746"/>
         </scene>
-        <!--Profile-->
+        <!--Profile View Controller-->
         <scene sceneID="v7D-Rv-beK">
             <objects>
                 <viewController storyboardIdentifier="ProfileViewController" id="EpU-Kp-tf1" customClass="ProfileViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
@@ -2440,12 +2440,12 @@
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Maneeth Reddy" textAlignment="justified" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QHp-R1-Gqs">
-                                <rect key="frame" x="122.66666666666669" y="256" width="157" height="27"/>
-                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="22"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="jIg-ev-31C">
+                                <rect key="frame" x="198.66666666666666" y="253" width="5" height="28"/>
+                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="22"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="profile" translatesAutoresizingMaskIntoConstraints="NO" id="3UZ-3L-0pj">
                                 <rect key="frame" x="141" y="106" width="120" height="120"/>
                                 <constraints>
@@ -2511,33 +2511,46 @@
                                     <color key="baseBackgroundColor" red="0.96078431369999995" green="0.41176470590000003" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="SignOutButtonTapped:" destination="EpU-Kp-tf1" eventType="touchUpInside" id="7ci-dZ-IBg"/>
+                                    <action selector="signOutButtonTapped:" destination="EpU-Kp-tf1" eventType="touchUpInside" id="n3b-t2-GAh"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1Pw-u8-Ljk">
+                                <rect key="frame" x="177.66666666666666" y="211" width="47" height="34.333333333333343"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" image="plus" catalog="system"/>
+                                <connections>
+                                    <action selector="editProfileButtonTapped:" destination="EpU-Kp-tf1" eventType="touchUpInside" id="jJG-oH-2Dh"/>
                                 </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Wpb-Kd-vRz"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="QHp-R1-Gqs" firstAttribute="centerX" secondItem="hA2-xi-krP" secondAttribute="centerX" id="3om-cS-RDn"/>
                             <constraint firstItem="Wpb-Kd-vRz" firstAttribute="trailing" secondItem="p8n-35-Byc" secondAttribute="trailing" constant="32" id="7wD-Ir-KOU"/>
                             <constraint firstItem="3UZ-3L-0pj" firstAttribute="top" secondItem="Wpb-Kd-vRz" secondAttribute="top" id="9uG-ga-lij"/>
                             <constraint firstItem="p8n-35-Byc" firstAttribute="leading" secondItem="Wpb-Kd-vRz" secondAttribute="leading" constant="33" id="Hwf-cx-dlw"/>
                             <constraint firstItem="QWX-e1-1PX" firstAttribute="centerX" secondItem="hA2-xi-krP" secondAttribute="centerX" id="KsT-LI-a8k"/>
+                            <constraint firstItem="1Pw-u8-Ljk" firstAttribute="top" secondItem="3UZ-3L-0pj" secondAttribute="bottom" constant="-15" id="MkL-Fa-6mH"/>
+                            <constraint firstItem="jIg-ev-31C" firstAttribute="centerX" secondItem="hA2-xi-krP" secondAttribute="centerX" id="MnE-5F-u6E"/>
                             <constraint firstItem="Wpb-Kd-vRz" firstAttribute="bottom" secondItem="QWX-e1-1PX" secondAttribute="bottom" constant="302" id="PcU-cM-FJ2"/>
                             <constraint firstItem="p8n-35-Byc" firstAttribute="bottom" secondItem="Wpb-Kd-vRz" secondAttribute="bottom" constant="-10" id="Xub-av-eWg"/>
-                            <constraint firstItem="QWX-e1-1PX" firstAttribute="top" secondItem="QHp-R1-Gqs" secondAttribute="bottom" constant="30" id="ba2-V2-QOj"/>
-                            <constraint firstItem="QHp-R1-Gqs" firstAttribute="top" secondItem="3UZ-3L-0pj" secondAttribute="bottom" constant="30" id="c5C-PH-rQy"/>
                             <constraint firstItem="QWX-e1-1PX" firstAttribute="leading" secondItem="Wpb-Kd-vRz" secondAttribute="leading" constant="16" id="gIL-W2-GlM"/>
                             <constraint firstItem="Wpb-Kd-vRz" firstAttribute="trailing" secondItem="QWX-e1-1PX" secondAttribute="trailing" constant="16" id="lkW-qV-3YV"/>
+                            <constraint firstItem="jIg-ev-31C" firstAttribute="top" secondItem="3UZ-3L-0pj" secondAttribute="bottom" constant="27" id="qZr-Or-4H1"/>
+                            <constraint firstItem="1Pw-u8-Ljk" firstAttribute="centerX" secondItem="hA2-xi-krP" secondAttribute="centerX" id="thW-fs-m9G"/>
                             <constraint firstItem="3UZ-3L-0pj" firstAttribute="centerX" secondItem="hA2-xi-krP" secondAttribute="centerX" id="vMa-JB-rmp"/>
+                            <constraint firstItem="QWX-e1-1PX" firstAttribute="top" secondItem="jIg-ev-31C" secondAttribute="bottom" constant="32" id="xWn-qG-5az"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Profile" image="person" catalog="system" selectedImage="person.fill" id="KJh-Js-nTa"/>
-                    <navigationItem key="navigationItem" id="Vfx-Vg-rJf"/>
+                    <navigationItem key="navigationItem" id="Vfx-Vg-rJf">
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="8Jc-fY-8t6"/>
+                    </navigationItem>
                     <connections>
-                        <outlet property="SignOutButton" destination="p8n-35-Byc" id="HWE-iu-PuK"/>
-                        <outlet property="UserName" destination="QHp-R1-Gqs" id="he2-3h-8ko"/>
+                        <outlet property="editProfileButton" destination="1Pw-u8-Ljk" id="VfR-zh-Hvx"/>
+                        <outlet property="profileImageView" destination="3UZ-3L-0pj" id="rUe-BL-67U"/>
+                        <outlet property="signOutButton" destination="p8n-35-Byc" id="G4a-hH-c2j"/>
                         <outlet property="tableview" destination="QWX-e1-1PX" id="dY9-2d-tHd"/>
+                        <outlet property="userNameTextField" destination="jIg-ev-31C" id="fVq-EA-CPd"/>
                         <segue destination="lF2-Cm-C8G" kind="show" identifier="EditHealthInfo" id="tPe-LB-Zxu"/>
                     </connections>
                 </viewController>
@@ -3054,10 +3067,10 @@
         <image name="house.fill" catalog="system" width="128" height="104"/>
         <image name="icons8-google-48" width="24" height="24"/>
         <image name="mail.and.text.magnifyingglass" catalog="system" width="128" height="109"/>
-        <image name="person" catalog="system" width="128" height="121"/>
         <image name="person.fill" catalog="system" width="128" height="120"/>
         <image name="photo" catalog="system" width="128" height="93"/>
         <image name="placeholder_product_nobg" width="500" height="500"/>
+        <image name="plus" catalog="system" width="128" height="113"/>
         <image name="popcorn" catalog="system" width="103" height="128"/>
         <image name="profile" width="50" height="50"/>
         <image name="square.grid.2x2" catalog="system" width="128" height="114"/>
