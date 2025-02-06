@@ -1,6 +1,7 @@
 import UIKit
 import FirebaseAuth
 import Firebase
+import SDWebImage
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     let options = ["Edit Health Info"]
