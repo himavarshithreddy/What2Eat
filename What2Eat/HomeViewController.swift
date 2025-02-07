@@ -24,6 +24,39 @@ extension UIImage {
         UIGraphicsEndImageContext()
         return circularImage
     }
+
+    static func imageWithInitial(_ initial: String, size: CGSize, backgroundColor: UIColor = .systemTeal, textColor: UIColor = .white, font: UIFont? = nil) -> UIImage? {
+        // Use a default bold font if none is provided.
+        let font = font ?? UIFont.boldSystemFont(ofSize: size.width / 2)
+        let rect = CGRect(origin: .zero, size: size)
+        
+        // Begin graphics context.
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        defer { UIGraphicsEndImageContext() }
+        
+        // Draw a circular background.
+        let path = UIBezierPath(ovalIn: rect)
+        backgroundColor.setFill()
+        path.fill()
+        
+        // Calculate text size and position.
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: textColor
+        ]
+        let textSize = initial.size(withAttributes: attributes)
+        let textRect = CGRect(
+            x: (size.width - textSize.width) / 2,
+            y: (size.height - textSize.height) / 2,
+            width: textSize.width,
+            height: textSize.height)
+        
+        // Draw the initial.
+        initial.draw(in: textRect, withAttributes: attributes)
+        
+        // Return the image.
+        return UIGraphicsGetImageFromCurrentImageContext()
+    }
 }
 
     
@@ -121,12 +154,18 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     // New: Update the right bar button item with the profile picture from Firebase
     func updateProfilePicture() {
-        // Ensure the user is logged in
+        // Check if the user is logged in.
         guard let userId = Auth.auth().currentUser?.uid else {
-            print("User not logged in")
+            // User not logged in: use the default initial "G" (for Guest).
+            let initial = "G"
+            let size = CGSize(width: 32, height: 32)
+            if let image = UIImage.imageWithInitial(initial, size: size) {
+                self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
+            }
             return
         }
         
+        // If logged in, fetch the user's document from Firestore.
         let db = Firestore.firestore()
         let userRef = db.collection("users").document(userId)
         
@@ -136,29 +175,43 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                 return
             }
             
-            // Use "profileImageUrl" as the field name
-            guard let document = document, document.exists,
-                  let profileImageUrl = document.data()?["profileImageUrl"] as? String,
-                  let url = URL(string: profileImageUrl) else {
-                print("No profileImageUrl found in user document")
+            guard let document = document, document.exists else {
+                print("User document does not exist")
                 return
             }
             
-            // Use SDWebImageDownloader to download the image
-            SDWebImageDownloader.shared.downloadImage(with: url, completed: { image, data, error, finished in
-                if finished, let image = image {
+            let data = document.data() ?? [:]
+            
+            // Check if a profile image URL exists and is non-empty.
+            if let profileImageUrl = data["profileImageUrl"] as? String,
+               !profileImageUrl.isEmpty,
+               let url = URL(string: profileImageUrl) {
+                // Download and set the profile image.
+                SDWebImageDownloader.shared.downloadImage(with: url, completed: { image, data, error, finished in
+                    if finished, let image = image {
+                        DispatchQueue.main.async {
+                            let size = CGSize(width: 32, height: 32)
+                            let circularImage = image.circularImage(size: size)
+                            self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                        }
+                    }
+                })
+            } else {
+                // No profile image set: generate an image with the user's initial.
+                var initial = "G"  // default initial for Guest
+                if let fullName = data["name"] as? String, !fullName.isEmpty {
+                    initial = String(fullName.prefix(1))
+                }
+                let size = CGSize(width: 32, height: 32)
+                if let image = UIImage.imageWithInitial(initial, size: size) {
                     DispatchQueue.main.async {
-                        // Create a circular version of the image (adjust size as needed)
-                        let size = CGSize(width: 32, height: 32)
-                        let circularImage = image.circularImage(size: size)
-                        
-                        // Update the right bar button's image
-                        self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                        self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
                     }
                 }
-            })
+            }
         }
     }
+
     
     // MARK: - Collection View Methods
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -166,47 +219,32 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-            // If recommendations are available, use them; otherwise, fallback to sampleUser's picks.
-            return recommendedProducts.isEmpty ? sampleUser.picksforyou.count : recommendedProducts.count
-        }
-    
+        return recommendedProducts.count
+    }
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-          let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PickforyouCell", for: indexPath) as! HomePickForYouCell
-          
-          if !recommendedProducts.isEmpty {
-              // Use the recommended product details
-              let product = recommendedProducts[indexPath.row]
-              cell.picktitle.text = product.name
-              cell.pickscoreLabel.text = "\(product.healthScore)"
-              cell.pickImage.sd_setImage(with: URL(string: product.imageURL), placeholderImage: UIImage(named: "placeholder_product"))
-              cell.pickview.layer.cornerRadius = 10
-              cell.pickcategory.text = ""
-              // Update score view color based on health score
-              if product.healthScore < 40 {
-                  cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
-              } else if product.healthScore < 75 {
-                  cell.pickview.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
-              } else {
-                  cell.pickview.layer.backgroundColor = UIColor.systemGreen.cgColor
-              }
-          } else {
-              // Fallback to sample data
-              let pick = sampleUser.picksforyou[indexPath.row]
-              cell.pickImage.image = UIImage(named: pick.imageURL)
-              cell.picktitle.text = pick.name
-              cell.pickcategory.text = getCategoryName(for: pick.categoryId)
-              cell.pickscoreLabel.text = "\(pick.healthScore)"
-              if pick.healthScore < 40 {
-                  cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
-              } else if pick.healthScore < 75 {
-                  cell.pickview.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
-              } else {
-                  cell.pickview.layer.backgroundColor = UIColor.systemGreen.cgColor
-              }
-          }
-          cell.layer.cornerRadius = 10
-          return cell
-      }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PickforyouCell", for: indexPath) as! HomePickForYouCell
+        
+        let product = recommendedProducts[indexPath.row]
+        cell.picktitle.text = product.name
+        cell.pickscoreLabel.text = "\(product.healthScore)"
+        cell.pickImage.sd_setImage(with: URL(string: product.imageURL), placeholderImage: UIImage(named: "placeholder_product"))
+        cell.pickview.layer.cornerRadius = 10
+        cell.pickcategory.text = ""  // You can customize this label as needed
+        cell.layer.borderColor = UIColor(red: 255/255, green: 234/255, blue: 218/255, alpha: 1).cgColor
+        cell.layer.borderWidth = 2
+        if product.healthScore < 40 {
+            cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
+        } else if product.healthScore < 75 {
+            cell.pickview.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
+        } else {
+            cell.pickview.layer.backgroundColor = UIColor.systemGreen.cgColor
+        }
+        
+        cell.layer.cornerRadius = 10
+        return cell
+    }
+
     
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { (section, env) -> NSCollectionLayoutSection? in
@@ -388,10 +426,15 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     // MARK: - Fetching Recommended Products for "Picks for You"
     func fetchRecommendedProducts(completion: @escaping () -> Void) {
         let defaults = UserDefaults.standard
-        guard let recommendations = defaults.array(forKey: "recommendations") as? [String],
-              !recommendations.isEmpty else {
-            // No recommendations stored, so finish.
-            completion()
+        // Get recommendations from UserDefaults, defaulting to an empty array.
+        let recommendations = defaults.array(forKey: "recommendations") as? [String] ?? []
+        
+        // If there are no recommendations stored, fetch the top 6 products instead.
+        if recommendations.isEmpty {
+            self.fetchTopHealthScoreProducts { topProducts in
+                self.recommendedProducts = topProducts
+                completion()
+            }
             return
         }
         
@@ -416,13 +459,43 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         
         dispatchGroup.notify(queue: .main) {
             // Filter out recommended products that are also in recent scans.
-            // (Assuming `recentScansProducts` is accessible and contains tuples with an `id` property.)
             let filteredProducts = fetchedProducts.filter { recommended in
                 !recentScansProducts.contains(where: { $0.id == recommended.id })
             }
-            self.recommendedProducts = filteredProducts
-            completion()
+            if filteredProducts.isEmpty {
+                // If there are no recommendations left after filtering, fetch the top 6 products.
+                self.fetchTopHealthScoreProducts { topProducts in
+                    self.recommendedProducts = topProducts
+                    completion()
+                }
+            } else {
+                self.recommendedProducts = filteredProducts
+                completion()
+            }
         }
+    }
+    func fetchTopHealthScoreProducts(completion: @escaping ([(id: String, name: String, healthScore: Int, imageURL: String)]) -> Void) {
+        let db = Firestore.firestore()
+        db.collection("products")
+          .order(by: "healthScore", descending: true)
+          .limit(to: 6)
+          .getDocuments { (snapshot, error) in
+              var topProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
+              if let error = error {
+                  print("Error fetching top products: \(error)")
+              }
+              if let documents = snapshot?.documents {
+                  for document in documents {
+                      let data = document.data()
+                      if let name = data["name"] as? String,
+                         let healthScore = data["healthScore"] as? Int,
+                         let imageURL = data["imageURL"] as? String {
+                          topProducts.append((id: document.documentID, name: name, healthScore: healthScore, imageURL: imageURL))
+                      }
+                  }
+              }
+              completion(topProducts)
+          }
     }
 
 }
