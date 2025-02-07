@@ -1246,6 +1246,11 @@
                                                         <integer key="value" value="20"/>
                                                     </userDefinedRuntimeAttribute>
                                                 </userDefinedRuntimeAttributes>
+                                                <variation key="default">
+                                                    <mask key="subviews">
+                                                        <exclude reference="m6e-Vk-0J1"/>
+                                                    </mask>
+                                                </variation>
                                             </view>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Picks For You" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9aT-6V-Dvm">
                                                 <rect key="frame" x="20" y="238" width="168.66666666666666" height="33.666666666666686"/>
@@ -1354,7 +1359,7 @@
                                                             <subviews>
                                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="4h7-Yq-V35">
                                                                     <rect key="frame" x="0.0" y="0.0" width="163" height="200"/>
-                                                                    <color key="backgroundColor" red="0.8901960784313725" green="0.84705882352941175" blue="0.7803921568627451" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                                    <color key="backgroundColor" red="1" green="0.91764705879999997" blue="0.85490196080000003" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                                                     <constraints>
                                                                         <constraint firstAttribute="height" constant="200" id="Mmm-Hy-dKR"/>
                                                                     </constraints>
@@ -1363,7 +1368,7 @@
                                                                     <rect key="frame" x="0.0" y="200" width="163" height="100"/>
                                                                     <subviews>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xKr-YT-BoD">
-                                                                            <rect key="frame" x="7.9999999999999964" y="7.9999999999999982" width="54.666666666666657" height="26.333333333333329"/>
+                                                                            <rect key="frame" x="8" y="7.9999999999999982" width="62" height="26.333333333333329"/>
                                                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="22"/>
                                                                             <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                             <nil key="highlightedColor"/>
@@ -1375,7 +1380,7 @@
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IzS-vT-tei">
-                                                                            <rect key="frame" x="115" y="30" width="40" height="40"/>
+                                                                            <rect key="frame" x="115" y="10" width="40" height="40"/>
                                                                             <subviews>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TPR-if-WIO">
                                                                                     <rect key="frame" x="-4.6666666666666714" y="9.3333333333333446" width="49.333333333333336" height="21.666666666666671"/>
@@ -1401,10 +1406,12 @@
                                                                         <constraint firstItem="IxY-uk-aDT" firstAttribute="top" secondItem="xKr-YT-BoD" secondAttribute="bottom" constant="8" id="Vzr-rM-4kM"/>
                                                                         <constraint firstAttribute="height" constant="100" id="dwM-jQ-s5T"/>
                                                                         <constraint firstItem="xKr-YT-BoD" firstAttribute="top" secondItem="BDE-3Y-EE6" secondAttribute="top" constant="8" id="fZf-rR-kSb"/>
-                                                                        <constraint firstItem="IzS-vT-tei" firstAttribute="centerY" secondItem="BDE-3Y-EE6" secondAttribute="centerY" id="kub-e7-5sR"/>
+                                                                        <constraint firstItem="IzS-vT-tei" firstAttribute="bottom" secondItem="BDE-3Y-EE6" secondAttribute="bottom" constant="-50" id="kub-e7-5sR"/>
+                                                                        <constraint firstItem="IzS-vT-tei" firstAttribute="leading" secondItem="xKr-YT-BoD" secondAttribute="trailing" constant="45" id="pHO-Sf-hPF"/>
                                                                     </constraints>
                                                                 </view>
                                                             </subviews>
+                                                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="trailing" secondItem="BDE-3Y-EE6" secondAttribute="trailing" id="3E1-jc-UH5"/>
                                                                 <constraint firstItem="4h7-Yq-V35" firstAttribute="leading" secondItem="0Nq-Fv-1ev" secondAttribute="leading" id="6KB-Vt-31s"/>
@@ -1415,6 +1422,7 @@
                                                                 <constraint firstAttribute="bottom" secondItem="BDE-3Y-EE6" secondAttribute="bottom" id="suU-Gd-NKl"/>
                                                             </constraints>
                                                         </collectionViewCellContentView>
+                                                        <color key="backgroundColor" red="0.88627451660000001" green="0.84313726430000002" blue="0.79607844350000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                                         <size key="customSize" width="163" height="300"/>
                                                         <connections>
                                                             <outlet property="pickImage" destination="4h7-Yq-V35" id="Kh6-SA-JnO"/>

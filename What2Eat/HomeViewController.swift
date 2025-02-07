@@ -12,6 +12,7 @@ import QuartzCore
 import FirebaseAuth
 import SDWebImage
 
+
 // MARK: - UIImage Extension for Circular Cropping
 extension UIImage {
     func circularImage(size: CGSize) -> UIImage {
@@ -25,8 +26,9 @@ extension UIImage {
     }
 }
 
-class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
     
+class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
+    var recommendedProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
@@ -61,6 +63,10 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             // Adjust the HomeHeight after the data has been fetched and the table view is updated
             self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 750)
         }
+        fetchRecommendedProducts {
+                    // Reload the collection view after fetching recommendations
+                    self.collectionView.reloadData()
+                }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -71,7 +77,13 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         }
         updateUserName()
         updateProfilePicture()
+        self.collectionView.reloadData()
+        fetchRecommendedProducts {
+                    // Reload the collection view after fetching recommendations
+                    self.collectionView.reloadData()
+                }
     }
+  
     
     func updateUserName() {
         guard let userId = Auth.auth().currentUser?.uid else {
@@ -154,31 +166,47 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        sampleUser.picksforyou.count
-    }
+            // If recommendations are available, use them; otherwise, fallback to sampleUser's picks.
+            return recommendedProducts.isEmpty ? sampleUser.picksforyou.count : recommendedProducts.count
+        }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PickforyouCell", for: indexPath) as! HomePickForYouCell
-        let pick = sampleUser.picksforyou[indexPath.row]
-        cell.pickImage.image = UIImage(named: pick.imageURL)
-        cell.picktitle.text = pick.name
-        cell.pickcategory.text = getCategoryName(for: pick.categoryId)
-        
-        cell.pickscoreLabel.text = "\(pick.healthScore)"
-        cell.pickview.layer.cornerRadius = cell.pickview.frame.height / 2
-        
-        if pick.healthScore < 40 {
-            cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
-        }
-        else if pick.healthScore < 75 {
-            cell.pickview.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
-        }
-        else if pick.healthScore <= 100 {
-            cell.pickview.layer.backgroundColor = UIColor.systemGreen.cgColor
-        }
-        cell.layer.cornerRadius = 14
-        return cell
-    }
+          let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PickforyouCell", for: indexPath) as! HomePickForYouCell
+          
+          if !recommendedProducts.isEmpty {
+              // Use the recommended product details
+              let product = recommendedProducts[indexPath.row]
+              cell.picktitle.text = product.name
+              cell.pickscoreLabel.text = "\(product.healthScore)"
+              cell.pickImage.sd_setImage(with: URL(string: product.imageURL), placeholderImage: UIImage(named: "placeholder_product"))
+              cell.pickview.layer.cornerRadius = 10
+              cell.pickcategory.text = ""
+              // Update score view color based on health score
+              if product.healthScore < 40 {
+                  cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
+              } else if product.healthScore < 75 {
+                  cell.pickview.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
+              } else {
+                  cell.pickview.layer.backgroundColor = UIColor.systemGreen.cgColor
+              }
+          } else {
+              // Fallback to sample data
+              let pick = sampleUser.picksforyou[indexPath.row]
+              cell.pickImage.image = UIImage(named: pick.imageURL)
+              cell.picktitle.text = pick.name
+              cell.pickcategory.text = getCategoryName(for: pick.categoryId)
+              cell.pickscoreLabel.text = "\(pick.healthScore)"
+              if pick.healthScore < 40 {
+                  cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
+              } else if pick.healthScore < 75 {
+                  cell.pickview.layer.backgroundColor = UIColor(red: 255/255, green: 170/255, blue: 0/255, alpha: 1).cgColor
+              } else {
+                  cell.pickview.layer.backgroundColor = UIColor.systemGreen.cgColor
+              }
+          }
+          cell.layer.cornerRadius = 10
+          return cell
+      }
     
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { (section, env) -> NSCollectionLayoutSection? in
@@ -261,9 +289,14 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     // MARK: - Collection View Selection
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedProduct = sampleUser.picksforyou[indexPath.row]
-        performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct)
-    }
+            if !recommendedProducts.isEmpty {
+                let selectedProduct = recommendedProducts[indexPath.row]
+                performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct.id)
+            } else {
+                let selectedProduct = sampleUser.picksforyou[indexPath.row]
+                performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct.id)
+            }
+        }
     
     func fetchRecentScans(completion: @escaping () -> Void) {
         // Fetch recent scans from local storage
@@ -352,4 +385,44 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             completion()
         }
     }
+    // MARK: - Fetching Recommended Products for "Picks for You"
+    func fetchRecommendedProducts(completion: @escaping () -> Void) {
+        let defaults = UserDefaults.standard
+        guard let recommendations = defaults.array(forKey: "recommendations") as? [String],
+              !recommendations.isEmpty else {
+            // No recommendations stored, so finish.
+            completion()
+            return
+        }
+        
+        let db = Firestore.firestore()
+        var fetchedProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
+        let dispatchGroup = DispatchGroup()
+        
+        for productId in recommendations {
+            dispatchGroup.enter()
+            let productRef = db.collection("products").document(productId)
+            productRef.getDocument { (document, error) in
+                defer { dispatchGroup.leave() }
+                if let document = document, document.exists, let data = document.data() {
+                    if let name = data["name"] as? String,
+                       let healthScore = data["healthScore"] as? Int,
+                       let imageURL = data["imageURL"] as? String {
+                        fetchedProducts.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL))
+                    }
+                }
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            // Filter out recommended products that are also in recent scans.
+            // (Assuming `recentScansProducts` is accessible and contains tuples with an `id` property.)
+            let filteredProducts = fetchedProducts.filter { recommended in
+                !recentScansProducts.contains(where: { $0.id == recommended.id })
+            }
+            self.recommendedProducts = filteredProducts
+            completion()
+        }
+    }
+
 }
