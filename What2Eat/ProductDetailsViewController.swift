@@ -283,7 +283,7 @@ class ProductDetailsViewController: UIViewController {
                 
                 // Extract data from Firestore
                 let name = data["name"] as? String ?? "Unknown"
-                let barcode = data["barcode"] as? String ?? ""
+                let barcode = data["barcode"] as? [String] ?? []
                 let imageURL = data["imageURL"] as? String ?? ""
                 let ingredients = data["ingredients"] as? [String] ?? []
                 let artificialIngredients = data["artificialIngredients"] as? [String] ?? []

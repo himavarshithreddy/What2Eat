@@ -151,7 +151,7 @@ struct ProductList {
 }
 struct ProductData: Codable {
     let id: String
-    let barcode: String
+    let barcode: [String]
     let name: String
     let imageURL: String
     let ingredients: [String]
