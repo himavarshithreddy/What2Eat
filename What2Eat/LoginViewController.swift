@@ -5,195 +5,126 @@ import GoogleSignIn
 import FirebaseFirestore
 
 class LoginViewController: UIViewController {
-    
+
+    // MARK: - IBOutlets
     @IBOutlet var phoneTextField: UITextField!
     @IBOutlet var verificationCodeTextField: UITextField!
-    
     @IBOutlet var sendCodeButton: UIButton!
+    
+    // MARK: - Properties
     var verificationID: String?
-    // Declare the activity indicator
+    var currentUserUID: String?
     var activityIndicator: UIActivityIndicatorView!
 
+    // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Initially hide the verification code field
         verificationCodeTextField.isHidden = true
-        guard let clientID = FirebaseApp.app()?.options.clientID else { fatalError("Google client ID not found") }
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-        // Initialize the activity indicator
+        
+        // Initialize and set up the activity indicator
         activityIndicator = UIActivityIndicatorView(style: .large)
         activityIndicator.center = view.center
         view.addSubview(activityIndicator)
+        
+        // Additional setup if needed...
     }
     
+    // MARK: - Actions
     @IBAction func sendCodeButtonTapped(_ sender: Any) {
-            // If the text field is not empty and it's the first step (send code)
-            if verificationCodeTextField.isHidden {
-                guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
-                    showAlert(message: "Please enter a valid phone number.")
+        // First step: sending the verification code
+        if verificationCodeTextField.isHidden {
+            guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
+                showAlert(message: "Please enter a valid phone number.")
+                return
+            }
+            
+            activityIndicator.startAnimating()
+            view.isUserInteractionEnabled = false
+            
+            PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
+                self.activityIndicator.stopAnimating()
+                self.view.isUserInteractionEnabled = true
+                
+                if let error = error {
+                    self.showAlert(message: "Error sending verification code: \(error.localizedDescription)")
                     return
                 }
                 
-                // Show activity indicator
-                activityIndicator.startAnimating()
-                view.isUserInteractionEnabled = false // Disable user interaction
+                // Save the verification ID for later use
+                self.verificationID = verificationID
                 
-                PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
-                    self.activityIndicator.stopAnimating()
-                    self.view.isUserInteractionEnabled = true // Enable user interaction
-                    
-                    if let error = error {
-                        self.showAlert(message: "Error sending verification code: \(error.localizedDescription)")
-                        return
-                    }
-                    
-                    // Save the verification ID for later use when verifying the code
-                    self.verificationID = verificationID
-                    
-                    // Show the verification code field and change the button text
-                    self.verificationCodeTextField.isHidden = false
-                    self.sendCodeButton.setTitle("Verify Code", for: .normal)
-                }
-            } else {
-                // If the verification code text field is visible, verify the code
-                guard let verificationCode = verificationCodeTextField.text, !verificationCode.isEmpty else {
-                    showAlert(message: "Please enter the verification code.")
+                // Show the verification code text field and update the button title
+                self.verificationCodeTextField.isHidden = false
+                self.sendCodeButton.setTitle("Verify Code", for: .normal)
+            }
+        } else {
+            // Second step: verifying the code
+            guard let verificationCode = verificationCodeTextField.text, !verificationCode.isEmpty else {
+                showAlert(message: "Please enter the verification code.")
+                return
+            }
+            
+            guard let verificationID = self.verificationID else {
+                showAlert(message: "Verification ID not found.")
+                return
+            }
+            
+            let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
+            
+            activityIndicator.startAnimating()
+            view.isUserInteractionEnabled = false
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
+                self.activityIndicator.stopAnimating()
+                self.view.isUserInteractionEnabled = true
+                
+                if let error = error {
+                    self.showAlert(message: "Error verifying code: \(error.localizedDescription)")
                     return
                 }
                 
-                guard let verificationID = self.verificationID else {
-                    showAlert(message: "Verification ID not found.")
-                    return
-                }
-                
-                let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
-                
-                // Sign in the user with the phone number credential
-                activityIndicator.startAnimating()
-                view.isUserInteractionEnabled = false // Disable user interaction
-                
-                Auth.auth().signIn(with: credential) { authResult, error in
-                    self.activityIndicator.stopAnimating()
-                    self.view.isUserInteractionEnabled = true // Enable user interaction
+                // Successfully signed in
+                if let user = authResult?.user {
+                    // Save the current user's UID for later use
+                    self.currentUserUID = user.uid
                     
-                    if let error = error {
-                        self.showAlert(message: "Error verifying code: \(error.localizedDescription)")
-                        return
-                    }
-                    
-                    if let user = authResult?.user {
-                        print("User logged in: \(user.phoneNumber ?? "No phone number")")
-                        self.fetchUserData(uid: user.uid) { userData in
-                            if userData.isEmpty {
-                                // User document does not exist, create a new one
-                                self.createNewUser(uid: user.uid, name: "Guest")
-                            } else {
-                                // User data exists, proceed
-                                _ = Users(
-                                    name: userData["name"] as? String ?? "",
-                                    dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
-                                    allergies: userData["allergies"] as? [String] ?? [],
-                                    recentScans: userData["recentScans"] as? [String] ?? []
-                                )
-                                self.navigateToTabBarController()
-                            }
+                    // Fetch Firestore user data
+                    self.fetchUserData(uid: user.uid) { userData in
+                        if userData.isEmpty {
+                            // New user: present NameViewController to collect the name
+                            self.presentNameViewController()
+                        } else {
+                            // Existing user: navigate directly to the main app
+                            self.navigateToTabBarController()
                         }
                     }
                 }
             }
         }
-            
-    private func navigateToTabBarController() {
-        // Get the active window from UIWindowScene (iOS 13+)
-        if let windowScene = view.window?.windowScene {
-            if let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
-                // Instantiate the Tab Bar Controller from the storyboard
-                if let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MainTabBarController") {
-                    // Set the Tab Bar Controller as the root view controller
-                    window.rootViewController = tabBarController
-                    window.makeKeyAndVisible()
-                }
-            }
-        }
     }
     
-    // Function to show alert with custom message
-    private func showAlert(message: String) {
-        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        alertController.addAction(okAction)
-        present(alertController, animated: true, completion: nil)
-    }
-    
-    @IBAction func GoogleSignInButtonTapped(_ sender: Any) {
-        GIDSignIn.sharedInstance.signIn(withPresenting: self) { signInResult, error in
-            if let error = error {
-                print("Error Signing In: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let user = signInResult?.user, let idToken = user.idToken?.tokenString else {
-                print("No user found")
-                return
-            }
-            
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            
-            Auth.auth().signIn(with: credential) { authResult, error in
-                if let error = error {
-                    print("Error Signing In: \(error.localizedDescription)")
-                    return
-                }
-                
-                print("User signed in successfully")
-                
-                // Fetch the user from Firestore
-                self.fetchUserData(uid: authResult?.user.uid ?? "") { userData in
-                    if userData.isEmpty {
-                        // User document does not exist, create a new one
-                        self.createNewUser(uid: authResult?.user.uid ?? "", name: user.profile?.name ?? "")
-                    } else {
-                        // User data exists, proceed
-                        _ = Users(
-                            name: userData["name"] as? String ?? "",
-                            dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
-                            allergies: userData["allergies"] as? [String] ?? [],
-                            recentScans: userData["recentScans"] as? [String] ?? []
-                        )
-                        // Continue to the next screen
-                        self.navigateToTabBarController()
-                    }
-                }
-            }
-        }
-    }
-
-    // Fetch user data from Firestore
+    // MARK: - Firestore Methods
     private func fetchUserData(uid: String, completion: @escaping ([String: Any]) -> Void) {
         let db = Firestore.firestore()
-
         db.collection("users").document(uid).getDocument { document, error in
             if let error = error {
                 self.showAlert(message: "Error fetching user data: \(error.localizedDescription)")
                 return
             }
             
-            // Check if the document exists, if not, return an empty dictionary
             guard let document = document, document.exists else {
-                completion([:])
+                completion([:])  // No user data found
                 return
             }
-
-            // Pass the document data to the completion handler
+            
             completion(document.data() ?? [:])
         }
     }
-
-
-    // Function to create a new user document in Firestore
+    
     private func createNewUser(uid: String, name: String) {
         let db = Firestore.firestore()
-        
-        // Default data for a new user
         let newUserData: [String: Any] = [
             "name": name,
             "dietaryRestrictions": [],
@@ -201,7 +132,6 @@ class LoginViewController: UIViewController {
             "recentScans": []
         ]
         
-        // Create the document in the 'users' collection with the user's UID as document ID
         db.collection("users").document(uid).setData(newUserData) { error in
             if let error = error {
                 print("Error creating new user: \(error.localizedDescription)")
@@ -213,21 +143,43 @@ class LoginViewController: UIViewController {
             self.navigateToTabBarController()
         }
     }
-
-
-    private func highlightField(_ textField: UITextField) {
-            textField.layer.borderColor = UIColor.red.cgColor
-            textField.layer.borderWidth = 1.0
-            textField.layer.cornerRadius = 5.0
+    
+    // MARK: - Navigation Methods
+    private func navigateToTabBarController() {
+        if let windowScene = view.window?.windowScene,
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+           let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MainTabBarController") {
+            window.rootViewController = tabBarController
+            window.makeKeyAndVisible()
         }
-
-        // Function to remove the red border when the user starts editing
-        @objc private func textFieldEditingDidBegin(_ textField: UITextField) {
-            textField.layer.borderColor = UIColor.clear.cgColor
-            textField.layer.borderWidth = 0
+    }
+    
+    // Present NameViewController as a pop-up to collect the user's name
+    private func presentNameViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let nameVC = storyboard.instantiateViewController(withIdentifier: "NameViewController") as? NameViewController {
+            nameVC.delegate = self
+            nameVC.modalPresentationStyle = .pageSheet
+            present(nameVC, animated: true, completion: nil)
         }
+    }
+    
+    // MARK: - Helper Methods
+    private func showAlert(message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
+    }
+}
 
-    @IBAction func ContinueAsGuest(_ sender: Any) {
-        self.navigateToTabBarController()
+// MARK: - NameViewControllerDelegate
+extension LoginViewController: NameViewControllerDelegate {
+    func didEnterName(_ name: String) {
+        // Once the user enters their name, create a new user document in Firestore
+        guard let uid = self.currentUserUID else {
+            print("User UID not available!")
+            return
+        }
+        createNewUser(uid: uid, name: name)
     }
 }

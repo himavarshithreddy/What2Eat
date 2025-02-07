@@ -2681,6 +2681,67 @@
             </objects>
             <point key="canvasLocation" x="7258.2089552238804" y="-1746.4530892448511"/>
         </scene>
+        <!--Name View Controller-->
+        <scene sceneID="M0e-5l-ymm">
+            <objects>
+                <viewController storyboardIdentifier="NameViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="sYH-BV-jA1" customClass="NameViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="691-C7-dNN">
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter your name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1k4-QQ-VCy">
+                                <rect key="frame" x="30.000000000000007" y="82" width="118.66666666666669" height="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="YA3-u3-f2i">
+                                <rect key="frame" x="26" y="117" width="350" height="55"/>
+                                <color key="backgroundColor" red="0.94901967050000002" green="0.94901967050000002" blue="0.93333333730000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="55" id="BOp-W1-zSw"/>
+                                    <constraint firstAttribute="width" constant="350" id="M5O-NC-VzV"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="55" id="beS-Od-2EM"/>
+                                </constraints>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
+                                <textInputTraits key="textInputTraits" textContentType="name"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W4c-fb-Gwf">
+                                <rect key="frame" x="26" y="202" width="350" height="54"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="54" id="1vS-oK-4k2"/>
+                                    <constraint firstAttribute="width" constant="350" id="BZT-Jr-05a"/>
+                                    <constraint firstAttribute="height" constant="54" id="rgN-e1-pJH"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Save" cornerStyle="large"/>
+                                <connections>
+                                    <action selector="saveButtonTapped:" destination="sYH-BV-jA1" eventType="touchUpInside" id="Mhh-kK-M0k"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Y8s-js-VzL"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="W4c-fb-Gwf" firstAttribute="centerX" secondItem="691-C7-dNN" secondAttribute="centerX" id="MU1-5E-dhP"/>
+                            <constraint firstItem="YA3-u3-f2i" firstAttribute="centerX" secondItem="691-C7-dNN" secondAttribute="centerX" id="TN5-ZB-wAJ"/>
+                            <constraint firstItem="1k4-QQ-VCy" firstAttribute="leading" secondItem="Y8s-js-VzL" secondAttribute="leading" constant="30" id="dc9-Gk-Cnu"/>
+                            <constraint firstItem="W4c-fb-Gwf" firstAttribute="top" secondItem="YA3-u3-f2i" secondAttribute="bottom" constant="30" id="gMv-v4-zUl"/>
+                            <constraint firstItem="YA3-u3-f2i" firstAttribute="top" secondItem="1k4-QQ-VCy" secondAttribute="bottom" constant="15" id="ihr-xu-RmN"/>
+                            <constraint firstItem="1k4-QQ-VCy" firstAttribute="top" secondItem="Y8s-js-VzL" secondAttribute="top" constant="20" id="t4M-w5-FdA"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="enterLabel" destination="1k4-QQ-VCy" id="r2I-gT-KwF"/>
+                        <outlet property="nameTextField" destination="YA3-u3-f2i" id="bs5-6N-AHP"/>
+                        <outlet property="saveButton" destination="W4c-fb-Gwf" id="PP0-hU-ayH"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fox-RS-Wjq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="6077.6119402985069" y="-1738.2151029748281"/>
+        </scene>
         <!--Dietary View Controller-->
         <scene sceneID="jNr-ML-5O9">
             <objects>
