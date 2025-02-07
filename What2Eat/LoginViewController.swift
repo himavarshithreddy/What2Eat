@@ -170,6 +170,51 @@ class LoginViewController: UIViewController {
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(alertController, animated: true, completion: nil)
     }
+    @IBAction func ContinueAsGuest(_ sender: Any) {
+           self.navigateToTabBarController()
+       }
+    @IBAction func GoogleSignInButtonTapped(_ sender: Any) {
+            GIDSignIn.sharedInstance.signIn(withPresenting: self) { signInResult, error in
+                if let error = error {
+                    print("Error Signing In: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let user = signInResult?.user, let idToken = user.idToken?.tokenString else {
+                    print("No user found")
+                    return
+                }
+                
+                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+                
+                Auth.auth().signIn(with: credential) { authResult, error in
+                    if let error = error {
+                        print("Error Signing In: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    print("User signed in successfully")
+                    
+                    // Fetch the user from Firestore
+                    self.fetchUserData(uid: authResult?.user.uid ?? "") { userData in
+                        if userData.isEmpty {
+                            // User document does not exist, create a new one
+                            self.createNewUser(uid: authResult?.user.uid ?? "", name: user.profile?.name ?? "")
+                        } else {
+                            // User data exists, proceed
+                            _ = Users(
+                                name: userData["name"] as? String ?? "",
+                                dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
+                                allergies: userData["allergies"] as? [String] ?? [],
+                                recentScans: userData["recentScans"] as? [String] ?? []
+                            )
+                            // Continue to the next screen
+                            self.navigateToTabBarController()
+                        }
+                    }
+                }
+            }
+        }
 }
 
 // MARK: - NameViewControllerDelegate
