@@ -16,30 +16,15 @@ class NameViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.preferredContentSize = CGSize(width: self.view.frame.width, height: 300) // Adjust height as needed
 
-        setupUI()
+       
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
             tapGesture.cancelsTouchesInView = false
             view.addGestureRecognizer(tapGesture)
         }
     
-    private func setupUI() {
-        // Make sure the view has a background color (otherwise it will be transparent)
-        view.backgroundColor = .white
-        
-       
 
-        // Set up the modal sheet to take half the screen
-        if let sheet = sheetPresentationController {
-            sheet.detents = [.medium()]  // Half-screen height
-            sheet.prefersGrabberVisible = true  // Show grabber handle
-        }
-        
-       
-       
-    }
     
     // MARK: - Actions
     @IBAction func saveButtonTapped(_ sender: UIButton) {
