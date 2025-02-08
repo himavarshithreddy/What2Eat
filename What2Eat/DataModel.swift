@@ -125,11 +125,17 @@ struct Product {
 }
 
 // MARK: - Saved List Model
-struct SavedList{
+struct SavedLists{
     let id: UUID
     let name: String
     var products: [ProductData]
     let iconName: UIImage
+}
+struct SavedList {
+    let listId: String
+    let name: String
+    let iconName: String
+    var products: [String]// Store as string
 }
 
 // MARK: - Category Model
@@ -428,8 +434,8 @@ var sampleUser = User(
 )
 
 // MARK: - Sample Saved Lists
-var sampleLists: [SavedList] = [
-    SavedList(
+var sampleLists: [SavedLists] = [
+    SavedLists(
         id: UUID(),
         name: "Snacks",
         products: [
@@ -437,7 +443,7 @@ var sampleLists: [SavedList] = [
         ],
         iconName: UIImage(systemName: "popcorn")!
     ),
-    SavedList(
+    SavedLists(
         id: UUID(),
         name: "Healthy choices",
         products: [
@@ -445,14 +451,14 @@ var sampleLists: [SavedList] = [
         ],
         iconName: UIImage(systemName: "heart")!
     ),
-    SavedList(
+    SavedLists(
         id: UUID(),
         name: "Workout",
         products: [
            
         ],
         iconName: UIImage(systemName: "figure.run")!
-    ),SavedList(
+    ),SavedLists(
         id: UUID(),
         name: "Kids",
         products: [

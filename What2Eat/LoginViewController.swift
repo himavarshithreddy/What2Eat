@@ -123,14 +123,21 @@ class LoginViewController: UIViewController {
         }
     }
     
-    private func createNewUser(uid: String, name: String) {
+    private func createNewUser(uid: String, name: String, profileImageUrl: String? = nil) {
         let db = Firestore.firestore()
-        let newUserData: [String: Any] = [
+        
+        // Create a dictionary with the basic user details.
+        var newUserData: [String: Any] = [
             "name": name,
             "dietaryRestrictions": [],
             "allergies": [],
             "recentScans": []
         ]
+        
+        // If a profile image URL is provided and it's not empty, add it to the data.
+        if let profileImageUrl = profileImageUrl, !profileImageUrl.isEmpty {
+            newUserData["profileImageUrl"] = profileImageUrl
+        }
         
         db.collection("users").document(uid).setData(newUserData) { error in
             if let error = error {
@@ -143,6 +150,7 @@ class LoginViewController: UIViewController {
             self.navigateToTabBarController()
         }
     }
+
     
     // MARK: - Navigation Methods
     private func navigateToTabBarController() {
@@ -160,9 +168,24 @@ class LoginViewController: UIViewController {
         if let nameVC = storyboard.instantiateViewController(withIdentifier: "NameViewController") as? NameViewController {
             nameVC.delegate = self
             nameVC.modalPresentationStyle = .pageSheet
+            nameVC.isModalInPresentation = true  // Prevents swipe-to-dismiss
+            
+  
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                   return 300 // Replace with your desired height
+               }
+            
+            if let sheet = nameVC.sheetPresentationController {
+                // Choose a detent that fits your design, e.g., .medium()
+                sheet.detents = [customDetent]
+                sheet.preferredCornerRadius = 16  // Optional, for a rounded look
+            }
+            
             present(nameVC, animated: true, completion: nil)
         }
     }
+
+
     
     // MARK: - Helper Methods
     private func showAlert(message: String) {
@@ -174,47 +197,52 @@ class LoginViewController: UIViewController {
            self.navigateToTabBarController()
        }
     @IBAction func GoogleSignInButtonTapped(_ sender: Any) {
-            GIDSignIn.sharedInstance.signIn(withPresenting: self) { signInResult, error in
+        GIDSignIn.sharedInstance.signIn(withPresenting: self) { signInResult, error in
+            if let error = error {
+                print("Error Signing In: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let user = signInResult?.user, let idToken = user.idToken?.tokenString else {
+                print("No user found")
+                return
+            }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
                 if let error = error {
                     print("Error Signing In: \(error.localizedDescription)")
                     return
                 }
                 
-                guard let user = signInResult?.user, let idToken = user.idToken?.tokenString else {
-                    print("No user found")
-                    return
-                }
+                print("User signed in successfully")
                 
-                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-                
-                Auth.auth().signIn(with: credential) { authResult, error in
-                    if let error = error {
-                        print("Error Signing In: \(error.localizedDescription)")
-                        return
-                    }
-                    
-                    print("User signed in successfully")
-                    
-                    // Fetch the user from Firestore
-                    self.fetchUserData(uid: authResult?.user.uid ?? "") { userData in
-                        if userData.isEmpty {
-                            // User document does not exist, create a new one
-                            self.createNewUser(uid: authResult?.user.uid ?? "", name: user.profile?.name ?? "")
-                        } else {
-                            // User data exists, proceed
-                            _ = Users(
-                                name: userData["name"] as? String ?? "",
-                                dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
-                                allergies: userData["allergies"] as? [String] ?? [],
-                                recentScans: userData["recentScans"] as? [String] ?? []
-                            )
-                            // Continue to the next screen
-                            self.navigateToTabBarController()
-                        }
+                // Fetch the user from Firestore
+                self.fetchUserData(uid: authResult?.user.uid ?? "") { userData in
+                    if userData.isEmpty {
+                        // User document does not exist, create a new one.
+                        // Pass in the profile image URL from Google if available.
+                        let profileImageUrl = user.profile?.imageURL(withDimension: 200)?.absoluteString ?? ""
+                        self.createNewUser(
+                            uid: authResult?.user.uid ?? "",
+                            name: user.profile?.name ?? "",
+                            profileImageUrl: profileImageUrl
+                        )
+                    } else {
+                        // User data exists, proceed
+                        _ = Users(
+                            name: userData["name"] as? String ?? "",
+                            dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
+                            allergies: userData["allergies"] as? [String] ?? [],
+                            recentScans: userData["recentScans"] as? [String] ?? []
+                        )
+                        self.navigateToTabBarController()
                     }
                 }
             }
         }
+    }
 }
 
 // MARK: - NameViewControllerDelegate
