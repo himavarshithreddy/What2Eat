@@ -186,6 +186,11 @@ class ProductDetailsViewController: UIViewController {
     // MARK: - Bookmark Actions
     
     @objc func savedButtonTapped(_ sender: UIBarButtonItem) {
+        guard let user = Auth.auth().currentUser else {
+                showSignInAlert()
+                return
+            }
+
         guard let product = product else {
             print("No product to save or unsave")
             return
@@ -203,7 +208,27 @@ class ProductDetailsViewController: UIViewController {
             }
         }
     }
-    
+    private func showSignInAlert() {
+        let alert = UIAlertController(
+            title: "Sign In Required",
+            message: "You need to sign in to save products to your lists.",
+            preferredStyle: .alert
+        )
+        
+        let signInAction = UIAlertAction(title: "Sign In", style: .default) { _ in
+            // Redirect to the sign-in screen (Modify as per your app's navigation)
+            if let signInVC = self.storyboard?.instantiateViewController(withIdentifier: "LoginViewController") {
+                self.present(signInVC, animated: true, completion: nil)
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alert.addAction(signInAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true, completion: nil)
+    }
     // Fetch the saved lists from Firestore for the current user.
     private func fetchUserSavedLists(completion: @escaping ([SavedList]) -> Void) {
         guard let userId = Auth.auth().currentUser?.uid else {
