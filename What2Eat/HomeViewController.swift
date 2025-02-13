@@ -230,7 +230,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.pickscoreLabel.text = "\(product.healthScore)"
         cell.pickImage.sd_setImage(with: URL(string: product.imageURL), placeholderImage: UIImage(named: "placeholder_product"))
      
-        cell.pickcategory.text = ""  // You can customize this label as needed
+        cell.pickcategory.text = ""
         cell.layer.borderColor = UIColor(red: 255/255, green: 234/255, blue: 218/255, alpha: 1).cgColor
         cell.layer.borderWidth = 3
         if product.healthScore < 40 {
