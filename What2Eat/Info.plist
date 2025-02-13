@@ -13,6 +13,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>GIDClientID</key>
+	<string>745594998609-qmtc5m89t4u9m8s8o3umrekh2muktgii.apps.googleusercontent.com</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -32,7 +34,9 @@
 			</array>
 		</dict>
 	</dict>
-	<key>GIDClientID</key>
-	<string>745594998609-qmtc5m89t4u9m8s8o3umrekh2muktgii.apps.googleusercontent.com</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
