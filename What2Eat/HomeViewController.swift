@@ -61,7 +61,8 @@ extension UIImage {
 
     
 class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
-    var recommendedProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
+    var recommendedProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
+
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     
@@ -230,7 +231,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.pickscoreLabel.text = "\(product.healthScore)"
         cell.pickImage.sd_setImage(with: URL(string: product.imageURL), placeholderImage: UIImage(named: "placeholder_product"))
      
-        cell.pickcategory.text = ""
+        cell.pickcategory.text = product.categoryName
         cell.layer.borderColor = UIColor(red: 255/255, green: 234/255, blue: 218/255, alpha: 1).cgColor
         cell.layer.borderWidth = 3
         if product.healthScore < 40 {
@@ -424,78 +425,101 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         }
     }
     // MARK: - Fetching Recommended Products for "Picks for You"
-    func fetchRecommendedProducts(completion: @escaping () -> Void) {
-        let defaults = UserDefaults.standard
-        // Get recommendations from UserDefaults, defaulting to an empty array.
-        let recommendations = defaults.array(forKey: "recommendations") as? [String] ?? []
-        
-        // If there are no recommendations stored, fetch the top 6 products instead.
-        if recommendations.isEmpty {
-            self.fetchTopHealthScoreProducts { topProducts in
-                self.recommendedProducts = topProducts
-                completion()
-            }
-            return
-        }
-        
-        let db = Firestore.firestore()
-        var fetchedProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
-        let dispatchGroup = DispatchGroup()
-        
-        for productId in recommendations {
-            dispatchGroup.enter()
-            let productRef = db.collection("products").document(productId)
-            productRef.getDocument { (document, error) in
-                defer { dispatchGroup.leave() }
-                if let document = document, document.exists, let data = document.data() {
-                    if let name = data["name"] as? String,
-                       let healthScore = data["healthScore"] as? Int,
-                       let imageURL = data["imageURL"] as? String {
-                        fetchedProducts.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL))
-                    }
+    // MARK: - Fetching Recommended Products for "Picks for You"
+       func fetchRecommendedProducts(completion: @escaping () -> Void) {
+           let defaults = UserDefaults.standard
+           let recommendations = defaults.array(forKey: "recommendations") as? [String] ?? []
+           if recommendations.isEmpty {
+               self.fetchTopHealthScoreProducts { topProducts in
+                   self.recommendedProducts = topProducts
+                   completion()
+               }
+               return
+           }
+           let db = Firestore.firestore()
+           var fetchedProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
+           let dispatchGroup = DispatchGroup()
+           for productId in recommendations {
+               dispatchGroup.enter()
+               let productRef = db.collection("products").document(productId)
+               productRef.getDocument { (document, error) in
+                   if let document = document, document.exists, let data = document.data() {
+                       if let name = data["name"] as? String,
+                          let healthScore = data["healthScore"] as? Int,
+                          let imageURL = data["imageURL"] as? String,
+                          let categoryId = data["categoryId"] as? String {
+                           
+                           // Fetch the category name using the categoryId.
+                           self.fetchCategoryName(for: categoryId) { categoryName in
+                               fetchedProducts.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL, categoryName: categoryName))
+                               dispatchGroup.leave()
+                           }
+                       } else {
+                           dispatchGroup.leave()
+                       }
+                   } else {
+                       dispatchGroup.leave()
+                   }
+               }
+           }
+           dispatchGroup.notify(queue: .main) {
+               let filteredProducts = fetchedProducts.filter { recommended in
+                   !recentScansProducts.contains(where: { $0.id == recommended.id })
+               }
+               if filteredProducts.isEmpty {
+                   self.fetchTopHealthScoreProducts { topProducts in
+                       self.recommendedProducts = topProducts
+                       completion()
+                   }
+               } else {
+                   self.recommendedProducts = filteredProducts
+                   completion()
+               }
+           }
+       }
+       
+       func fetchTopHealthScoreProducts(completion: @escaping ([(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)]) -> Void) {
+           let db = Firestore.firestore()
+           db.collection("products")
+             .order(by: "healthScore", descending: true)
+             .limit(to: 6)
+             .getDocuments { (snapshot, error) in
+                 var topProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
+                 if let error = error {
+                     print("Error fetching top products: \(error)")
+                 }
+                 let dispatchGroup = DispatchGroup()
+                 if let documents = snapshot?.documents {
+                     for document in documents {
+                         let data = document.data()
+                         if let name = data["name"] as? String,
+                            let healthScore = data["healthScore"] as? Int,
+                            let imageURL = data["imageURL"] as? String,
+                            let categoryId = data["categoryId"] as? String {
+                             dispatchGroup.enter()
+                             self.fetchCategoryName(for: categoryId) { categoryName in
+                                 topProducts.append((id: document.documentID, name: name, healthScore: healthScore, imageURL: imageURL, categoryName: categoryName))
+                                 dispatchGroup.leave()
+                             }
+                         }
+                     }
+                 }
+                 dispatchGroup.notify(queue: .main) {
+                     completion(topProducts)
+                 }
+             }
+       }
+    func fetchCategoryName(for categoryId: String, completion: @escaping (String) -> Void) {
+            let db = Firestore.firestore()
+            db.collection("categories").document(categoryId).getDocument { (document, error) in
+                if let document = document, document.exists,
+                   let data = document.data(),
+                   let name = data["name"] as? String {
+                    completion(name)
+                } else {
+                    completion("Unknown Category")
                 }
             }
         }
-        
-        dispatchGroup.notify(queue: .main) {
-            // Filter out recommended products that are also in recent scans.
-            let filteredProducts = fetchedProducts.filter { recommended in
-                !recentScansProducts.contains(where: { $0.id == recommended.id })
-            }
-            if filteredProducts.isEmpty {
-                // If there are no recommendations left after filtering, fetch the top 6 products.
-                self.fetchTopHealthScoreProducts { topProducts in
-                    self.recommendedProducts = topProducts
-                    completion()
-                }
-            } else {
-                self.recommendedProducts = filteredProducts
-                completion()
-            }
-        }
-    }
-    func fetchTopHealthScoreProducts(completion: @escaping ([(id: String, name: String, healthScore: Int, imageURL: String)]) -> Void) {
-        let db = Firestore.firestore()
-        db.collection("products")
-          .order(by: "healthScore", descending: true)
-          .limit(to: 6)
-          .getDocuments { (snapshot, error) in
-              var topProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
-              if let error = error {
-                  print("Error fetching top products: \(error)")
-              }
-              if let documents = snapshot?.documents {
-                  for document in documents {
-                      let data = document.data()
-                      if let name = data["name"] as? String,
-                         let healthScore = data["healthScore"] as? Int,
-                         let imageURL = data["imageURL"] as? String {
-                          topProducts.append((id: document.documentID, name: name, healthScore: healthScore, imageURL: imageURL))
-                      }
-                  }
-              }
-              completion(topProducts)
-          }
-    }
 
 }
