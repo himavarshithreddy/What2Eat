@@ -16,27 +16,8 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     @IBOutlet weak var SaveButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    let dietaryOptions = [
-        "🌾Gluten-Free",
-        "🐄Dairy-Free",
-        "🥜Nut-Free",
-        "🌱Vegan",
-        "🍃Vegetarian",
-        "🍭Low Sugar",
-        "🥓Keto",
-        "💓High Blood Pressure"
-    ]
+  
     
-    let dietaryRestrictionMapping: [String: DietaryRestriction] = [
-        "🌾Gluten-Free": .glutenFree,
-        "🐄Dairy-Free": .dairyFree,
-        "🥜Nut-Free": .nutFree,
-        "🌱Vegan": .vegan,
-        "🍃Vegetarian": .vegetarian,
-        "🍭Low Sugar": .lowSugar,
-        "🥓Keto": .keto,
-        "💓High Blood Pressure": .highBP
-    ]
     
     var selectedDietaryRestrictions: [DietaryRestriction] = []
     

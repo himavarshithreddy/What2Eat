@@ -311,12 +311,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.layer.mask = maskLayer
     }
     
-    func getCategoryName(for categoryId: UUID) -> String {
-        if let category = Categories.first(where: { $0.id == categoryId }) {
-            return category.name
-        }
-        return "Unknown Category"
-    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showproductdetailsfromhome",
@@ -330,9 +324,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             if !recommendedProducts.isEmpty {
                 let selectedProduct = recommendedProducts[indexPath.row]
-                performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct.id)
-            } else {
-                let selectedProduct = sampleUser.picksforyou[indexPath.row]
                 performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct.id)
             }
         }

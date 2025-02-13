@@ -8,16 +8,7 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
     @IBOutlet weak var allergyLabel: UILabel!
     @IBOutlet weak var collectionView: UICollectionView!
     
-    let allergies: [String] = [
-        "🐄Dairy", "🥜Peanuts", "🌰Tree Nuts", "🥚Eggs", "🌾Soy",
-        "🍞Wheat", "🐟Fish", "🦀Shellfish", "🍖Milk", "🍂Sesame", "🍄Nuts"
-    ]
-    
-    let allergenMapping: [String: Allergen] = [
-        "🐄Dairy": .dairy, "🥜Peanuts": .peanuts, "🌰Tree Nuts": .treeNuts, "🥚Eggs": .eggs,
-        "🌾Soy": .soy, "🍞Wheat": .wheat, "🐟Fish": .fish, "🦀Shellfish": .shellfish,
-        "🍖Milk": .milk, "🍂Sesame": .sesame, "🍄Nuts": .nuts
-    ]
+   
     
     var selectedAllergens: [Allergen] = []
     

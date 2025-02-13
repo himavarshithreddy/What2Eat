@@ -10,26 +10,38 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-
+    private let hasLaunchedBeforeKey = "hasLaunchedBefore"
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(windowScene: windowScene)
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        var initialViewController: UIViewController
-
-        if !UserDefaults.standard.bool(forKey: "hasLaunchedBefore") {
-            // First launch: instantiate onboarding or login view controller
-            initialViewController = storyboard.instantiateViewController(withIdentifier: "OnboardingViewController")
-            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
-        } else {
-            // Subsequent launches: instantiate main view controller
-            initialViewController = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
+            guard let windowScene = (scene as? UIWindowScene) else { return }
+            window = UIWindow(windowScene: windowScene)
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            var initialViewController: UIViewController
+            
+            if !UserDefaults.standard.bool(forKey: hasLaunchedBeforeKey) {
+                // First-time user: Show LoginViewController and present OnboardingViewController
+                let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+                let onboardingVC = storyboard.instantiateViewController(withIdentifier: "OnboardingViewController")
+                loginVC.modalPresentationStyle = .fullScreen
+                onboardingVC.modalPresentationStyle = .fullScreen
+                
+                initialViewController = loginVC
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    loginVC.present(onboardingVC, animated: true, completion: nil)
+                }
+                
+                // Set flag that onboarding has been shown
+                UserDefaults.standard.set(true, forKey: hasLaunchedBeforeKey)
+            } else {
+                // Returning user: Show MainTabBarController
+                initialViewController = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
+            }
+            
+            window?.rootViewController = initialViewController
+            window?.makeKeyAndVisible()
         }
-
-        window?.rootViewController = initialViewController
-        window?.makeKeyAndVisible()
-    }
 
 
     func sceneDidDisconnect(_ scene: UIScene) {
