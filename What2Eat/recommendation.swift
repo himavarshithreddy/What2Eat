@@ -52,7 +52,7 @@ class RecommendationManager {
             "user_allergens": userAllergens,
             "top_n": 8
         ]
-        print("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅\(requestBody)")
+      
         
         guard let url = URL(string: "https://what2eat-recommender-745594998609.asia-south1.run.app/recommend/") else { return }
         var request = URLRequest(url: url)
