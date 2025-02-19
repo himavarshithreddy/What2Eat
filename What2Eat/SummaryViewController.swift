@@ -14,6 +14,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var isUserRatingPresent: Bool = false
 
     var userAllergens: [Allergen] = []
+    var productAllergenAlerts: [String] = []
     
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
@@ -42,8 +43,9 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         setStarRating(Float(product?.userRating ?? 0))
         setupEmptyStars()
         setupStarTapGestures()
-        
-      
+        fetchUserAllergensForSummary()
+        AlertTableView.sectionHeaderHeight = 0  // Explicit header height
+          
        
     }
     
@@ -79,7 +81,9 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
         } else if tableView.tag == 2 {
-            return userAllergens.count // Allergen section
+         
+            return productAllergenAlerts.count
+            // Allergen section
         }
         return 0
     }
@@ -113,8 +117,8 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             return cell
         } else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertCell", for: indexPath) as! AlertCell
-            let allergen = userAllergens[indexPath.row]
-            cell.AlertText.text = "Contains \(allergen.rawValue)"
+            let matchedIngredient = productAllergenAlerts[indexPath.row]
+            cell.AlertText.text = "Contains \(matchedIngredient)"
             return cell
         }
         
@@ -123,9 +127,15 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
 
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 20 // Adjust header height as needed
+        if tableView.tag == 1 {
+               return 20
+           } else if tableView.tag == 2 {
+               return 0
+           }
+           return 0
     }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard tableView.tag == 1 else { return nil }
         let headerView = UIView()
         let titleLabel = UILabel()
         titleLabel.frame = CGRect(x: 0, y: -10, width: tableView.frame.size.width, height: 25)
@@ -454,10 +464,76 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             // Reload the summary table view to reflect new data
             self.SummaryTableView.reloadData()
-            
+            self.compareAllergens()
             
             
         }
     }
+    func fetchUserAllergensForSummary() {
+            if let uid = Auth.auth().currentUser?.uid {
+                let db = Firestore.firestore()
+                let userDocument = db.collection("users").document(uid)
+                userDocument.getDocument { [weak self] (document, error) in
+                    if let error = error {
+                        print("Error fetching user allergens: \(error.localizedDescription)")
+                    } else if let document = document, document.exists,
+                              let allergiesFromDB = document.get("allergies") as? [String] {
+                        self?.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
+                        // Once fetched, compare with product ingredients
+                        self?.compareAllergens()
+                    }
+                }
+            } else {
+                let defaults = UserDefaults.standard
+                if let localAllergies = defaults.array(forKey: "localAllergies") as? [String] {
+                    userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
+                    compareAllergens()
+                }
+            }
+        }
+    
+    func compareAllergens() {
+        guard let productIngredients = product?.ingredients else {
+            self.productAllergenAlerts = []
+            updateAlertView()
+            return
+        }
+        
+        var alerts: [String] = []
+        
+        // For each allergen the user is concerned about...
+        for allergen in userAllergens {
+            // Look up synonyms from the mapping
+            if let synonyms = allergenMapping[allergen.rawValue] {
+                // For each ingredient in the product...
+                for ingredient in productIngredients {
+                    // Check if any synonym is found within the ingredient string
+                    for synonym in synonyms {
+                        if ingredient.lowercased().contains(synonym.lowercased()) {
+                            // Record the actual product ingredient that matched
+                            if !alerts.contains(ingredient) {
+                                alerts.append(ingredient)
+                            }
+                            // Once a synonym matches, break out of the synonym loop
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        
+        productAllergenAlerts = alerts
+        updateAlertView()
+    }
+    func updateAlertView() {
+            if productAllergenAlerts.isEmpty {
+                AlertView.isHidden = true
+            } else {
+                AlertView.isHidden = false
+                // Assuming each alert row is 25 points in height
+                AlertViewHeight.constant = CGFloat(30*productAllergenAlerts.count+35)
+            }
+            AlertTableView.reloadData()
+        }
 
 }
