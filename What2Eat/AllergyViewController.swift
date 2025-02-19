@@ -2,14 +2,15 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
+
+
 class AllergyViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     @IBOutlet var progressView: UIProgressView!
     @IBOutlet weak var allergyLabel: UILabel!
     @IBOutlet weak var collectionView: UICollectionView!
     
-   
-    
+    // Store selected allergens as the canonical Allergen enum.
     var selectedAllergens: [Allergen] = []
     
     override func viewDidLoad() {
@@ -26,7 +27,6 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
     
     private func fetchUserAllergies() {
         if let uid = Auth.auth().currentUser?.uid {
-            // User is logged in, fetch from Firestore
             let db = Firestore.firestore()
             let userDocument = db.collection("users").document(uid)
             
@@ -35,31 +35,21 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
                     print("Error fetching allergies: \(error.localizedDescription)")
                     self.showAlert(message: "Error fetching allergies: \(error.localizedDescription)")
                 } else if let document = document, document.exists,
-                          let allergies = document.get("allergies") as? [String] {
-                    self.selectedAllergens = allergies.compactMap { Allergen(rawValue: $0) }
-                    self.updateUIWithSelectedAllergens()
+                          let allergiesFromDB = document.get("allergies") as? [String] {
+                    self.selectedAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
+                    self.collectionView.reloadData()
                 }
             }
         } else {
-            // User not logged in, fetch from local storage
             let defaults = UserDefaults.standard
             if let localAllergies = defaults.array(forKey: "localAllergies") as? [String] {
                 selectedAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
-                updateUIWithSelectedAllergens()
+                collectionView.reloadData()
             }
         }
     }
     
-    private func updateUIWithSelectedAllergens() {
-        for cell in collectionView.visibleCells {
-            if let allergyCell = cell as? AllergyCell {
-                let allergyOption = allergies[allergyCell.allergyButton.tag]
-                guard let mappedAllergen = allergenMapping[allergyOption] else { continue }
-                
-                allergyCell.setSelectedState(isSelected: selectedAllergens.contains(mappedAllergen))
-            }
-        }
-    }
+    // MARK: - UICollectionView DataSource
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return allergies.count
@@ -73,37 +63,43 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
         cell.allergyButton.tag = indexPath.row
         cell.allergyButton.addTarget(self, action: #selector(allergyButtonTapped(_:)), for: .touchUpInside)
         
-        let allergen = allergenMapping[allergy]
-        if let allergen = allergen, selectedAllergens.contains(allergen) {
+        // For UI selection, use the canonical allergen
+        if let canonicalAllergen = Allergen(rawValue: allergy), selectedAllergens.contains(canonicalAllergen) {
             cell.setSelectedState(isSelected: true)
+        } else {
+            cell.setSelectedState(isSelected: false)
         }
         
         return cell
     }
     
+    // MARK: - Button Action
+    
     @objc private func allergyButtonTapped(_ sender: UIButton) {
         let allergy = allergies[sender.tag]
-        guard let mappedAllergen = allergenMapping[allergy] else { return }
+        guard let canonicalAllergen = Allergen(rawValue: allergy) else { return }
         
-        if selectedAllergens.contains(mappedAllergen) {
-            selectedAllergens.removeAll { $0 == mappedAllergen }
+        if let index = selectedAllergens.firstIndex(of: canonicalAllergen) {
+            selectedAllergens.remove(at: index)
+            sender.isSelected = false
+            sender.backgroundColor = .clear
         } else {
-            selectedAllergens.append(mappedAllergen)
+            selectedAllergens.append(canonicalAllergen)
+            sender.isSelected = true
+            sender.backgroundColor = .systemOrange
         }
-        
-        sender.isSelected = !sender.isSelected
-        sender.backgroundColor = sender.isSelected ? .systemBlue : .clear
     }
+    
+    // MARK: - UICollectionView Delegate FlowLayout
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let title = allergies[indexPath.item]
         let font = UIFont.systemFont(ofSize: 17)
         let size = (title as NSString).size(withAttributes: [.font: font])
-        
+
         let height: CGFloat = 50
         let minWidth: CGFloat = 50
         let width = max(size.width + 98, minWidth)
-        
         return CGSize(width: width, height: height)
     }
     
@@ -114,11 +110,12 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
             let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(100), heightDimension: .absolute(50))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             
+            // Create a few row groups for layout (adjust as needed)
             let firstRowGroup = self.createRowGroup(withCount: 2, item: item)
             let secondRowGroup = self.createRowGroup(withCount: 3, item: item)
             let thirdRowGroup = self.createRowGroup(withCount: 2, item: item)
             let fourthRowGroup = self.createRowGroup(withCount: 3, item: item)
-            let fifthRowGroup = self.createRowGroup(withCount: 2, item: item)
+            let fifthRowGroup = self.createRowGroup(withCount: 3, item: item)
             
             let nestedGroup = NSCollectionLayoutGroup.vertical(
                 layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(240)),
@@ -135,16 +132,16 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
     
     private func createRowGroup(withCount count: Int, item: NSCollectionLayoutItem) -> NSCollectionLayoutGroup {
         let items = Array(repeating: item, count: count)
-        
         let rowGroup = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(44)),
             subitems: items
         )
         rowGroup.interItemSpacing = .fixed(12)
         rowGroup.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
-        
         return rowGroup
     }
+    
+    // MARK: - Continue Button Action
     
     @IBAction func ContinueButton(_ sender: Any) {
         let selectedAllergenNames = selectedAllergens.map { $0.rawValue }
@@ -157,17 +154,17 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
                 if let error = error {
                     self.showAlert(message: "Error updating allergies: \(error.localizedDescription)")
                 } else {
-                 
                     self.progressView.setProgress(0.5, animated: true)
                 }
             }
         } else {
             let defaults = UserDefaults.standard
             defaults.set(selectedAllergenNames, forKey: "localAllergies")
-           
             self.progressView.setProgress(0.5, animated: true)
         }
     }
+    
+    // MARK: - Utility
     
     private func showAlert(message: String) {
         let alertController = UIAlertController(title: "Update Status", message: message, preferredStyle: .alert)

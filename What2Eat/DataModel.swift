@@ -70,27 +70,6 @@ let nutrients: [Nutrient] = [
 ]
 
 
-enum Allergen: String {
-    case milk = "Milk"
-    case eggs = "Eggs"
-    case fish = "Fish"
-    case shellfish = "Shellfish"
-    case treeNuts = "Tree Nuts"
-    case peanuts = "Peanuts"
-    case wheat = "Wheat"
-    case soybeans = "Soybeans"
-    case sesame = "Sesame"
-    case celery = "Celery"
-    case mustard = "Mustard"
-    case lupin = "Lupin"
-    case molluscs = "Molluscs"
-    case sulfites = "Sulfites"
-    case gluten = "Gluten"
-    case corn = "Corn"
-    case garlic = "Garlic"
-    case onion = "Onion"
-    case poppySeeds = "Poppy Seeds"
-}
 
 
 enum DietaryRestriction: String {
@@ -127,36 +106,61 @@ struct RecentItem: Codable {
 
 var recentScansProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
 
-let allergies: [String] = [
-       "Milk", "Eggs", "Fish", "Shellfish", "Tree Nuts", "Peanuts",
-       "Wheat", "Soybeans", "Sesame", "Celery", "Mustard", "Lupin",
-       "Molluscs", "Sulfites", "Gluten", "Corn", "Garlic", "Onion", "Poppy Seeds"
-   ]
 
-let allergenMapping: [String: Allergen] = [
-       "Milk": .milk,
-       "Eggs": .eggs,
-       "Fish": .fish,
-       "Shellfish": .shellfish,
-       "Tree Nuts": .treeNuts,
-       "Peanuts": .peanuts,
-       "Wheat": .wheat,
-       "Soybeans": .soybeans,
-       "Sesame": .sesame,
-       "Celery": .celery,
-       "Mustard": .mustard,
-       "Lupin": .lupin,
-       "Molluscs": .molluscs,
-       "Sulfites": .sulfites,
-       "Gluten": .gluten,
-       "Corn": .corn,
-       "Garlic": .garlic,
-       "Onion": .onion,
-       "Poppy Seeds": .poppySeeds
-   ]
+enum Allergen: String {
+    case milk = "Milk"
+    case eggs = "Eggs"
+    case fish = "Fish"
+    case shellfish = "Shellfish"
+    case Nuts = "Nuts"
+    case peanuts = "Peanuts"
+    case wheat = "Wheat"
+    case soybean = "Soybean"
+    case sesame = "Sesame"
+    case celery = "Celery"
+    case mustard = "Mustard"
+    case lupin = "Lupin"
+    case molluscs = "Molluscs"
+    case sulfites = "Sulfites"
+    case gluten = "Gluten"
+    case corn = "Corn"
+    case garlic = "Garlic"
+    case onion = "Onion"
+}
+
+
+let allergies: [String] = [
+    "Milk", "Eggs", "Fish", "Wheat", "Lupin", "Soybean",
+    "Peanuts",  "Shellfish", "Sesame", "Gluten", "Corn",
+    "Mustard", "Sulfites", "Celery", "Molluscs",
+    "Garlic", "Onion","Nuts"
+]
+
+
+let allergenMapping: [String: [String]] = [
+    "Milk": ["Milk", "Casein", "Lactose", "Whey", "Butter", "Cheese", "Curds", "Ghee", "Cream"],
+    "Eggs": ["Egg", "Albumin", "Mayonnaise", "Ovalbumin", "Lysozyme"],
+    "Fish": ["Fish", "Cod", "Salmon", "Tuna", "Anchovy", "Haddock", "Fish Sauce"],
+    "Shellfish": ["Crab", "Lobster", "Shrimp", "Prawn", "Scallop", "Oyster", "Clam"],
+    "Nuts": ["Almond", "Cashew", "Walnut", "Pistachio", "Pecan", "Hazelnut", "Macadamia"],
+    "Peanuts": ["Peanut", "Peanut Butter", "Peanut Oil", "Groundnut"],
+    "Wheat": ["Wheat", "Durum", "Semolina", "Spelt", "Kamut", "Bulgur", "Farina"],
+    "Soybean": ["Soy", "Soybeans", "Soy Lecithin", "Soy Sauce", "Tofu", "Miso", "Tempeh"],
+    "Sesame": ["Sesame", "Sesame Seeds", "Sesame Oil", "Tahini"],
+    "Celery": ["Celery", "Celery Salt", "Celery Powder"],
+    "Mustard": ["Mustard", "Mustard Seeds", "Yellow Mustard", "Dijon"],
+    "Lupin": ["Lupin", "Lupine Flour"],
+    "Molluscs": ["Octopus", "Squid", "Cuttlefish", "Snail"],
+    "Sulfites": ["Sulfite", "Sulfur Dioxide", "Potassium Bisulfite", "Sodium Metabisulfite"],
+    "Gluten": ["Wheat", "Barley", "Rye", "Malt", "Seitan", "Triticale"],
+    "Corn": ["Corn", "Corn Starch", "Corn Syrup", "Maize", "High-Fructose Corn Syrup"],
+    "Garlic": ["Garlic", "Garlic Powder", "Dehydrated Garlic"],
+    "Onion": ["Onion", "Onion Powder", "Dehydrated Onion"]
+]
+
 let dietaryOptions = [
         "Low-sodium",
-        "Vegan",
+        "Ve gan",
         "Vegetarian",
         "Sugar-Free",
         "Low-Calorie",
