@@ -220,3 +220,4 @@ struct CalculationDetails: Codable {
     let positivePoints: Int
     let fsaScore: Int
 }
+var isOnboarding:Bool = false

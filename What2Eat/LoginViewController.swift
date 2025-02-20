@@ -147,20 +147,40 @@ class LoginViewController: UIViewController {
             }
             
             print("New user created successfully")
-            self.navigateToTabBarController()
+            self.navigateToAllergyViewController()
         }
     }
 
     
     // MARK: - Navigation Methods
     private func navigateToTabBarController() {
-        if let windowScene = view.window?.windowScene,
-           let window = windowScene.windows.first(where: { $0.isKeyWindow }),
-           let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MainTabBarController") {
-            window.rootViewController = tabBarController
-            window.makeKeyAndVisible()
+        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+        
+        if hasCompletedOnboarding {
+            // User completed onboarding, go to main tab bar
+            if let windowScene = view.window?.windowScene,
+               let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+               let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MainTabBarController") {
+                window.rootViewController = tabBarController
+                window.makeKeyAndVisible()
+            }
+        } else {
+            // User hasn't completed onboarding, go to AllergyViewController
+            navigateToAllergyViewController()
         }
     }
+
+    private func navigateToAllergyViewController() {
+        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        isOnboarding = true
+          if let windowScene = view.window?.windowScene,
+             let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+             let allergyVC = self.storyboard?.instantiateViewController(withIdentifier: "AllergyNavController") {
+             
+              window.rootViewController = allergyVC
+              window.makeKeyAndVisible()
+          }
+      }
     
     // Present NameViewController as a pop-up to collect the user's name
     private func presentNameViewController() {
@@ -229,6 +249,7 @@ class LoginViewController: UIViewController {
                             name: user.profile?.name ?? "",
                             profileImageUrl: profileImageUrl
                         )
+                        
                     } else {
                         // User data exists, proceed
                         _ = Users(

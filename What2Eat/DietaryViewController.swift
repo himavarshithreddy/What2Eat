@@ -18,7 +18,6 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     
   
     
-    
     var selectedDietaryRestrictions: [DietaryRestriction] = []
     
     override func viewDidLoad() {
@@ -192,11 +191,15 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                 } else {
                     self.progressView.setProgress(1.0, animated: true)
                     // Navigate back to Profile
+                    if isOnboarding {
+                        isOnboarding = false
+                    self.navigateToTabBarController()
+            } else {
                     self.navigateBackToProfile()
-                    self.showAlert(message: "Health Info updated successfully.") {
-                        // Navigate back to Profile
-                        
-                    }
+                self.showAlert(message: "Health Info updated successfully.")
+                                            }
+                    print(isOnboarding)
+                 
                 }
             }
         } else {
@@ -204,10 +207,16 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
             UserDefaults.standard.set(selectedDietaryNames, forKey: "localDietaryRestrictions")
             self.progressView.setProgress(1.0, animated: true)
             // Navigate back to Profile
+            if isOnboarding {
+                isOnboarding = false
+                
+            self.navigateToTabBarController()
+    } else {
             self.navigateBackToProfile()
-            self.showAlert(message: "Dietary restrictions updated locally.") {
-               
-            }
+        
+        self.showAlert(message: "Dietary restrictions updated locally.")
+                                    }
+          
         }
     }
 
@@ -221,7 +230,38 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
             }
         }
     }
-    
+    private func navigateToTabBarController() {
+        // First, create a brief animation to provide visual feedback
+        let fadeView = UIView(frame: self.view.bounds)
+        fadeView.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.1)
+        fadeView.alpha = 0
+        self.view.addSubview(fadeView)
+        
+        // Animate the fade view
+        UIView.animate(withDuration: 0.2, animations: {
+            fadeView.alpha = 1
+        }) { _ in
+            // After fade completes, navigate with a short delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                fadeView.removeFromSuperview()
+                
+                // Navigate to TabBarController
+                if let windowScene = self.view.window?.windowScene,
+                   let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+                   let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MainTabBarController") {
+                    
+                    // Create transition animation
+                    let transition = CATransition()
+                    transition.duration = 0.2
+                    transition.type = CATransitionType.fade
+                    window.layer.add(transition, forKey: nil)
+                    
+                    window.rootViewController = tabBarController
+                    window.makeKeyAndVisible()
+                }
+            }
+        }
+    }
     private func showAlert(message: String, completion: (() -> Void)? = nil) {
         let alertController = UIAlertController(title: "Update Status", message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default) { _ in

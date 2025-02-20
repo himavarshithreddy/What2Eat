@@ -3,6 +3,7 @@
 //  What2Eat
 //
 //  Created by admin68 on 19/11/24.
+//  Updated for caching to avoid repeated fetching
 //
 
 import UIKit
@@ -11,7 +12,6 @@ import FirebaseFirestore
 import QuartzCore
 import FirebaseAuth
 import SDWebImage
-
 
 // MARK: - UIImage Extension for Circular Cropping
 extension UIImage {
@@ -26,20 +26,16 @@ extension UIImage {
     }
 
     static func imageWithInitial(_ initial: String, size: CGSize, backgroundColor: UIColor = .systemTeal, textColor: UIColor = .white, font: UIFont? = nil) -> UIImage? {
-        // Use a default bold font if none is provided.
         let font = font ?? UIFont.boldSystemFont(ofSize: size.width / 2)
         let rect = CGRect(origin: .zero, size: size)
         
-        // Begin graphics context.
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         defer { UIGraphicsEndImageContext() }
         
-        // Draw a circular background.
         let path = UIBezierPath(ovalIn: rect)
         backgroundColor.setFill()
         path.fill()
         
-        // Calculate text size and position.
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .foregroundColor: textColor
@@ -51,35 +47,30 @@ extension UIImage {
             width: textSize.width,
             height: textSize.height)
         
-        // Draw the initial.
         initial.draw(in: textRect, withAttributes: attributes)
         
-        // Return the image.
         return UIGraphicsGetImageFromCurrentImageContext()
     }
 }
 
-    
 class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
     var recommendedProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
 
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
-    
     @IBOutlet var recentScansSeeAll: UIButton!
-    
     @IBOutlet var noRecentScansLabel: UILabel!
     @IBOutlet var ScanNowButton: UIButton!
     @IBOutlet var UserName: UILabel!
     @IBOutlet var RecentScansTableView: UITableView!
     @IBOutlet var HomeImage: UIImageView!
     
-    // New Outlet for the Right Bar Button Item
+    // Outlet for the right bar button (profile picture)
     @IBOutlet var rightbarButton: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        markOnboardingComplete()
         HomeImage.transform = CGAffineTransform(rotationAngle: .pi * 1.845)
         collectionView.delegate = self
         RecentScansTableView.delegate = self
@@ -92,58 +83,139 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         scanNowButtonUI()
         noRecentScansLabel.isHidden = true
         
-        
         fetchRecentScans {
-            // Adjust the HomeHeight after the data has been fetched and the table view is updated
             self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 750)
         }
         fetchRecommendedProducts {
-                    // Reload the collection view after fetching recommendations
-                    self.collectionView.reloadData()
-                }
+            self.collectionView.reloadData()
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         fetchRecentScans {
-            // Adjust the HomeHeight after the data has been fetched and the table view is updated
             self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 750)
         }
         updateUserName()
         updateProfilePicture()
         self.collectionView.reloadData()
         fetchRecommendedProducts {
-                    // Reload the collection view after fetching recommendations
-                    self.collectionView.reloadData()
-                }
+            self.collectionView.reloadData()
+        }
     }
-  
+    func markOnboardingComplete() {
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+            UserDefaults.standard.synchronize() // Save immediately
+            
+        }
     
+    // MARK: - Caching User Name
     func updateUserName() {
         guard let userId = Auth.auth().currentUser?.uid else {
             UserName.text = "Hi, Guest"
             return
         }
         
+        // Try to load the name from cache first.
+        if let cachedName = UserDefaults.standard.string(forKey: "cachedUserName_\(userId)") {
+            let firstName = cachedName.components(separatedBy: " ").first ?? cachedName
+            UserName.text = "Hi, \(firstName)"
+        } else {
+            UserName.text = "Hi, User"
+        }
+        
+        // Then fetch the latest name from Firestore in the background.
         let db = Firestore.firestore()
         let userRef = db.collection("users").document(userId)
-        
         userRef.getDocument { (document, error) in
             if let error = error {
                 print("Error fetching user document: \(error.localizedDescription)")
-                self.UserName.text = "Hi, Guest"
                 return
             }
-            
             guard let document = document, document.exists,
                   let fullName = document.data()?["name"] as? String else {
                 print("No username found for user.")
-                self.UserName.text = "Hi, Guest"
                 return
             }
-            
-            let firstName = fullName.components(separatedBy: " ").first ?? fullName
-            self.UserName.text = "Hi, \(firstName)"
+            // Update if the fetched name differs from the cached value.
+            if fullName != UserDefaults.standard.string(forKey: "cachedUserName_\(userId)") {
+                let firstName = fullName.components(separatedBy: " ").first ?? fullName
+                DispatchQueue.main.async {
+                    self.UserName.text = "Hi, \(firstName)"
+                }
+                UserDefaults.standard.set(fullName, forKey: "cachedUserName_\(userId)")
+            }
+        }
+    }
+    
+    // MARK: - Caching Profile Picture
+    func updateProfilePicture() {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            let initial = "G"
+            let size = CGSize(width: 32, height: 32)
+            if let image = UIImage.imageWithInitial(initial, size: size) {
+                self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
+            }
+            return
+        }
+        
+        // Check for a cached profile image URL.
+        if let cachedProfileImageUrl = UserDefaults.standard.string(forKey: "cachedProfileImageUrl_\(userId)"),
+           let url = URL(string: cachedProfileImageUrl) {
+            // SDWebImage will handle cached images automatically.
+            SDWebImageManager.shared.loadImage(with: url, options: [], progress: nil) { (image, data, error, cacheType, finished, imageURL) in
+                if let image = image {
+                    let size = CGSize(width: 32, height: 32)
+                    let circularImage = image.circularImage(size: size)
+                    DispatchQueue.main.async {
+                        self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                    }
+                }
+            }
+        } else {
+            // If no cached URL exists, fetch from Firestore.
+            let db = Firestore.firestore()
+            let userRef = db.collection("users").document(userId)
+            userRef.getDocument { (document, error) in
+                if let error = error {
+                    print("Error fetching user document for profile picture: \(error.localizedDescription)")
+                    return
+                }
+                guard let document = document, document.exists else {
+                    print("User document does not exist")
+                    return
+                }
+                
+                let data = document.data() ?? [:]
+                
+                if let profileImageUrl = data["profileImageUrl"] as? String,
+                   !profileImageUrl.isEmpty,
+                   let url = URL(string: profileImageUrl) {
+                    // Cache the profile image URL.
+                    UserDefaults.standard.set(profileImageUrl, forKey: "cachedProfileImageUrl_\(userId)")
+                    SDWebImageDownloader.shared.downloadImage(with: url, completed: { image, data, error, finished in
+                        if finished, let image = image {
+                            DispatchQueue.main.async {
+                                let size = CGSize(width: 32, height: 32)
+                                let circularImage = image.circularImage(size: size)
+                                self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                            }
+                        }
+                    })
+                } else {
+                    // If no image URL is available, generate one using the user’s initial.
+                    var initial = "G"
+                    if let fullName = data["name"] as? String, !fullName.isEmpty {
+                        initial = String(fullName.prefix(1))
+                    }
+                    let size = CGSize(width: 32, height: 32)
+                    if let image = UIImage.imageWithInitial(initial, size: size) {
+                        DispatchQueue.main.async {
+                            self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -153,67 +225,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         ScanNowButton.layer.masksToBounds = true
     }
     
-    // New: Update the right bar button item with the profile picture from Firebase
-    func updateProfilePicture() {
-        // Check if the user is logged in.
-        guard let userId = Auth.auth().currentUser?.uid else {
-            // User not logged in: use the default initial "G" (for Guest).
-            let initial = "G"
-            let size = CGSize(width: 32, height: 32)
-            if let image = UIImage.imageWithInitial(initial, size: size) {
-                self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
-            }
-            return
-        }
-        
-        // If logged in, fetch the user's document from Firestore.
-        let db = Firestore.firestore()
-        let userRef = db.collection("users").document(userId)
-        
-        userRef.getDocument { (document, error) in
-            if let error = error {
-                print("Error fetching user document for profile picture: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let document = document, document.exists else {
-                print("User document does not exist")
-                return
-            }
-            
-            let data = document.data() ?? [:]
-            
-            // Check if a profile image URL exists and is non-empty.
-            if let profileImageUrl = data["profileImageUrl"] as? String,
-               !profileImageUrl.isEmpty,
-               let url = URL(string: profileImageUrl) {
-                // Download and set the profile image.
-                SDWebImageDownloader.shared.downloadImage(with: url, completed: { image, data, error, finished in
-                    if finished, let image = image {
-                        DispatchQueue.main.async {
-                            let size = CGSize(width: 32, height: 32)
-                            let circularImage = image.circularImage(size: size)
-                            self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
-                        }
-                    }
-                })
-            } else {
-                // No profile image set: generate an image with the user's initial.
-                var initial = "G"  // default initial for Guest
-                if let fullName = data["name"] as? String, !fullName.isEmpty {
-                    initial = String(fullName.prefix(1))
-                }
-                let size = CGSize(width: 32, height: 32)
-                if let image = UIImage.imageWithInitial(initial, size: size) {
-                    DispatchQueue.main.async {
-                        self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
-                    }
-                }
-            }
-        }
-    }
-
-    
     // MARK: - Collection View Methods
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         1
@@ -222,14 +233,14 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return recommendedProducts.count
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PickforyouCell", for: indexPath) as! HomePickForYouCell
         
         let product = recommendedProducts[indexPath.row]
         cell.picktitle.text = product.name
         cell.pickscoreLabel.text = "\(product.healthScore)"
-        cell.pickImage.sd_setImage(with: URL(string: product.imageURL), placeholderImage: UIImage(named: "placeholder_product"))
+        cell.pickImage.sd_setImage(with: URL(string: product.imageURL), placeholderImage: UIImage(named: "placeholder_product_nobg"))
      
         cell.pickcategory.text = product.categoryName
         cell.layer.borderColor = UIColor(red: 255/255, green: 234/255, blue: 218/255, alpha: 1).cgColor
@@ -245,7 +256,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.layer.cornerRadius = 10
         return cell
     }
-
     
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { (section, env) -> NSCollectionLayoutSection? in
@@ -295,10 +305,8 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         70
     }
     
-    // MARK: - Table View Selection Methods
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedProductDetails = recentScansProducts[indexPath.row]
-        // Only pass the productId to the next screen
         performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProductDetails.id)
     }
     
@@ -311,7 +319,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.layer.mask = maskLayer
     }
     
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showproductdetailsfromhome",
            let destinationVC = segue.destination as? ProductDetailsViewController,
@@ -322,16 +329,14 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     // MARK: - Collection View Selection
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-            if !recommendedProducts.isEmpty {
-                let selectedProduct = recommendedProducts[indexPath.row]
-                performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct.id)
-            }
+        if !recommendedProducts.isEmpty {
+            let selectedProduct = recommendedProducts[indexPath.row]
+            performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct.id)
         }
+    }
     
     func fetchRecentScans(completion: @escaping () -> Void) {
-        // Fetch recent scans from local storage
-        let recentScans = getRecentScans() // Get sorted scans based on index
-        
+        let recentScans = getRecentScans()
         if !recentScans.isEmpty {
             print("Fetching recent scans from local storage.")
             self.fetchProductsDetails(from: recentScans, completion: completion)
@@ -345,22 +350,15 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     private func getRecentScans() -> [String] {
         let defaults = UserDefaults.standard
-        
-        // Retrieve the scans
         guard var localScans = defaults.array(forKey: "localRecentScans") as? [[String: Any]] else {
             return []
         }
-        
-        // Forcefully sort scans based on timestamp in descending order
         localScans.sort { (scan1, scan2) -> Bool in
             let timestamp1 = scan1["index"] as? TimeInterval ?? 0
             let timestamp2 = scan2["index"] as? TimeInterval ?? 0
             return timestamp1 > timestamp2
         }
-        
-        // Extract only the product IDs in sorted order
         let productIds = localScans.compactMap { $0["productId"] as? String }
-        
         return productIds
     }
     
@@ -378,17 +376,11 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     func fetchProductsDetails(from productIDs: [String], completion: @escaping () -> Void) {
         let db = Firestore.firestore()
-        
-        // Create an empty array to store the products' details
         var productsDetails: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
-        
-        // Loop through the product IDs and fetch the details for each product
         let dispatchGroup = DispatchGroup()
-        
         for productId in productIDs {
             dispatchGroup.enter()
             let productRef = db.collection("products").document(productId)
-            
             productRef.getDocument { (document, error) in
                 if let error = error {
                     print("Error fetching product document: \(error)")
@@ -398,7 +390,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                         dispatchGroup.leave()
                         return
                     }
-                    
                     if let name = document.data()?["name"] as? String,
                        let healthScore = document.data()?["healthScore"] as? Int,
                        let imageURL = document.data()?["imageURL"] as? String {
@@ -408,109 +399,106 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                 dispatchGroup.leave()
             }
         }
-        
         dispatchGroup.notify(queue: .main) {
             recentScansProducts = productsDetails
             self.RecentScansTableView.reloadData()
             completion()
         }
     }
+    
     // MARK: - Fetching Recommended Products for "Picks for You"
-    // MARK: - Fetching Recommended Products for "Picks for You"
-       func fetchRecommendedProducts(completion: @escaping () -> Void) {
-           let defaults = UserDefaults.standard
-           let recommendations = defaults.array(forKey: "recommendations") as? [String] ?? []
-           if recommendations.isEmpty {
-               self.fetchTopHealthScoreProducts { topProducts in
-                   self.recommendedProducts = topProducts
-                   completion()
-               }
-               return
-           }
-           let db = Firestore.firestore()
-           var fetchedProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
-           let dispatchGroup = DispatchGroup()
-           for productId in recommendations {
-               dispatchGroup.enter()
-               let productRef = db.collection("products").document(productId)
-               productRef.getDocument { (document, error) in
-                   if let document = document, document.exists, let data = document.data() {
-                       if let name = data["name"] as? String,
-                          let healthScore = data["healthScore"] as? Int,
-                          let imageURL = data["imageURL"] as? String,
-                          let categoryId = data["categoryId"] as? String {
-                           
-                           // Fetch the category name using the categoryId.
-                           self.fetchCategoryName(for: categoryId) { categoryName in
-                               fetchedProducts.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL, categoryName: categoryName))
-                               dispatchGroup.leave()
-                           }
-                       } else {
-                           dispatchGroup.leave()
-                       }
-                   } else {
-                       dispatchGroup.leave()
-                   }
-               }
-           }
-           dispatchGroup.notify(queue: .main) {
-               let filteredProducts = fetchedProducts.filter { recommended in
-                   !recentScansProducts.contains(where: { $0.id == recommended.id })
-               }
-               if filteredProducts.isEmpty {
-                   self.fetchTopHealthScoreProducts { topProducts in
-                       self.recommendedProducts = topProducts
-                       completion()
-                   }
-               } else {
-                   self.recommendedProducts = filteredProducts
-                   completion()
-               }
-           }
-       }
-       
-       func fetchTopHealthScoreProducts(completion: @escaping ([(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)]) -> Void) {
-           let db = Firestore.firestore()
-           db.collection("products")
-             .order(by: "healthScore", descending: true)
-             .limit(to: 6)
-             .getDocuments { (snapshot, error) in
-                 var topProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
-                 if let error = error {
-                     print("Error fetching top products: \(error)")
-                 }
-                 let dispatchGroup = DispatchGroup()
-                 if let documents = snapshot?.documents {
-                     for document in documents {
-                         let data = document.data()
-                         if let name = data["name"] as? String,
-                            let healthScore = data["healthScore"] as? Int,
-                            let imageURL = data["imageURL"] as? String,
-                            let categoryId = data["categoryId"] as? String {
-                             dispatchGroup.enter()
-                             self.fetchCategoryName(for: categoryId) { categoryName in
-                                 topProducts.append((id: document.documentID, name: name, healthScore: healthScore, imageURL: imageURL, categoryName: categoryName))
-                                 dispatchGroup.leave()
-                             }
-                         }
-                     }
-                 }
-                 dispatchGroup.notify(queue: .main) {
-                     completion(topProducts)
-                 }
-             }
-       }
-    func fetchCategoryName(for categoryId: String, completion: @escaping (String) -> Void) {
-            let db = Firestore.firestore()
-            db.collection("categories").document(categoryId).getDocument { (document, error) in
-                if let document = document, document.exists,
-                   let data = document.data(),
-                   let name = data["name"] as? String {
-                    completion(name)
+    func fetchRecommendedProducts(completion: @escaping () -> Void) {
+        let defaults = UserDefaults.standard
+        let recommendations = defaults.array(forKey: "recommendations") as? [String] ?? []
+        if recommendations.isEmpty {
+            self.fetchTopHealthScoreProducts { topProducts in
+                self.recommendedProducts = topProducts
+                completion()
+            }
+            return
+        }
+        let db = Firestore.firestore()
+        var fetchedProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
+        let dispatchGroup = DispatchGroup()
+        for productId in recommendations {
+            dispatchGroup.enter()
+            let productRef = db.collection("products").document(productId)
+            productRef.getDocument { (document, error) in
+                if let document = document, document.exists, let data = document.data() {
+                    if let name = data["name"] as? String,
+                       let healthScore = data["healthScore"] as? Int,
+                       let imageURL = data["imageURL"] as? String,
+                       let categoryId = data["categoryId"] as? String {
+                        self.fetchCategoryName(for: categoryId) { categoryName in
+                            fetchedProducts.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL, categoryName: categoryName))
+                            dispatchGroup.leave()
+                        }
+                    } else {
+                        dispatchGroup.leave()
+                    }
                 } else {
-                    completion("Unknown Category")
+                    dispatchGroup.leave()
                 }
             }
         }
-
+        dispatchGroup.notify(queue: .main) {
+            let filteredProducts = fetchedProducts.filter { recommended in
+                !recentScansProducts.contains(where: { $0.id == recommended.id })
+            }
+            if filteredProducts.isEmpty {
+                self.fetchTopHealthScoreProducts { topProducts in
+                    self.recommendedProducts = topProducts
+                    completion()
+                }
+            } else {
+                self.recommendedProducts = filteredProducts
+                completion()
+            }
+        }
+    }
+    
+    func fetchTopHealthScoreProducts(completion: @escaping ([(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)]) -> Void) {
+        let db = Firestore.firestore()
+        db.collection("products")
+            .order(by: "healthScore", descending: true)
+            .limit(to: 6)
+            .getDocuments { (snapshot, error) in
+                var topProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
+                if let error = error {
+                    print("Error fetching top products: \(error)")
+                }
+                let dispatchGroup = DispatchGroup()
+                if let documents = snapshot?.documents {
+                    for document in documents {
+                        let data = document.data()
+                        if let name = data["name"] as? String,
+                           let healthScore = data["healthScore"] as? Int,
+                           let imageURL = data["imageURL"] as? String,
+                           let categoryId = data["categoryId"] as? String {
+                            dispatchGroup.enter()
+                            self.fetchCategoryName(for: categoryId) { categoryName in
+                                topProducts.append((id: document.documentID, name: name, healthScore: healthScore, imageURL: imageURL, categoryName: categoryName))
+                                dispatchGroup.leave()
+                            }
+                        }
+                    }
+                }
+                dispatchGroup.notify(queue: .main) {
+                    completion(topProducts)
+                }
+            }
+    }
+    
+    func fetchCategoryName(for categoryId: String, completion: @escaping (String) -> Void) {
+        let db = Firestore.firestore()
+        db.collection("categories").document(categoryId).getDocument { (document, error) in
+            if let document = document, document.exists,
+               let data = document.data(),
+               let name = data["name"] as? String {
+                completion(name)
+            } else {
+                completion("Unknown Category")
+            }
+        }
+    }
 }

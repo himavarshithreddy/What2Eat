@@ -528,7 +528,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             } else {
                 AlertView.isHidden = false
                 // Assuming each alert row is 25 points in height
-                AlertViewHeight.constant = CGFloat(30*productAllergenAlerts.count+30)
+                AlertViewHeight.constant = CGFloat(30*productAllergenAlerts.count+35)
             }
             AlertTableView.reloadData()
         }
