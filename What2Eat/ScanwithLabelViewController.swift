@@ -272,6 +272,9 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
                 print("Text recognition failed: \(error)")
             }
         }
+        DispatchQueue.main.async {
+            self.navigateToLabelScanDetails()
+        }
     }
     
     private func showTextAlert(_ text: String) {
@@ -445,6 +448,13 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
             }
         } catch {
             print("Error calling Gemini AI: \(error.localizedDescription)")
+        }
+    }
+    func navigateToLabelScanDetails() {
+        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        if let labelScanDetailsVC = mainStoryboard.instantiateViewController(withIdentifier: "LabelScanDetailsVC") as? LabelScanDetailsViewController {
+            // Since you have no scanned data, you’re not setting any properties here.
+            navigationController?.pushViewController(labelScanDetailsVC, animated: true)
         }
     }
 
