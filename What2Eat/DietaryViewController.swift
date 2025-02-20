@@ -103,7 +103,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
         }
         // Update UI for the tapped button
         sender.isSelected.toggle()
-        sender.backgroundColor = sender.isSelected ? .systemBlue : .clear
+        sender.backgroundColor = sender.isSelected ? .systemOrange : .clear
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -191,9 +191,11 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                     self.showAlert(message: "Error updating dietary restrictions: \(error.localizedDescription)")
                 } else {
                     self.progressView.setProgress(1.0, animated: true)
+                    // Navigate back to Profile
+                    self.navigateBackToProfile()
                     self.showAlert(message: "Health Info updated successfully.") {
                         // Navigate back to Profile
-                        self.navigateBackToProfile()
+                        
                     }
                 }
             }
@@ -201,9 +203,10 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
             // Local save
             UserDefaults.standard.set(selectedDietaryNames, forKey: "localDietaryRestrictions")
             self.progressView.setProgress(1.0, animated: true)
+            // Navigate back to Profile
+            self.navigateBackToProfile()
             self.showAlert(message: "Dietary restrictions updated locally.") {
-                // Navigate back to Profile
-                self.navigateBackToProfile()
+               
             }
         }
     }

@@ -150,7 +150,7 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
                 name: ingredientName,
                 description: data["Description"] as? String ?? "No description",
                 potentialConcern: data["PotentialConcern"] as? String ?? "No concerns",
-                regulatoryStatus: data["RegulatoryStatus"] as? String ?? "No info",
+                regulatoryStatus: data["RegulatoryInfo"] as? String ?? "No info",
                 riskLevel: data["RiskLevel"] as? String ?? "N/A"
             )
             

@@ -160,7 +160,7 @@ let allergenMapping: [String: [String]] = [
 
 let dietaryOptions = [
         "Low-sodium",
-        "Ve gan",
+        "Vegan",
         "Vegetarian",
         "Sugar-Free",
         "Low-Calorie",
