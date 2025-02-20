@@ -954,6 +954,11 @@
                                                 <constraint firstItem="qBv-TK-LOc" firstAttribute="centerY" secondItem="Zv1-MF-Nly" secondAttribute="centerY" id="fVP-g6-r2E"/>
                                                 <constraint firstAttribute="trailing" secondItem="qBv-TK-LOc" secondAttribute="trailing" constant="5" id="jYK-d6-lEb"/>
                                             </constraints>
+                                            <variation key="default">
+                                                <mask key="subviews">
+                                                    <exclude reference="qBv-TK-LOc"/>
+                                                </mask>
+                                            </variation>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="0.4978875566" colorSpace="custom" customColorSpace="displayP3"/>
                                         <color key="tintColor" systemColor="systemGrayColor"/>
@@ -1126,7 +1131,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YLt-vf-be2">
-                                                    <rect key="frame" x="10" y="10.000000000000002" width="43.666666666666664" height="21.666666666666671"/>
+                                                    <rect key="frame" x="10" y="14.333333333333334" width="43.666666666666664" height="21.666666666666664"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                                     <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
@@ -1145,7 +1150,7 @@
                                             <constraints>
                                                 <constraint firstItem="RAd-e6-Xrq" firstAttribute="leading" secondItem="iXX-yc-UIN" secondAttribute="leading" constant="10" id="BhB-WP-PM4"/>
                                                 <constraint firstAttribute="trailing" secondItem="3m1-OA-HZ0" secondAttribute="trailing" constant="10" id="Jlz-ee-4Ed"/>
-                                                <constraint firstItem="YLt-vf-be2" firstAttribute="top" secondItem="iXX-yc-UIN" secondAttribute="top" constant="10" id="Nd5-kW-LhF"/>
+                                                <constraint firstItem="YLt-vf-be2" firstAttribute="centerY" secondItem="iXX-yc-UIN" secondAttribute="centerY" id="LxR-Lf-J1q"/>
                                                 <constraint firstAttribute="bottom" secondItem="RAd-e6-Xrq" secondAttribute="bottom" constant="12" id="Y94-re-Lwo"/>
                                                 <constraint firstItem="3m1-OA-HZ0" firstAttribute="centerY" secondItem="iXX-yc-UIN" secondAttribute="centerY" id="bQX-ex-CDQ"/>
                                                 <constraint firstItem="YLt-vf-be2" firstAttribute="leading" secondItem="iXX-yc-UIN" secondAttribute="leading" constant="10" id="jLu-UM-Pey"/>

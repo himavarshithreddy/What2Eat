@@ -9,7 +9,10 @@ import UIKit
 
 class LabelScanDetailsViewController: UIViewController {
 
-    var product: ProductData?
+    var capturedImage:UIImage?
+    var productModel:ProductResponse?
+    var healthScore:Int?
+    
     
     @IBOutlet weak var progressView: UIView!
     
@@ -35,8 +38,9 @@ class LabelScanDetailsViewController: UIViewController {
     weak var nutritionVC: NutritionViewController?
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupProductDetails()
         setupCircularProgressBar()
+        setupProductDetails()
+      
         
         // Do any additional setup after loading the view.
         self.view.bringSubviewToFront(SummarySegmentView)
@@ -47,15 +51,15 @@ class LabelScanDetailsViewController: UIViewController {
            if segue.identifier == "showSummary",
               let vc = segue.destination as? SummaryViewController {
                summaryVC = vc
-               if let product = product { vc.updateWithProduct(product) }
+              
            } else if segue.identifier == "showIngredients",
                      let vc = segue.destination as? IngredientsViewController {
                ingredientsVC = vc
-               if let product = product { vc.updateWithProduct(product) }
+              
            } else if segue.identifier == "showNutrition",
                      let vc = segue.destination as? NutritionViewController {
                nutritionVC = vc
-               if let product = product { vc.updateWithProduct(product) }
+              
            }
        }
     @IBAction func SegmentAction(_ sender: UISegmentedControl) {
@@ -109,11 +113,11 @@ class LabelScanDetailsViewController: UIViewController {
             progressLabel.text = "\(percentage)"
             
             // Update colors based on the product's health score.
-            if let product = product {
-                if product.healthScore < 40 {
+            if let healthScore = healthScore {
+                if healthScore < 40 {
                     progressLabel.textColor = .systemRed
                     progressLayer.strokeColor = UIColor.systemRed.cgColor
-                } else if product.healthScore < 75 {
+                } else if healthScore < 75 {
                     progressLabel.textColor = .systemOrange
                     progressLayer.strokeColor = UIColor.orange.cgColor
                 } else {
@@ -125,14 +129,15 @@ class LabelScanDetailsViewController: UIViewController {
         
         // MARK: - Setup Product Details UI
         private func setupProductDetails() {
-            guard let product = product else { return }
+    
             
-            ProductName.text = product.name
-            if let url = URL(string: product.imageURL) {
-                ProductImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product_nobg"))
-            } else {
-                ProductImage.image = UIImage(named:"placeholder_product_nobg")
-            }
+            ProductName.text = productModel?.name
+            ProductImage.image = capturedImage
+            if let healthScore = healthScore {
+                    setProgress(to: CGFloat(healthScore) / 100)
+                } else {
+                    print("Warning: healthScore is nil")
+                }
         }
     
     
