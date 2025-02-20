@@ -166,6 +166,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
            
             if let firstBarcode = observations.first,
                let payloadString = firstBarcode.payloadStringValue {
+                generateHapticFeedback()
                 displayResult(with: payloadString)
                 
             }
@@ -215,7 +216,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         for metadata in metadataObjects {
             guard let readableObject = metadata as? AVMetadataMachineReadableCodeObject,
                   let stringValue = readableObject.stringValue else { continue }
-            
+            generateHapticFeedback()
             // Barcode detected, stop running the session
             captureSession?.stopRunning()
             
@@ -227,6 +228,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
     
    // MARK: - Display Alert with Barcode Result
     private func displayResult(with barcode: String) {
+        
         // Fetch the product ID from Firebase based on the scanned barcode.
         fetchProductIdFromFirebase(barcode: barcode) { [weak self] productId in
             guard let self = self else { return }
@@ -340,5 +342,11 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         if let labelScanVC = storyboard.instantiateViewController(withIdentifier: "ScanwithLabel") as? ScanWithLabelViewController {
             navigationController?.pushViewController(labelScanVC, animated: true)
         }
+    }
+    // Add this function to your BarcodeScannerViewController class
+    private func generateHapticFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.success)
     }
 }

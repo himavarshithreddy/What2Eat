@@ -34,8 +34,6 @@
 			</array>
 		</dict>
 	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>This app requires camera access to scan documents and extract text.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
