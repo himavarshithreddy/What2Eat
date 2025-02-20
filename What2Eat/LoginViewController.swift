@@ -214,6 +214,7 @@ class LoginViewController: UIViewController {
         self.present(alertController, animated: true, completion: nil)
     }
     @IBAction func ContinueAsGuest(_ sender: Any) {
+        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
            self.navigateToTabBarController()
        }
     @IBAction func GoogleSignInButtonTapped(_ sender: Any) {

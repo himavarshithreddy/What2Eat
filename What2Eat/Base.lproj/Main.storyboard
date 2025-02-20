@@ -2685,7 +2685,7 @@
                                 </cells>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oRC-1E-bjI">
-                                <rect key="frame" x="33" y="668" width="337" height="54"/>
+                                <rect key="frame" x="33" y="766" width="337" height="54"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="vt3-84-bsQ"/>
                                 </constraints>
@@ -2866,7 +2866,7 @@
                                 </cells>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SJS-dH-DPW">
-                                <rect key="frame" x="33" y="668" width="337" height="54"/>
+                                <rect key="frame" x="33" y="766" width="337" height="54"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="raO-Z1-3je"/>
                                 </constraints>
@@ -3719,7 +3719,7 @@
         <!--Navigation Controller-->
         <scene sceneID="1ms-O3-Ovg">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="4jz-zM-Xfa" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="AllergyNavController" automaticallyAdjustsScrollViewInsets="NO" id="4jz-zM-Xfa" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="7ez-wA-E8x"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="t0d-ol-2vp">
@@ -3739,7 +3739,7 @@
     <inferredMetricsTieBreakers>
         <segue reference="ZNK-Ra-eGc"/>
         <segue reference="0hp-Wk-kLE"/>
-        <segue reference="dJy-AL-WJk"/>
+        <segue reference="XO4-sQ-cGz"/>
         <segue reference="2T7-wx-xBf"/>
         <segue reference="0rE-kq-IOP"/>
     </inferredMetricsTieBreakers>
