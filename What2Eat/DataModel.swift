@@ -184,3 +184,39 @@ let dietaryOptions = [
         "Lactose Free": .lactoseFree,
         "Gluten Free": .glutenFree
     ]
+
+
+
+struct ProductResponse: Codable {
+    let name: String
+    let ingredients: [String]
+    let nutrition: [Nutrition]
+    let healthscore: HealthScore
+}
+
+struct Nutrition: Codable {
+    let name: String
+    let value: Float
+    let unit: String
+}
+
+struct HealthScore: Codable {
+    let Energy: String
+    let Sugars: String
+    let Sodium: String
+    let Protein: String
+    let Fiber: String
+    let FruitsVegetablesNuts: String
+    let SaturatedFat: String
+}
+
+struct HealthScoreResponse: Codable {
+    let healthScore: Int
+    let calculationDetails: CalculationDetails
+}
+
+struct CalculationDetails: Codable {
+    let negativePoints: Int
+    let positivePoints: Int
+    let fsaScore: Int
+}
