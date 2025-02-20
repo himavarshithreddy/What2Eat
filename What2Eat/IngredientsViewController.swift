@@ -189,6 +189,8 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
                 present(ingredientDetailVC, animated: true, completion: nil)
             }
         }
-        
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        50
+    }
         
     }

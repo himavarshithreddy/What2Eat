@@ -10,7 +10,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    private let hasLaunchedBeforeKey = "hasLaunchedBefore"
+    private let hasCompletedOnboardingKey = "hasCompletedOnboarding"
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
             guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             var initialViewController: UIViewController
             
-            if !UserDefaults.standard.bool(forKey: hasLaunchedBeforeKey) {
+            if !UserDefaults.standard.bool(forKey: hasCompletedOnboardingKey) {
                 // First-time user: Show LoginViewController and present OnboardingViewController
                 let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
                 let onboardingVC = storyboard.instantiateViewController(withIdentifier: "OnboardingViewController")
@@ -33,7 +33,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 }
                 
                 // Set flag that onboarding has been shown
-                UserDefaults.standard.set(true, forKey: hasLaunchedBeforeKey)
+               
             } else {
                 // Returning user: Show MainTabBarController
                 initialViewController = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
@@ -74,4 +74,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
    
 
 }
-
