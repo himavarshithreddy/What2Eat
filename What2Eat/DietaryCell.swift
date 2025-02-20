@@ -25,7 +25,7 @@ class DietaryCell: UICollectionViewCell {
         dietaryButton.configuration = config
         dietaryButton.layer.borderWidth = 1
         dietaryButton.layer.cornerRadius = 15
-        dietaryButton.layer.borderColor = UIColor.black.cgColor
+        dietaryButton.layer.borderColor = UIColor.gray.cgColor
         dietaryButton.addTarget(self, action: #selector(toggleSelection), for: .touchUpInside)
     }
 
@@ -36,11 +36,14 @@ class DietaryCell: UICollectionViewCell {
     private func updateButtonAppearance() {
         var config = dietaryButton.configuration
         config?.baseBackgroundColor = isSelectedDietary ?
-            UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1) : // Selected color
+            UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1) : 
         UIColor.white // Default color
         config?.baseForegroundColor = isSelectedDietary ? .white : .black
         
         dietaryButton.configuration = config
+        dietaryButton.layer.borderColor = isSelectedDietary ?
+                UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1).cgColor :
+                UIColor.gray.cgColor
     }
 
     func setSelectedState(isSelected: Bool) {

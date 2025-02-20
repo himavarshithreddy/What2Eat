@@ -1,6 +1,7 @@
 import UIKit
 import AVFoundation
 import Vision
+import FirebaseVertexAI
 
 class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelegate, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     // Outlets connected in storyboard
@@ -12,7 +13,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     @IBOutlet weak var ScanningViewFrameHeight: NSLayoutConstraint!
     @IBOutlet weak var TorchIcon: UIBarButtonItem!
     @IBOutlet weak var CaptureButton: UIButton!
-    
+    var capturedImage: UIImage?
     private var captureSession: AVCaptureSession?
     private var photoOutput = AVCapturePhotoOutput()
     private var previewLayer: AVCaptureVideoPreviewLayer?
@@ -138,6 +139,8 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     @IBAction func capturePhoto() {
         let settings = AVCapturePhotoSettings()
         photoOutput.capturePhoto(with: settings, delegate: self)
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
     }
     
     func photoOutput(_ output: AVCapturePhotoOutput,
@@ -148,7 +151,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
             print("Failed to capture photo data.")
             return
         }
-        
+        self.capturedImage = fullImage
         // First attempt auto edge detection
         detectEdges(in: fullImage) { detectedImage in
             if let autoCroppedImage = detectedImage {
@@ -156,6 +159,9 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
                 self.recognizeText(in: autoCroppedImage)
             } else if let croppedImage = self.cropImageToHighlightedArea(fullImage) {
                 // Fallback to cropping using the scanning frame
+                Task {
+                    await self.sendExtractedTextToGemini(extractedText: croppedImage)
+                       }
                 self.recognizeText(in: croppedImage)
             } else {
                 print("Failed to obtain a valid image for text recognition.")
@@ -252,9 +258,8 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
                 }
             }
             
-            DispatchQueue.main.async {
-                self.showTextAlert(detectedText)
-            }
+            // Send extracted text to Gemini API
+                     
         }
         
         request.recognitionLevel = .accurate
@@ -270,6 +275,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     }
     
     private func showTextAlert(_ text: String) {
+        print(text)
         let alertController = UIAlertController(title: "Detected Text",
                                                 message: text,
                                                 preferredStyle: .alert)
@@ -324,11 +330,122 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
             print("No image found")
             return
         }
-        
+        Task {
+            await self.sendExtractedTextToGemini(extractedText: image)
+               }
         recognizeText(in: image)
     }
     
     @IBAction func SwitchToBarcode(_ sender: Any) {
         navigationController?.popViewController(animated: true)
     }
+    
+
+    func sendExtractedTextToGemini(extractedText: UIImage) async {
+        // Define JSON Schema with an extra "healthscore" field as strings
+        let jsonSchema = Schema.object(
+            properties: [
+                "ingredients": Schema.array(items: .string()),
+                "nutrition": Schema.array(
+                    items: .object(
+                        properties: [
+                            "name": .string(),
+                            "value": .float(), // nutrition values remain numeric
+                            "unit": .string()
+                        ]
+                    )
+                ),
+                "healthscore": Schema.object(
+                    properties: [
+                        "Energy": .string(),
+                        "Sugars": .string(),
+                        "Sodium": .string(),
+                        "Protein": .string(),
+                        "Fiber": .string(),
+                        "FruitsVegetablesNuts": .string(),
+                        "SaturatedFat": .string()
+                    ]
+                )
+            ]
+        )
+        
+        let systemInstruction = """
+        You are an advanced AI assistant specialized in extracting structured data from images of food packaging. Your task is to extract key details from the image, including ingredients, nutritional information, and a healthscore.
+        
+        Instructions:
+        Ingredients Extraction:
+        - Identify the section labeled "Ingredients" or similar.
+        - Extract the full list of ingredients while preserving their order.
+        - Remove values and percentages from ingredient names (e.g., "Wheat Flour (63%)" should become "Wheat Flour").
+        - Remove content inside brackets (e.g., "MILK PRODUCTS [WHEY POWDER & MILK SOLIDS]" should become "MILK PRODUCTS").
+        - Retain food additive codes like "Emulsifier (E322)" or "Raising Agent (INS 500(ii))".
+        - Ignore unnecessary words or unrelated text.
+        
+        Nutritional Information Extraction:
+        - Identify the section labeled "Nutrition Information" or "Nutritional Facts".
+        - Extract key nutrient names, values, and units (e.g., "Protein: 9.1 g").
+        - Ensure proper formatting and structure for readability.
+        
+        Healthscore Extraction:
+        - From the nutritional data, extract only the following:
+          • Energy
+          • Sugars
+          • Sodium
+          • Protein
+          • Fiber
+          • FruitsVegetablesNuts (as a percentage)
+          • SaturatedFat
+        - Output these values as strings including their units (e.g., "481 kcal", "9.1 g").
+        - If something is not present give 0.
+        
+        Handling OCR Noise & Inconsistencies:
+        - Correct common OCR errors (e.g., ‘0’ misread as ‘O’, ‘l’ misread as ‘1’).
+        - Use contextual understanding to extract accurate data even from messy text.
+        - Ensure data is structured properly, avoiding missing or misclassified information.
+        
+        Output Format:
+        - Return the extracted data in a structured JSON format with three keys:
+          • "ingredients": an array of ingredient strings.
+          • "nutrition": an array of objects (each with "name", "value", and "unit").
+          • "healthscore": an object containing keys "Energy", "Sugars", "Sodium", "Protein", "Fiber", "FruitsVegetablesNuts", and "SaturatedFat", where each value is a string including the unit.
+        - If any section is missing or unclear, return "ingredients": [] or "nutrition": [] or "healthscore": {}.
+        
+        Final Requirement:
+        - Extract information as accurately as possible while handling formatting issues and OCR inconsistencies.
+        """
+        
+        // Configure the generation parameters
+        let generationConfig = GenerationConfig(
+            temperature: 0.2,
+            topP: 0.95,
+            topK: 1,
+            maxOutputTokens: 8100,
+            responseMIMEType: "application/json",
+            responseSchema: jsonSchema
+        )
+        
+        // Initialize the generative model with Firebase Vertex AI using our system instruction
+        let vertex = VertexAI.vertexAI()
+        let model = vertex.generativeModel(
+            modelName: "gemini-1.5-flash-002",
+            generationConfig: generationConfig,
+            systemInstruction: ModelContent(role: "system", parts: systemInstruction)
+        )
+        
+        do {
+            let prompt = "Extract the ingredients, nutritional information, and healthscore from this food label image."
+            let response = try await model.generateContent(extractedText, prompt)
+            if let jsonResponse = response.text {
+                print("Extracted JSON: \(jsonResponse)")
+                DispatchQueue.main.async {
+                    // For example, update your UI with the structured JSON output.
+                }
+            } else {
+                print("No structured output received.")
+            }
+        } catch {
+            print("Error calling Gemini AI: \(error.localizedDescription)")
+        }
+    }
+
 }

@@ -9,13 +9,49 @@ import UIKit
 
 class LabelScanDetailsViewController: UIViewController {
 
+    
+    
+    @IBOutlet weak var progressView: UIView!
+    
+    @IBOutlet weak var progressLabel: UILabel!
+    
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
+    
+    @IBOutlet weak var SummarySegmentView: UIView!
+    
+    @IBOutlet weak var IngredientsSegmentView: UIView!
+    
+    @IBOutlet weak var NutritionSegmentView: UIView!
+    
+    @IBOutlet var ProductImage: UIImageView!
+    
+    
+  
+    @IBOutlet var ProductName: UILabel!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
     }
     
-
+    
+    
+    @IBAction func SegmentAction(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+           case 0:
+               self.view.bringSubviewToFront(SummarySegmentView)
+           case 1:
+               self.view.bringSubviewToFront(IngredientsSegmentView)
+           case 2:
+               self.view.bringSubviewToFront(NutritionSegmentView)
+           default:
+               break
+           }
+        
+    }
+    
     /*
     // MARK: - Navigation
 

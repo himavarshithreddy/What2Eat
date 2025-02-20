@@ -21,7 +21,7 @@ class AllergyCell: UICollectionViewCell {
         allergyButton.configuration = config
         allergyButton.layer.borderWidth = 1
         allergyButton.layer.cornerRadius = 15
-        allergyButton.layer.borderColor = UIColor.black.cgColor
+        allergyButton.layer.borderColor = UIColor.gray.cgColor
         
         allergyButton.addTarget(self, action: #selector(toggleSelection), for: .touchUpInside)
     }
@@ -39,6 +39,9 @@ class AllergyCell: UICollectionViewCell {
         config?.baseForegroundColor = isSelectedAllergy ? .white : .black
         
         allergyButton.configuration = config
+        allergyButton.layer.borderColor = isSelectedAllergy ?
+                UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1).cgColor :
+                UIColor.gray.cgColor
     }
 
     // This method will allow us to set the button's state programmatically

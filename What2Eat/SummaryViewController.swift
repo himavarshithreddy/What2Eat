@@ -14,7 +14,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var isUserRatingPresent: Bool = false
 
     var userAllergens: [Allergen] = []
-    var productAllergenAlerts: [String] = []
+        var productAllergenAlerts: [Allergen] = []
     
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
@@ -117,8 +117,8 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             return cell
         } else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertCell", for: indexPath) as! AlertCell
-            let matchedIngredient = productAllergenAlerts[indexPath.row]
-            cell.AlertText.text = "Contains \(matchedIngredient)"
+            let allergen = productAllergenAlerts[indexPath.row]
+                        cell.AlertText.text = "Contains \(allergen.rawValue)"
             return cell
         }
         
@@ -499,22 +499,18 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             return
         }
         
-        var alerts: [String] = []
+        var alerts: [Allergen] = []
         
-        // For each allergen the user is concerned about...
+        // For each user-selected allergen, check its mapped synonyms
         for allergen in userAllergens {
-            // Look up synonyms from the mapping
             if let synonyms = allergenMapping[allergen.rawValue] {
-                // For each ingredient in the product...
-                for ingredient in productIngredients {
-                    // Check if any synonym is found within the ingredient string
-                    for synonym in synonyms {
+                for synonym in synonyms {
+                    for ingredient in productIngredients {
                         if ingredient.lowercased().contains(synonym.lowercased()) {
-                            // Record the actual product ingredient that matched
-                            if !alerts.contains(ingredient) {
-                                alerts.append(ingredient)
+                            if !alerts.contains(allergen) {
+                                alerts.append(allergen)
                             }
-                            // Once a synonym matches, break out of the synonym loop
+                            // Once a synonym matches for this allergen, break out
                             break
                         }
                     }
@@ -525,13 +521,14 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         productAllergenAlerts = alerts
         updateAlertView()
     }
+
     func updateAlertView() {
             if productAllergenAlerts.isEmpty {
                 AlertView.isHidden = true
             } else {
                 AlertView.isHidden = false
                 // Assuming each alert row is 25 points in height
-                AlertViewHeight.constant = CGFloat(30*productAllergenAlerts.count+35)
+                AlertViewHeight.constant = CGFloat(30*productAllergenAlerts.count+30)
             }
             AlertTableView.reloadData()
         }
