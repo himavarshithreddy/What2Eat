@@ -10,27 +10,17 @@ import UIKit
 class NutritionLabelViewController:UIViewController, UITableViewDelegate, UITableViewDataSource,UIPopoverPresentationControllerDelegate {
 
     @IBOutlet var NutritionLabelTableView: UITableView!
-    
-    var nutritionData: [(name: String, value: String)] = []
+  
+    var nutritionData: [NutritionDetail] = []
     override func viewDidLoad() {
         super.viewDidLoad()
 
         NutritionLabelTableView.delegate = self
         NutritionLabelTableView.dataSource = self
-        loadNutritionData()
+     
 
     }
-    func loadNutritionData() {
-            // Sample local data; replace with your actual data if available.
-            nutritionData = [
-                (name: "Calories", value: "250 kcal"),
-                (name: "Total Fat", value: "10 g"),
-                (name: "Sodium", value: "200 mg"),
-                (name: "Carbohydrates", value: "30 g"),
-                (name: "Protein", value: "5 g")
-            ]
-        NutritionLabelTableView.reloadData()
-        }
+    
         
         // MARK: - UITableViewDataSource Methods
         
@@ -58,6 +48,28 @@ class NutritionLabelViewController:UIViewController, UITableViewDelegate, UITabl
             // Deselect row immediately after selection
             tableView.deselectRow(at: indexPath, animated: true)
         }
+    func updateNutrition(with details: [NutritionDetail]) {
+          self.nutritionData = details
+          DispatchQueue.main.async {
+              self.NutritionLabelTableView.reloadData()
+          }
+      }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        60
+    }
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let verticalPadding: CGFloat = 6
+        let maskLayer = CALayer()
+        maskLayer.cornerRadius = 8
+        maskLayer.backgroundColor = UIColor.black.cgColor
+        maskLayer.frame = CGRect(
+            x: cell.bounds.origin.x,
+            y: cell.bounds.origin.y,
+            width: cell.bounds.width,
+            height: cell.bounds.height
+        ).insetBy(dx: 0, dy: verticalPadding / 2)
+        cell.layer.mask = maskLayer
+    }
     }
 
     
