@@ -724,26 +724,36 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
            }
        }
     func handleVertexResponse(_ jsonResponse: String) {
-            guard let jsonData = jsonResponse.data(using: .utf8) else {
-                print("Error converting response to Data")
+        guard let jsonData = jsonResponse.data(using: .utf8) else {
+            print("Error converting response to Data")
+            showErrorAlert(message: "Failed to process the image data. Please try again.")
+            return
+        }
+
+        do {
+            let decodedProduct = try JSONDecoder().decode(ProductResponse.self, from: jsonData)
+            
+            // Check if both ingredients and nutrition arrays are empty
+            if decodedProduct.ingredients.isEmpty && decodedProduct.nutrition.isEmpty {
+                // Show error alert instead of proceeding
+                showErrorAlert(message: "Could not detect any ingredients or nutritional information. Please try again with a clearer image.")
                 return
             }
-
-            do {
-                let decodedProduct = try JSONDecoder().decode(ProductResponse.self, from: jsonData)
-                self.productModel = decodedProduct
-                
-                // Call the external API using the healthscore section from the decoded product.
-                fetchHealthScore(from: decodedProduct.healthscore) { [weak self] score in
-                    DispatchQueue.main.async {
-                        self?.computedHealthScore = score
-                        self?.navigateToDetailsViewController()
-                    }
+            
+            self.productModel = decodedProduct
+            
+            // Call the external API using the healthscore section from the decoded product.
+            fetchHealthScore(from: decodedProduct.healthscore) { [weak self] score in
+                DispatchQueue.main.async {
+                    self?.computedHealthScore = score
+                    self?.navigateToDetailsViewController()
                 }
-            } catch {
-                print("Error parsing JSON: \(error)")
             }
+        } catch {
+            print("Error parsing JSON: \(error)")
+            showErrorAlert(message: "Error analyzing the product label. Please try again.")
         }
+    }
     private func fetchHealthScore(from healthscore: HealthScore, completion: @escaping (Int) -> Void) {
             let url = URL(string: "https://calculatehealthscore-ujjjq2ceua-uc.a.run.app")!
             

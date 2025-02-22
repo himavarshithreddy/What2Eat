@@ -34,8 +34,8 @@ class LabelScanDetailsViewController: UIViewController {
     
     private var progressLayer: CAShapeLayer!
     weak var summaryVC: SummaryViewController?
-    weak var ingredientsVC: IngredientsViewController?
-    weak var nutritionVC: NutritionViewController?
+    weak var ingredientsVC: IngredientsLabelViewController?
+    weak var nutritionVC: NutritionLabelViewController?
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCircularProgressBar()
@@ -52,12 +52,12 @@ class LabelScanDetailsViewController: UIViewController {
               let vc = segue.destination as? SummaryViewController {
                summaryVC = vc
               
-           } else if segue.identifier == "showIngredients",
-                     let vc = segue.destination as? IngredientsViewController {
+           } else if segue.identifier == "showIngredientsLabel",
+                     let vc = segue.destination as? IngredientsLabelViewController {
                ingredientsVC = vc
               
-           } else if segue.identifier == "showNutrition",
-                     let vc = segue.destination as? NutritionViewController {
+           } else if segue.identifier == "showNutritionLabel",
+                     let vc = segue.destination as? NutritionLabelViewController {
                nutritionVC = vc
               
            }
@@ -133,6 +133,14 @@ class LabelScanDetailsViewController: UIViewController {
             
             ProductName.text = productModel?.name
             ProductImage.image = capturedImage
+            ingredientsVC?.updateIngredients(with: productModel!.ingredients)
+            if let nutritionVC = nutritionVC {
+                let parsedNutrition = productModel!.nutrition.map {
+                    NutritionDetail(name: $0.name, value: "\($0.value) \($0.unit)")
+                }
+                nutritionVC.updateNutrition(with: parsedNutrition)
+            }
+            
             if let healthScore = healthScore {
                     setProgress(to: CGFloat(healthScore) / 100)
                 } else {

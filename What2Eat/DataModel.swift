@@ -221,3 +221,8 @@ struct CalculationDetails: Codable {
     let fsaScore: Int
 }
 var isOnboarding:Bool = false
+
+struct NutritionDetail {
+    let name: String
+    let value: String
+}

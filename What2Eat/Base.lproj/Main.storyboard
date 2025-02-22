@@ -3290,14 +3290,14 @@
                                 <rect key="frame" x="20" y="417" width="362" height="281"/>
                                 <color key="backgroundColor" red="0.93725490570000003" green="0.91372549530000002" blue="0.87450981139999995" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <connections>
-                                    <segue destination="d18-Ui-1zw" kind="embed" id="bGg-Av-5mq"/>
+                                    <segue destination="d18-Ui-1zw" kind="embed" identifier="showIngredientsLabel" id="bGg-Av-5mq"/>
                                 </connections>
                             </containerView>
                             <containerView opaque="NO" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Atq-W6-kKu">
                                 <rect key="frame" x="20" y="417" width="362" height="281"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <connections>
-                                    <segue destination="4rD-k8-Fm3" kind="embed" id="Cas-bW-Npv"/>
+                                    <segue destination="4rD-k8-Fm3" kind="embed" identifier="showNutritionLabel" id="Cas-bW-Npv"/>
                                 </connections>
                             </containerView>
                         </subviews>
@@ -3526,7 +3526,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Vlc-8q-iEd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-779" y="-377"/>
+            <point key="canvasLocation" x="-1442" y="-516"/>
         </scene>
         <!--Ingredients-->
         <scene sceneID="VM2-bR-lfz">
@@ -3549,7 +3549,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i60-CK-f1g">
-                                                    <rect key="frame" x="20" y="11" width="198" height="28"/>
+                                                    <rect key="frame" x="20" y="11" width="278" height="28"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -3573,7 +3573,7 @@
                                                 <constraint firstItem="iq4-d8-m3d" firstAttribute="centerY" secondItem="FyB-dz-zJZ" secondAttribute="centerY" id="QPV-vE-Cjq"/>
                                                 <constraint firstItem="i60-CK-f1g" firstAttribute="leading" secondItem="FyB-dz-zJZ" secondAttribute="leadingMargin" id="h7h-SR-gxz"/>
                                                 <constraint firstItem="i60-CK-f1g" firstAttribute="centerY" secondItem="FyB-dz-zJZ" secondAttribute="centerY" id="mhU-Ue-Zx2"/>
-                                                <constraint firstAttribute="trailing" secondItem="i60-CK-f1g" secondAttribute="trailing" constant="100" id="rn8-wQ-wvh"/>
+                                                <constraint firstAttribute="trailing" secondItem="i60-CK-f1g" secondAttribute="trailing" constant="20" id="rn8-wQ-wvh"/>
                                             </constraints>
                                             <variation key="default">
                                                 <mask key="subviews">
