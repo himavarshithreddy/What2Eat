@@ -2,6 +2,8 @@ import UIKit
 import AVFoundation
 import Vision
 import FirebaseVertexAI
+import Firebase
+import FirebaseAuth
 
 class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelegate, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     // Outlets connected in storyboard
@@ -375,7 +377,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
 
         
         // Create a timer to update the loading message
-        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] timer in
+        Timer.scheduledTimer(withTimeInterval: 1.8, repeats: true) { [weak self] timer in
             guard let self = self, self.isProcessing else {
                 timer.invalidate()
                 return
@@ -709,20 +711,21 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         present(alert, animated: true)
     }
     
-    private func navigateToDetailsViewController() {
-           guard let detailsVC = storyboard?.instantiateViewController(withIdentifier: "LabelScanDetailsVC") as? LabelScanDetailsViewController else {
-               print("LabelScanDetailsViewController not found")
-               return
-           }
-           
-           detailsVC.capturedImage = self.capturedImage
-           detailsVC.productModel = self.productModel  // Pass the parsed model.
-           detailsVC.healthScore = self.computedHealthScore
-           
-           DispatchQueue.main.async {
-               self.navigationController?.pushViewController(detailsVC, animated: true)
-           }
-       }
+    private func navigateToDetailsViewController(analysis: ProductAnalysis) {
+            guard let detailsVC = storyboard?.instantiateViewController(withIdentifier: "LabelScanDetailsVC") as? LabelScanDetailsViewController else {
+                print("LabelScanDetailsViewController not found")
+                return
+            }
+            
+            detailsVC.capturedImage = self.capturedImage
+            detailsVC.productModel = self.productModel
+            detailsVC.healthScore = self.computedHealthScore
+            detailsVC.productAnalysis = analysis
+            
+            DispatchQueue.main.async {
+                self.navigationController?.pushViewController(detailsVC, animated: true)
+            }
+        }
     func handleVertexResponse(_ jsonResponse: String) {
         guard let jsonData = jsonResponse.data(using: .utf8) else {
             print("Error converting response to Data")
@@ -741,19 +744,81 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
             }
             
             self.productModel = decodedProduct
-            
-            // Call the external API using the healthscore section from the decoded product.
-            fetchHealthScore(from: decodedProduct.healthscore) { [weak self] score in
-                DispatchQueue.main.async {
-                    self?.computedHealthScore = score
-                    self?.navigateToDetailsViewController()
+            fetchUserData { user in
+                            guard let user = user else {
+                                self.showErrorAlert(message: "Unable to fetch user data.")
+                                return
+                            }
+                            
+                            let analysis = generateProsAndCons(product: decodedProduct, user: user)
+                            
+                            self.fetchHealthScore(from: decodedProduct.healthscore) { [weak self] score in
+                                DispatchQueue.main.async {
+                                    self?.computedHealthScore = score
+                                    self?.navigateToDetailsViewController(analysis: analysis)
+                                }
+                            }
+                        }
+                    } catch {
+                        print("Error parsing JSON: \(error)")
+                        showErrorAlert(message: "Error analyzing the product label. Please try again.")
+                    }
+                }
+    
+    private func fetchUserData(completion: @escaping (Users?) -> Void) {
+            if let userData = UserDefaults.standard.data(forKey: "currentUser") {
+                do {
+                    let decoder = JSONDecoder()
+                    let user = try decoder.decode(Users.self, from: userData)
+                    completion(user)
+                    return
+                } catch {
+                    print("Error decoding user from UserDefaults: \(error.localizedDescription)")
                 }
             }
-        } catch {
-            print("Error parsing JSON: \(error)")
-            showErrorAlert(message: "Error analyzing the product label. Please try again.")
+            
+            guard let uid = Auth.auth().currentUser?.uid else {
+                completion(nil)
+                return
+            }
+            
+            let db = Firestore.firestore()
+            db.collection("users").document(uid).getDocument { document, error in
+                if let error = error {
+                    print("Error fetching user data: \(error.localizedDescription)")
+                    completion(nil)
+                    return
+                }
+                
+                guard let document = document, document.exists, let data = document.data() else {
+                    completion(nil)
+                    return
+                }
+                
+                let user = Users(
+                    name: data["name"] as? String ?? "",
+                    dietaryRestrictions: data["dietaryRestrictions"] as? [String] ?? [],
+                    allergies: data["allergies"] as? [String] ?? [],
+                    gender: data["gender"] as? String ?? "",
+                    age: data["age"] as? Int ?? 0,
+                    weight: data["weight"] as? Double ?? 0.0,
+                    height: data["height"] as? Double ?? 0.0,
+                    activityLevel: data["activityLevel"] as? String ?? ""
+                )
+                
+                do {
+                    let encoder = JSONEncoder()
+                    let encodedUser = try encoder.encode(user)
+                    UserDefaults.standard.set(encodedUser, forKey: "currentUser")
+                } catch {
+                    print("Error encoding user to UserDefaults: \(error.localizedDescription)")
+                }
+                
+                completion(user)
+            }
         }
-    }
+    
+    
     private func fetchHealthScore(from healthscore: HealthScore, completion: @escaping (Int) -> Void) {
             let url = URL(string: "https://calculatehealthscore-ujjjq2ceua-uc.a.run.app")!
             

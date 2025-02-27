@@ -297,6 +297,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     func signOut() {
         do {
             try Auth.auth().signOut()
+            UserDefaults.standard.removeObject(forKey: "currentUser")
             signOutButton.setTitle("Sign In", for: .normal)
             userNameTextField.text = "Guest"
             // Optional: Notify other screens (like HomeVC) if needed
