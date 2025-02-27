@@ -3,13 +3,28 @@ import UIKit
 // MARK: - User Model
 
 
-struct Users{
+struct Users: Codable {
     var name: String
     var dietaryRestrictions: [String]
     var allergies: [String]
-    var recentScans : [String]
+    var gender: String
+    var age: Int
+    var weight: Double
+    var height: Double
+    var activityLevel: String
+    
+    // Coding keys for custom naming if needed (optional)
+    enum CodingKeys: String, CodingKey {
+        case name
+        case dietaryRestrictions
+        case allergies
+        case gender
+        case age
+        case weight
+        case height
+        case activityLevel
+    }
 }
-
 
 
 struct SavedList {

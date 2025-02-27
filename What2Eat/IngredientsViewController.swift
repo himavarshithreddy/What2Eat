@@ -190,7 +190,7 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
             }
         }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        50
+        60
     }
         
     }

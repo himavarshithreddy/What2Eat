@@ -12,7 +12,7 @@ class LabelScanDetailsViewController: UIViewController {
     var capturedImage:UIImage?
     var productModel:ProductResponse?
     var healthScore:Int?
-    
+    var productAnalysis: ProductAnalysis?
     
     @IBOutlet weak var progressView: UIView!
     
@@ -33,7 +33,7 @@ class LabelScanDetailsViewController: UIViewController {
     @IBOutlet var ProductName: UILabel!
     
     private var progressLayer: CAShapeLayer!
-    weak var summaryVC: SummaryViewController?
+    weak var summaryVC: SummaryLabelViewController?
     weak var ingredientsVC: IngredientsLabelViewController?
     weak var nutritionVC: NutritionLabelViewController?
     override func viewDidLoad() {
@@ -41,15 +41,14 @@ class LabelScanDetailsViewController: UIViewController {
         setupCircularProgressBar()
         setupProductDetails()
       
-        
         // Do any additional setup after loading the view.
         self.view.bringSubviewToFront(SummarySegmentView)
         
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-           if segue.identifier == "showSummary",
-              let vc = segue.destination as? SummaryViewController {
+           if segue.identifier == "showSummaryLabel",
+              let vc = segue.destination as? SummaryLabelViewController {
                summaryVC = vc
               
            } else if segue.identifier == "showIngredientsLabel",
@@ -139,6 +138,11 @@ class LabelScanDetailsViewController: UIViewController {
                     NutritionDetail(name: $0.name, value: "\($0.value) \($0.unit)")
                 }
                 nutritionVC.updateNutrition(with: parsedNutrition)
+            }
+            if let summaryVC = summaryVC {
+               
+                summaryVC.productAnalysis = self.productAnalysis
+                summaryVC.ingredients = productModel!.ingredients
             }
             
             if let healthScore = healthScore {

@@ -5,7 +5,7 @@ import GoogleSignIn
 import FirebaseFirestore
 
 class LoginViewController: UIViewController {
-
+    
     // MARK: - IBOutlets
     @IBOutlet var phoneTextField: UITextField!
     @IBOutlet var verificationCodeTextField: UITextField!
@@ -15,25 +15,20 @@ class LoginViewController: UIViewController {
     var verificationID: String?
     var currentUserUID: String?
     var activityIndicator: UIActivityIndicatorView!
-
+    
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Initially hide the verification code field
         verificationCodeTextField.isHidden = true
         
-        // Initialize and set up the activity indicator
         activityIndicator = UIActivityIndicatorView(style: .large)
         activityIndicator.center = view.center
         view.addSubview(activityIndicator)
-        
-        // Additional setup if needed...
     }
     
     // MARK: - Actions
     @IBAction func sendCodeButtonTapped(_ sender: Any) {
-        // First step: sending the verification code
         if verificationCodeTextField.isHidden {
             guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
                 showAlert(message: "Please enter a valid phone number.")
@@ -52,15 +47,11 @@ class LoginViewController: UIViewController {
                     return
                 }
                 
-                // Save the verification ID for later use
                 self.verificationID = verificationID
-                
-                // Show the verification code text field and update the button title
                 self.verificationCodeTextField.isHidden = false
                 self.sendCodeButton.setTitle("Verify Code", for: .normal)
             }
         } else {
-            // Second step: verifying the code
             guard let verificationCode = verificationCodeTextField.text, !verificationCode.isEmpty else {
                 showAlert(message: "Please enter the verification code.")
                 return
@@ -85,138 +76,14 @@ class LoginViewController: UIViewController {
                     return
                 }
                 
-                // Successfully signed in
                 if let user = authResult?.user {
-                    // Save the current user's UID for later use
                     self.currentUserUID = user.uid
-                    
-                    // Fetch Firestore user data
-                    self.fetchUserData(uid: user.uid) { userData in
-                        if userData.isEmpty {
-                            // New user: present NameViewController to collect the name
-                            self.presentNameViewController()
-                        } else {
-                            // Existing user: navigate directly to the main app
-                            self.navigateToTabBarController()
-                        }
-                    }
+                    self.handleUserAuthentication(uid: user.uid)
                 }
             }
         }
     }
     
-    // MARK: - Firestore Methods
-    private func fetchUserData(uid: String, completion: @escaping ([String: Any]) -> Void) {
-        let db = Firestore.firestore()
-        db.collection("users").document(uid).getDocument { document, error in
-            if let error = error {
-                self.showAlert(message: "Error fetching user data: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let document = document, document.exists else {
-                completion([:])  // No user data found
-                return
-            }
-            
-            completion(document.data() ?? [:])
-        }
-    }
-    
-    private func createNewUser(uid: String, name: String, profileImageUrl: String? = nil) {
-        let db = Firestore.firestore()
-        
-        // Create a dictionary with the basic user details.
-        var newUserData: [String: Any] = [
-            "name": name,
-            "dietaryRestrictions": [],
-            "allergies": [],
-            "recentScans": []
-        ]
-        
-        // If a profile image URL is provided and it's not empty, add it to the data.
-        if let profileImageUrl = profileImageUrl, !profileImageUrl.isEmpty {
-            newUserData["profileImageUrl"] = profileImageUrl
-        }
-        
-        db.collection("users").document(uid).setData(newUserData) { error in
-            if let error = error {
-                print("Error creating new user: \(error.localizedDescription)")
-                self.showAlert(message: "Error creating new user: \(error.localizedDescription)")
-                return
-            }
-            
-            print("New user created successfully")
-            self.navigateToAllergyViewController()
-        }
-    }
-
-    
-    // MARK: - Navigation Methods
-    private func navigateToTabBarController() {
-        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
-        
-        if hasCompletedOnboarding {
-            // User completed onboarding, go to main tab bar
-            if let windowScene = view.window?.windowScene,
-               let window = windowScene.windows.first(where: { $0.isKeyWindow }),
-               let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MainTabBarController") {
-                window.rootViewController = tabBarController
-                window.makeKeyAndVisible()
-            }
-        } else {
-            // User hasn't completed onboarding, go to AllergyViewController
-            navigateToAllergyViewController()
-        }
-    }
-
-    private func navigateToAllergyViewController() {
-        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
-        isOnboarding = true
-          if let windowScene = view.window?.windowScene,
-             let window = windowScene.windows.first(where: { $0.isKeyWindow }),
-             let allergyVC = self.storyboard?.instantiateViewController(withIdentifier: "AllergyNavController") {
-             
-              window.rootViewController = allergyVC
-              window.makeKeyAndVisible()
-          }
-      }
-    
-    // Present NameViewController as a pop-up to collect the user's name
-    private func presentNameViewController() {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let nameVC = storyboard.instantiateViewController(withIdentifier: "NameViewController") as? NameViewController {
-            nameVC.delegate = self
-            nameVC.modalPresentationStyle = .pageSheet
-            nameVC.isModalInPresentation = true  // Prevents swipe-to-dismiss
-            
-  
-            let customDetent = UISheetPresentationController.Detent.custom { context in
-                   return 300 // Replace with your desired height
-               }
-            
-            if let sheet = nameVC.sheetPresentationController {
-                // Choose a detent that fits your design, e.g., .medium()
-                sheet.detents = [customDetent]
-                sheet.preferredCornerRadius = 16  // Optional, for a rounded look
-            }
-            
-            present(nameVC, animated: true, completion: nil)
-        }
-    }
-
-
-    
-    // MARK: - Helper Methods
-    private func showAlert(message: String) {
-        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        self.present(alertController, animated: true, completion: nil)
-    }
-    @IBAction func ContinueAsGuest(_ sender: Any) {
-        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-           self.navigateToTabBarController()
-       }
     @IBAction func GoogleSignInButtonTapped(_ sender: Any) {
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { signInResult, error in
             if let error = error {
@@ -238,43 +105,127 @@ class LoginViewController: UIViewController {
                 }
                 
                 print("User signed in successfully")
-                
-                // Fetch the user from Firestore
-                self.fetchUserData(uid: authResult?.user.uid ?? "") { userData in
-                    if userData.isEmpty {
-                        // User document does not exist, create a new one.
-                        // Pass in the profile image URL from Google if available.
-                        let profileImageUrl = user.profile?.imageURL(withDimension: 200)?.absoluteString ?? ""
-                        self.createNewUser(
-                            uid: authResult?.user.uid ?? "",
-                            name: user.profile?.name ?? "",
-                            profileImageUrl: profileImageUrl
-                        )
-                        
-                    } else {
-                        // User data exists, proceed
-                        _ = Users(
-                            name: userData["name"] as? String ?? "",
-                            dietaryRestrictions: userData["dietaryRestrictions"] as? [String] ?? [],
-                            allergies: userData["allergies"] as? [String] ?? [],
-                            recentScans: userData["recentScans"] as? [String] ?? []
-                        )
-                        self.navigateToTabBarController()
-                    }
+                if let uid = authResult?.user.uid {
+                    self.handleUserAuthentication(uid: uid, googleName: user.profile?.name, googleImageUrl: user.profile?.imageURL(withDimension: 200)?.absoluteString)
                 }
             }
         }
     }
-}
-
-// MARK: - NameViewControllerDelegate
-extension LoginViewController: NameViewControllerDelegate {
-    func didEnterName(_ name: String) {
-        // Once the user enters their name, create a new user document in Firestore
-        guard let uid = self.currentUserUID else {
-            print("User UID not available!")
-            return
+    
+    @IBAction func continueAsGuest(_ sender: Any) {
+        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        navigateToTabBarController()
+    }
+    
+    // MARK: - Firestore Methods
+    private func fetchUserData(uid: String, completion: @escaping (Users?) -> Void) {
+        let db = Firestore.firestore()
+        db.collection("users").document(uid).getDocument { document, error in
+            if let error = error {
+                self.showAlert(message: "Error fetching user data: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            
+            guard let document = document, document.exists, let data = document.data() else {
+                completion(nil) // No user data found
+                return
+            }
+            
+            let user = Users(
+                name: data["name"] as? String ?? "",
+                dietaryRestrictions: data["dietaryRestrictions"] as? [String] ?? [],
+                allergies: data["allergies"] as? [String] ?? [],
+                gender: data["gender"] as? String ?? "",
+                age: data["age"] as? Int ?? 0,
+                weight: data["weight"] as? Double ?? 0.0,
+                height: data["height"] as? Double ?? 0.0,
+                activityLevel: data["activityLevel"] as? String ?? ""
+            )
+            completion(user)
         }
-        createNewUser(uid: uid, name: name)
+    }
+    
+    private func createNewUser(uid: String, googleName: String? = nil, googleImageUrl: String? = nil) {
+        let db = Firestore.firestore()
+        
+        let newUserData: [String: Any] = [
+            "name": googleName ?? "", // Use Google name if available, otherwise empty
+            "dietaryRestrictions": [],
+            "allergies": [],
+            "gender": "",
+            "age": 0,
+            "weight": 0.0,
+            "height": 0.0,
+            "activityLevel": ""
+        ]
+        
+        db.collection("users").document(uid).setData(newUserData) { error in
+            if let error = error {
+                print("Error creating new user: \(error.localizedDescription)")
+                self.showAlert(message: "Error creating new user: \(error.localizedDescription)")
+                return
+            }
+            
+            print("New user created successfully")
+            self.navigateToProfileSetupViewController()
+        }
+    }
+    
+    // MARK: - Navigation Methods
+    private func handleUserAuthentication(uid: String, googleName: String? = nil, googleImageUrl: String? = nil) {
+        fetchUserData(uid: uid) { user in
+            if let user = user {
+                // Save to UserDefaults for returning users
+                do {
+                    let encoder = JSONEncoder()
+                    let userData = try encoder.encode(user)
+                    UserDefaults.standard.set(userData, forKey: "currentUser")
+                } catch {
+                    print("Error encoding user to UserDefaults: \(error.localizedDescription)")
+                }
+                
+                // Check if profile is complete
+                if user.name.isEmpty || user.gender.isEmpty || user.age == 0 || user.weight == 0.0 || user.height == 0.0 || user.activityLevel.isEmpty {
+                    self.navigateToProfileSetupViewController()
+                } else {
+                    self.navigateToTabBarController()
+                }
+            } else {
+                self.createNewUser(uid: uid, googleName: googleName, googleImageUrl: googleImageUrl)
+            }
+        }
+    }
+    
+    private func navigateToTabBarController() {
+        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+        
+        if hasCompletedOnboarding {
+            if let windowScene = view.window?.windowScene,
+               let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+               let tabBarController = self.storyboard?.instantiateViewController(withIdentifier: "MainTabBarController") {
+                window.rootViewController = tabBarController
+                window.makeKeyAndVisible()
+            }
+        } else {
+            navigateToProfileSetupViewController()
+        }
+    }
+    
+    private func navigateToProfileSetupViewController() {
+        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        if let windowScene = view.window?.windowScene,
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+            let profileSetupVC = ProfileSetupViewController()
+            window.rootViewController = profileSetupVC
+            window.makeKeyAndVisible()
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func showAlert(message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
     }
 }
