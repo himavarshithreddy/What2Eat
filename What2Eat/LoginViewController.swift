@@ -186,9 +186,11 @@ class LoginViewController: UIViewController {
                 }
                 
                 // Check if profile is complete
+                print(user)
                 if user.name.isEmpty || user.gender.isEmpty || user.age == 0 || user.weight == 0.0 || user.height == 0.0 || user.activityLevel.isEmpty {
                     self.navigateToProfileSetupViewController()
                 } else {
+                    UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
                     self.navigateToTabBarController()
                 }
             } else {
@@ -214,12 +216,18 @@ class LoginViewController: UIViewController {
     
     private func navigateToProfileSetupViewController() {
         UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        isOnboarding = true
+        let profileData = UserProfileData()
         if let windowScene = view.window?.windowScene,
            let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
-            let profileSetupVC = ProfileSetupViewController()
-            window.rootViewController = profileSetupVC
+            let nameGenderVC = NameGenderViewController(profileData: profileData)
+            let navigationController = UINavigationController(rootViewController: nameGenderVC)
+            navigationController.navigationBar.isHidden = true // Optional: hide nav bar
+            window.rootViewController = navigationController
+            
             window.makeKeyAndVisible()
         }
+       
     }
     
     // MARK: - Helper Methods
