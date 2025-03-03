@@ -2569,6 +2569,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="4YQ-lO-aZb"/>
                                 </constraints>
+                                <color key="tintColor" red="0.89411764705882346" green="0.44313725490196076" blue="0.1764705882352941" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Sign Out" cornerStyle="large">
                                     <color key="baseBackgroundColor" red="0.96078431369999995" green="0.41176470590000003" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -2685,7 +2686,7 @@
                                 </cells>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oRC-1E-bjI">
-                                <rect key="frame" x="33" y="766" width="337" height="54"/>
+                                <rect key="frame" x="33" y="668" width="337" height="54"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="vt3-84-bsQ"/>
                                 </constraints>
@@ -2803,7 +2804,7 @@
                                 </cells>
                             </collectionView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SJS-dH-DPW">
-                                <rect key="frame" x="33" y="766" width="337" height="54"/>
+                                <rect key="frame" x="33" y="668" width="337" height="54"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="54" id="raO-Z1-3je"/>
                                 </constraints>
@@ -3694,7 +3695,7 @@
     <inferredMetricsTieBreakers>
         <segue reference="ZNK-Ra-eGc"/>
         <segue reference="2yP-TM-2AJ"/>
-        <segue reference="XO4-sQ-cGz"/>
+        <segue reference="dJy-AL-WJk"/>
         <segue reference="2T7-wx-xBf"/>
         <segue reference="0rE-kq-IOP"/>
     </inferredMetricsTieBreakers>

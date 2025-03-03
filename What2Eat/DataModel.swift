@@ -241,3 +241,11 @@ struct NutritionDetail {
     let name: String
     let value: String
 }
+class UserProfileData {
+    var name: String = ""
+    var gender: String = ""
+    var height: Double = 0.0 // cm
+    var weight: Double = 0.0 // kg
+    var age: Int = 0
+    var activityLevel: String = ""
+}

@@ -55,7 +55,7 @@ extension UIImage {
 
 class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
     var recommendedProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
-
+    private var profileListener: ListenerRegistration?
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet var recentScansSeeAll: UIButton!
@@ -79,10 +79,10 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
         
         updateUserName()
-        updateProfilePicture()
+       
         scanNowButtonUI()
         noRecentScansLabel.isHidden = true
-        
+        setupProfileListener()
         fetchRecentScans {
             self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 750)
         }
@@ -90,18 +90,30 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             self.collectionView.reloadData()
         }
     }
-    
+    override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+            profileListener?.remove() // Stop listening when leaving the view
+        }
+        
+        deinit {
+            profileListener?.remove() // Clean up
+        }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        setupProfileListener()
         fetchRecentScans {
             self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 750)
         }
         updateUserName()
-        updateProfilePicture()
         self.collectionView.reloadData()
         fetchRecommendedProducts {
             self.collectionView.reloadData()
         }
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupProfileListener()
+        
     }
     func markOnboardingComplete() {
             UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
@@ -148,76 +160,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         }
     }
     
-    // MARK: - Caching Profile Picture
-    func updateProfilePicture() {
-        guard let userId = Auth.auth().currentUser?.uid else {
-            let initial = "G"
-            let size = CGSize(width: 32, height: 32)
-            if let image = UIImage.imageWithInitial(initial, size: size) {
-                self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
-            }
-            return
-        }
-        
-        // Check for a cached profile image URL.
-        if let cachedProfileImageUrl = UserDefaults.standard.string(forKey: "cachedProfileImageUrl_\(userId)"),
-           let url = URL(string: cachedProfileImageUrl) {
-            // SDWebImage will handle cached images automatically.
-            SDWebImageManager.shared.loadImage(with: url, options: [], progress: nil) { (image, data, error, cacheType, finished, imageURL) in
-                if let image = image {
-                    let size = CGSize(width: 32, height: 32)
-                    let circularImage = image.circularImage(size: size)
-                    DispatchQueue.main.async {
-                        self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
-                    }
-                }
-            }
-        } else {
-            // If no cached URL exists, fetch from Firestore.
-            let db = Firestore.firestore()
-            let userRef = db.collection("users").document(userId)
-            userRef.getDocument { (document, error) in
-                if let error = error {
-                    print("Error fetching user document for profile picture: \(error.localizedDescription)")
-                    return
-                }
-                guard let document = document, document.exists else {
-                    print("User document does not exist")
-                    return
-                }
-                
-                let data = document.data() ?? [:]
-                
-                if let profileImageUrl = data["profileImageUrl"] as? String,
-                   !profileImageUrl.isEmpty,
-                   let url = URL(string: profileImageUrl) {
-                    // Cache the profile image URL.
-                    UserDefaults.standard.set(profileImageUrl, forKey: "cachedProfileImageUrl_\(userId)")
-                    SDWebImageDownloader.shared.downloadImage(with: url, completed: { image, data, error, finished in
-                        if finished, let image = image {
-                            DispatchQueue.main.async {
-                                let size = CGSize(width: 32, height: 32)
-                                let circularImage = image.circularImage(size: size)
-                                self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
-                            }
-                        }
-                    })
-                } else {
-                    // If no image URL is available, generate one using the user’s initial.
-                    var initial = "G"
-                    if let fullName = data["name"] as? String, !fullName.isEmpty {
-                        initial = String(fullName.prefix(1))
-                    }
-                    let size = CGSize(width: 32, height: 32)
-                    if let image = UIImage.imageWithInitial(initial, size: size) {
-                        DispatchQueue.main.async {
-                            self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
-                        }
-                    }
-                }
-            }
-        }
-    }
     
     func scanNowButtonUI() {
         ScanNowButton.layer.borderWidth = 4
@@ -501,4 +443,91 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             }
         }
     }
+    
+    private func setupProfileListener() {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            updateProfilePictureAsGuest()
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(userId)
+        
+        profileListener = userRef.addSnapshotListener { [weak self] (document, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error listening to profile updates: \(error.localizedDescription)")
+                self.updateProfilePictureFromCache(userId: userId)
+                return
+            }
+            
+            guard let document = document, document.exists else {
+                print("User document does not exist")
+                self.updateProfilePictureAsGuest()
+                return
+            }
+            
+            let data = document.data() ?? [:] // Firestore document data
+            let profileImageUrl = data["profileImageUrl"] as? String ?? ""
+            
+            if !profileImageUrl.isEmpty, let url = URL(string: profileImageUrl) {
+                UserDefaults.standard.set(profileImageUrl, forKey: "cachedProfileImageUrl_\(userId)")
+                SDWebImageManager.shared.loadImage(with: url, options: [.refreshCached], progress: nil) { (image, _, error, cacheType, finished, imageURL) in
+                    if let image = image {
+                        let size = CGSize(width: 32, height: 32)
+                        let circularImage = image.circularImage(size: size)
+                        DispatchQueue.main.async {
+                            self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                        }
+                    } else {
+                        // Use Firestore data, not SDWebImage data
+                        self.setInitialImage(from: data)
+                    }
+                }
+            } else {
+                UserDefaults.standard.removeObject(forKey: "cachedProfileImageUrl_\(userId)")
+                self.setInitialImage(from: data)
+            }
+        }
+    }
+    private func updateProfilePictureAsGuest() {
+            let initial = "G"
+            let size = CGSize(width: 32, height: 32)
+            if let image = UIImage.imageWithInitial(initial, size: size) {
+                DispatchQueue.main.async {
+                    self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
+                }
+            }
+        }
+        
+        private func updateProfilePictureFromCache(userId: String) {
+            if let cachedProfileImageUrl = UserDefaults.standard.string(forKey: "cachedProfileImageUrl_\(userId)"),
+               let url = URL(string: cachedProfileImageUrl) {
+                SDWebImageManager.shared.loadImage(with: url, options: [], progress: nil) { (image, data, error, cacheType, finished, imageURL) in
+                    if let image = image {
+                        let size = CGSize(width: 32, height: 32)
+                        let circularImage = image.circularImage(size: size)
+                        DispatchQueue.main.async {
+                            self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                        }
+                    }
+                }
+            } else {
+                self.updateProfilePictureAsGuest()
+            }
+        }
+        
+        private func setInitialImage(from data: [String: Any]) {
+            var initial = "G"
+            if let fullName = data["name"] as? String, !fullName.isEmpty {
+                initial = String(fullName.prefix(1))
+            }
+            let size = CGSize(width: 32, height: 32)
+            if let image = UIImage.imageWithInitial(initial, size: size) {
+                DispatchQueue.main.async {
+                    self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
+                }
+            }
+        }
 }
