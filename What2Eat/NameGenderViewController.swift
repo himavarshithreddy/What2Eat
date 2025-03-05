@@ -12,9 +12,11 @@ class NameGenderViewController: UIViewController {
     private let genderStackView = UIStackView()
     private let maleButton = UIButton(type: .system)
     private let femaleButton = UIButton(type: .system)
+    private let maleLabel = UILabel()
+    private let femaleLabel = UILabel()
     private let nextButton = UIButton(type: .system)
     
-    private let themeColor = UIColor(red: 228/255, green: 113/255, blue: 45/255, alpha: 1)
+    private let themeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
     private let backgroundGradientLayer = CAGradientLayer()
     
     private let profileData: UserProfileData
@@ -110,13 +112,14 @@ class NameGenderViewController: UIViewController {
         view.addSubview(genderLabel)
         
         // Gender Selection
-        genderStackView.axis = .horizontal
+        genderStackView.axis = .vertical
         genderStackView.spacing = 20
         genderStackView.distribution = .fillEqually
         genderStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        configureGenderButton(maleButton, title: "Male", icon: "male")
-        configureGenderButton(femaleButton, title: "Female", icon: "female")
+        configureGenderButton(maleButton, title: "Male", imageName: "male")
+        configureGenderButton(femaleButton, title: "Female", imageName: "female")
+
         
         genderStackView.addArrangedSubview(maleButton)
         genderStackView.addArrangedSubview(femaleButton)
@@ -159,9 +162,14 @@ class NameGenderViewController: UIViewController {
             genderLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 28),
             
             genderStackView.topAnchor.constraint(equalTo: genderLabel.bottomAnchor, constant: 15),
-            genderStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25),
-            genderStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25),
-            genderStackView.heightAnchor.constraint(equalToConstant: 65),
+//            genderStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25),
+//            genderStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25),
+//            genderStackView.heightAnchor.constraint(equalToConstant: 65),
+//
+            genderStackView.topAnchor.constraint(equalTo: genderLabel.bottomAnchor, constant: 15),
+               genderStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+               genderStackView.widthAnchor.constraint(equalToConstant: 344),
+               genderStackView.heightAnchor.constraint(equalToConstant: 388),
             
             nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
             nextButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -170,12 +178,13 @@ class NameGenderViewController: UIViewController {
         ])
     }
     
-    private func configureGenderButton(_ button: UIButton, title: String, icon: String) {
+    private func configureGenderButton(_ button: UIButton, title: String, imageName: String) {
         // Configure the button with icon and text
-        button.setTitle("  " + title, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .medium)
+//        button.setTitle("  " + title, for: .normal)
+//        button.titleLabel?.font = .systemFont(ofSize: 26, weight: .medium)
         button.backgroundColor = .white
-        button.setTitleColor(.darkText, for: .normal)
+//        button.setTitleColor(.darkText, for: .normal)
+        button.layer.masksToBounds = true
         button.contentHorizontalAlignment = .center
         button.layer.cornerRadius = 12
         button.layer.borderWidth = 1
@@ -186,11 +195,11 @@ class NameGenderViewController: UIViewController {
         button.layer.shadowRadius = 4
         
         // Add icon to button
-        if let image = UIImage(systemName: icon) {
-            button.setImage(image, for: .normal)
-            button.tintColor = .darkGray
-            button.imageView?.contentMode = .scaleAspectFit
-        }
+        if let image = UIImage(named: imageName) {
+                button.setBackgroundImage(image, for: .normal)
+                // Optionally clear the default background color so the image shows fully
+                button.backgroundColor = .clear
+            }
     }
     
     private func setupActions() {
@@ -268,30 +277,30 @@ class NameGenderViewController: UIViewController {
         UIView.animate(withDuration: 0.2) {
             if sender == self.maleButton {
                 // Male selected
-                self.maleButton.backgroundColor = self.themeColor
-                self.maleButton.setTitleColor(.white, for: .normal)
-                self.maleButton.tintColor = .white
+                self.maleButton.tintColor = self.themeColor
+                self.maleButton.setTitleColor(self.themeColor, for: .normal)
                 self.maleButton.layer.borderColor = self.themeColor.cgColor
+                self.maleButton.layer.borderWidth = 3
                 
                 // Reset female button
-                self.femaleButton.backgroundColor = .white
-                self.femaleButton.setTitleColor(.darkText, for: .normal)
                 self.femaleButton.tintColor = .darkGray
+                self.femaleButton.setTitleColor(.darkText, for: .normal)
                 self.femaleButton.layer.borderColor = UIColor.systemGray5.cgColor
+                self.femaleButton.layer.borderWidth = 1
                 
                 self.profileData.gender = "male"
             } else {
                 // Female selected
-                self.femaleButton.backgroundColor = self.themeColor
-                self.femaleButton.setTitleColor(.white, for: .normal)
-                self.femaleButton.tintColor = .white
+                self.femaleButton.tintColor = self.themeColor
+                self.femaleButton.setTitleColor(self.themeColor, for: .normal)
                 self.femaleButton.layer.borderColor = self.themeColor.cgColor
+                self.femaleButton.layer.borderWidth = 3
                 
                 // Reset male button
-                self.maleButton.backgroundColor = .white
-                self.maleButton.setTitleColor(.darkText, for: .normal)
                 self.maleButton.tintColor = .darkGray
+                self.maleButton.setTitleColor(.darkText, for: .normal)
                 self.maleButton.layer.borderColor = UIColor.systemGray5.cgColor
+                self.maleButton.layer.borderWidth = 1
                 
                 self.profileData.gender = "female"
             }

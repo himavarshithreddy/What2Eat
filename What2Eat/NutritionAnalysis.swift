@@ -1,13 +1,13 @@
 import Foundation
 
 // Struct to hold split components of pros and cons
-struct NutrientFeedback {
+struct NutrientFeedback:Codable {
     let summaryPoint: String
     let value: String
     let message: String
 }
 
-struct ProductAnalysis {
+struct ProductAnalysis:Codable {
     let pros: [NutrientFeedback]
     let cons: [NutrientFeedback]
 }
