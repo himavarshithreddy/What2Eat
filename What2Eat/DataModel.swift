@@ -203,6 +203,7 @@ let dietaryOptions = [
 
 
 struct ProductResponse: Codable {
+    let id:String?
     let name: String
     let ingredients: [String]
     let nutrition: [Nutrition]

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="4JE-cA-5hm">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="W4Q-Lu-LoG">
     <device id="retina6_3" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
@@ -1568,7 +1568,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SaK-Oa-zWH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3828.3582089552237" y="279.40503432494279"/>
+            <point key="canvasLocation" x="4747.7611940298502" y="279.40503432494279"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="UNZ-Rv-MyC">
@@ -1995,6 +1995,7 @@
                     <connections>
                         <outlet property="SavedProductsTableView" destination="rfM-xI-SI0" id="rRb-PO-hcc"/>
                         <segue destination="6Wh-5a-MyP" kind="show" identifier="showProductDetailsfromSaved" id="QCo-GS-pSn"/>
+                        <segue destination="4JE-cA-5hm" kind="show" identifier="showLabelScanDetailsFromSaved" id="qQh-Ev-wLd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="1gM-po-OwS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2640,7 +2641,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ybG-eP-GhS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="7027" y="-430"/>
+            <point key="canvasLocation" x="7946.2686567164174" y="-430.43478260869563"/>
         </scene>
         <!--Allergy View Controller-->
         <scene sceneID="mLJ-Kt-Gey">
@@ -2895,13 +2896,14 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tvm-BS-O2k" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2908.9552238805968" y="279.40503432494279"/>
+            <point key="canvasLocation" x="3828.3582089552237" y="279.40503432494279"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Kxe-dL-dMG">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="T6e-2b-LQv" sceneMemberID="viewController">
                     <toolbarItems/>
+                    <navigationItem key="navigationItem" id="pte-Rb-qdj"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="aCx-1r-5BK">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="56"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -3123,7 +3125,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="A5c-Ie-pmr" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4849" y="273"/>
+            <point key="canvasLocation" x="5767.1641791044776" y="272.54004576659037"/>
         </scene>
         <!--Label Scan -->
         <scene sceneID="FHf-FE-BYa">
@@ -3134,7 +3136,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" segmentControlStyle="bar" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="y4x-Cg-54m">
-                                <rect key="frame" x="20" y="352" width="362" height="46"/>
+                                <rect key="frame" x="20" y="396" width="362" height="46"/>
                                 <color key="backgroundColor" red="0.89411764709999997" green="0.86666666670000003" blue="0.83137254900000002" alpha="0.49942173340000001" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="45" id="pu0-XY-lLH"/>
@@ -3151,7 +3153,7 @@
                                 </connections>
                             </segmentedControl>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mtz-io-zI3">
-                                <rect key="frame" x="20" y="72" width="362" height="250"/>
+                                <rect key="frame" x="20" y="116" width="362" height="250"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Product" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eoa-94-dwj">
                                         <rect key="frame" x="10" y="10" width="342" height="22"/>
@@ -3284,9 +3286,6 @@
                     <navigationItem key="navigationItem" title="Product Details" id="iNd-uA-7u6">
                         <barButtonItem key="rightBarButtonItem" title="Item" image="bookmark" catalog="system" id="vMy-xI-Nes">
                             <color key="tintColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                            <connections>
-                                <action selector="SavedButtonTapped:" destination="4JE-cA-5hm" id="981-Jp-uSF"/>
-                            </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
@@ -3298,11 +3297,12 @@
                         <outlet property="progressLabel" destination="YAX-9E-kTn" id="L8n-6M-hRa"/>
                         <outlet property="progressView" destination="18W-fu-qc6" id="OVB-c8-d1n"/>
                         <outlet property="segmentedControl" destination="y4x-Cg-54m" id="UcU-2y-hgW"/>
+                        <segue destination="T6e-2b-LQv" kind="presentation" identifier="Createnewlist" id="bXz-V1-0Tq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="K8q-Yt-mF4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1788" y="111"/>
+            <point key="canvasLocation" x="-868.65671641791039" y="110.52631578947367"/>
         </scene>
         <!--SummaryLabel-->
         <scene sceneID="9rk-yp-poP">
@@ -3592,7 +3592,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eqI-0W-nTL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-779" y="-64"/>
+            <point key="canvasLocation" x="140.29850746268656" y="-64.187643020594962"/>
         </scene>
         <!--NutritionLabel-->
         <scene sceneID="gL8-em-GCc">
@@ -3686,7 +3686,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OQg-9Q-Ecz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-748" y="426"/>
+            <point key="canvasLocation" x="170.14925373134326" y="425.97254004576655"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="1ms-O3-Ovg">
@@ -3707,8 +3707,27 @@
             </objects>
             <point key="canvasLocation" x="7258.2089552238804" y="-1746.4530892448511"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="FE3-Vh-FAv">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="W4Q-Lu-LoG" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="XS6-C3-RCy">
+                        <rect key="frame" x="0.0" y="62" width="402" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="4JE-cA-5hm" kind="relationship" relationship="rootViewController" id="4kf-ep-J5x"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="HP1-wB-CTi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1788.0597014925372" y="110.52631578947367"/>
+        </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="qQh-Ev-wLd"/>
         <segue reference="ZNK-Ra-eGc"/>
         <segue reference="2yP-TM-2AJ"/>
         <segue reference="dJy-AL-WJk"/>
