@@ -164,7 +164,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if tableView.tag == 1 {
-            return 40
+            return 60
         } else if tableView.tag == 2 {
             return 25
         }
@@ -185,7 +185,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
 
         // Calculate the new height based on the number of rows and row height
-        let rowHeight: CGFloat = 42 // Match the row height set in tableView(_:heightForRowAt:)
+        let rowHeight: CGFloat = 60 // Match the row height set in tableView(_:heightForRowAt:)
         let newHeight = (CGFloat(numberOfRows) * rowHeight) + headerHeight // 80 for header heights
 
         // Update the height constraint

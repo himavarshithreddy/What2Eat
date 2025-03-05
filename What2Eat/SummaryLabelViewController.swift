@@ -9,6 +9,7 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
     var productAllergenAlerts: [Allergen] = []
     var ingredients: [String]?
     var userAllergens: [Allergen] = []
+    var expandedIndexPaths: [IndexPath: Bool] = [:] // Tracks expanded state for each cell
     
     @IBOutlet var AlertView: UIView!
     @IBOutlet var AlertTableView: UITableView!
@@ -26,10 +27,10 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
         // Keep original height settings
         AlertView.isHidden = true
         SummaryTableView.estimatedRowHeight = 30
-        SummaryTableView.rowHeight = 40
+        SummaryTableView.rowHeight = UITableView.automaticDimension
         AlertTableView.sectionHeaderHeight = 0
         fetchUserAllergensForSummary()
-
+        
         updateUI() // Initial setup
     }
     
@@ -71,22 +72,47 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
         if tableView.tag == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightsLabelCell", for: indexPath) as! HighlightsLabelCell
             
+            // Check if the cell is expanded
+            let isExpanded = expandedIndexPaths[indexPath] ?? false
+            
             if let product = productAnalysis {
                 if !product.pros.isEmpty && indexPath.section == 0 {
                     let pro = product.pros[indexPath.row]
                     cell.HighlightText.text = pro.summaryPoint
+                    cell.DescriptionText.text = "\(pro.value) of your recommended daily Intake."
+                    cell.ProgressBar.progress = Float(pro.value) ?? 20 / 100.0
+                    cell.ProgressBar.progressTintColor = .systemGreen
                     cell.iconImage.image = UIImage(systemName: "checkmark.square.fill")
                     cell.iconImage.tintColor = .systemGreen
                 } else if !product.cons.isEmpty && indexPath.section == (product.pros.isEmpty ? 0 : 1) {
                     let con = product.cons[indexPath.row]
                     cell.HighlightText.text = con.summaryPoint
+                    cell.DescriptionText.text = "\(con.value) of your recommended daily Intake."
+                    cell.ProgressBar.progress = Float(con.value) ?? 20 / 100.0
+                    cell.ProgressBar.progressTintColor = .systemRed
                     cell.iconImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     cell.iconImage.tintColor = .systemRed
                 }
             }
+            cell.configureExpandButton(isExpanded: isExpanded)
+                    cell.onExpandButtonTapped = { [weak self] in
+                        guard let self = self else { return }
+                        // Toggle the expanded state
+                        self.expandedIndexPaths[indexPath] = !isExpanded
+                        // Reload the row to reflect the new state
+                        tableView.beginUpdates()
+                        tableView.reloadRows(at: [indexPath], with: .automatic)
+                        tableView.endUpdates()
+                        // Update the table height
+                        self.updateSummaryTableHeight()
+                    }
+            // Show/Hide elements based on expanded state
+            cell.DescriptionText.isHidden = !isExpanded
+            cell.ProgressBar.isHidden = !isExpanded
             
             // Enable wrapping for longer text
             cell.HighlightText.numberOfLines = 0
+            cell.DescriptionText.numberOfLines = 0
             return cell
         } else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertLabelCell", for: indexPath) as! AlertLabelCell
@@ -102,7 +128,7 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
     // MARK: - UITableViewDelegate
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if tableView.tag == 1 {
-            return 20 // Original height
+            return 30 // Original height
         } else if tableView.tag == 2 {
             return 0
         }
@@ -133,31 +159,58 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if tableView.tag == 1 {
-            return 50 // Original height
+            let isExpanded = expandedIndexPaths[indexPath] ?? false
+            return isExpanded ? 100 : 50 // Collapsed height: 60, Expanded height: 120
         } else if tableView.tag == 2 {
-            return 25 // Original height
+            return 25 // Original height for AlertTableView
         }
         return 0
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView.tag == 1 {
+            // Toggle the expanded state
+            let isExpanded = expandedIndexPaths[indexPath] ?? false
+            expandedIndexPaths[indexPath] = !isExpanded
+            
+            // Reload the row to reflect the new state
+            tableView.beginUpdates()
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            tableView.endUpdates()
+            
+            // Update the table height
+            updateSummaryTableHeight()
+        }
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     // MARK: - UI Updates
     private func updateSummaryTableHeight() {
         guard let product = productAnalysis else { return }
         
-        var numberOfRows = 0
+        var totalHeight: CGFloat = 0
         var headerHeight: CGFloat = 0
+        
+        // Calculate number of sections and headers
         if !product.pros.isEmpty {
-            numberOfRows += product.pros.count
-            headerHeight += 40 // Original header height
+            headerHeight += 50 // Header height for "What’s Good"
+            for row in 0..<product.pros.count {
+                let indexPath = IndexPath(row: row, section: 0)
+                let isExpanded = expandedIndexPaths[indexPath] ?? false
+                totalHeight += isExpanded ? 100 : 50
+            }
         }
         if !product.cons.isEmpty {
-            numberOfRows += product.cons.count
-            headerHeight += 40 // Original header height
+            headerHeight += 50 // Header height for "What’s Concerning"
+            let section = product.pros.isEmpty ? 0 : 1
+            for row in 0..<product.cons.count {
+                let indexPath = IndexPath(row: row, section: section)
+                let isExpanded = expandedIndexPaths[indexPath] ?? false
+                totalHeight += isExpanded ? 100 : 50
+            }
         }
         
-        let rowHeight: CGFloat = 42 // Original calculation value
-        let newHeight = (CGFloat(numberOfRows) * rowHeight) + headerHeight
-        
+        let newHeight = totalHeight + headerHeight
         SummaryTableHeight.constant = newHeight
         self.view.layoutIfNeeded()
     }
@@ -219,27 +272,31 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
         updateAlertView()
     }
     
-    
     func fetchUserAllergensForSummary() {
-            if let uid = Auth.auth().currentUser?.uid {
-                let db = Firestore.firestore()
-                let userDocument = db.collection("users").document(uid)
-                userDocument.getDocument { [weak self] (document, error) in
-                    if let error = error {
-                        print("Error fetching user allergens: \(error.localizedDescription)")
-                    } else if let document = document, document.exists,
-                              let allergiesFromDB = document.get("allergies") as? [String] {
-                        self?.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
-                        // Once fetched, compare with product ingredients
-                        self?.compareAllergens()
-                    }
-                }
-            } else {
-                let defaults = UserDefaults.standard
-                if let localAllergies = defaults.array(forKey: "localAllergies") as? [String] {
-                    userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
-                    compareAllergens()
+        if let uid = Auth.auth().currentUser?.uid {
+            let db = Firestore.firestore()
+            let userDocument = db.collection("users").document(uid)
+            userDocument.getDocument { [weak self] (document, error) in
+                if let error = error {
+                    print("Error fetching user allergens: \(error.localizedDescription)")
+                } else if let document = document, document.exists,
+                          let allergiesFromDB = document.get("allergies") as? [String] {
+                    self?.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
+                    // Once fetched, compare with product ingredients
+                    self?.compareAllergens()
                 }
             }
+        } else {
+            let defaults = UserDefaults.standard
+            if let localAllergies = defaults.array(forKey: "localAllergies") as? [String] {
+                userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
+                compareAllergens()
+            }
         }
+    }
+    
+    
+    
+   
+    
 }
