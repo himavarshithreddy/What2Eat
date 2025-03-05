@@ -13,4 +13,5 @@ class HighlightsCell: UITableViewCell {
     @IBOutlet weak var HighlightText: UILabel!
     @IBOutlet weak var iconImage: UIImageView!
     
+ 
 }

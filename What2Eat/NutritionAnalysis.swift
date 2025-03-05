@@ -161,12 +161,10 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
             return ([], [])
         },
         "total fat": { percentage in
-            if percentage >= 25 {
+            if percentage >= 20 {
                 return ([], [NutrientFeedback(summaryPoint: "Contains high amount of fat", value: "\(Int(percentage))%", message: "consider moderation")])
             } else if percentage < 10 && percentage > 0 {
                 return ([NutrientFeedback(summaryPoint: "Has low amount of fat", value: "\(Int(percentage))%", message: "heart-healthy")], [])
-            } else if percentage > 0 {
-                return ([NutrientFeedback(summaryPoint: "Contains moderate amount of fat", value: "\(Int(percentage))%", message: "balanced")], [])
             }
             return ([], [])
         },

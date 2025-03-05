@@ -11,7 +11,6 @@ class WeightViewController: UIViewController {
     private let minValueLabel = UILabel()
     private let maxValueLabel = UILabel()
     private let continueButton = UIButton(type: .system)
-    
     private let profileData: UserProfileData
     
     init(profileData: UserProfileData) {
@@ -26,6 +25,7 @@ class WeightViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        profileData.weight = 60
         setupUI()
         setupActions()
     }
@@ -42,7 +42,7 @@ class WeightViewController: UIViewController {
         // Unit Segmented Control
         unitSegmentedControl.selectedSegmentIndex = 0
         unitSegmentedControl.backgroundColor = UIColor.systemGray6
-        unitSegmentedControl.selectedSegmentTintColor = UIColor(red: 228/255, green: 113/255, blue: 45/255, alpha: 1)
+        unitSegmentedControl.selectedSegmentTintColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         unitSegmentedControl.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
         unitSegmentedControl.setTitleTextAttributes([.foregroundColor: UIColor.darkGray], for: .normal)
         unitSegmentedControl.layer.cornerRadius = 24
@@ -51,9 +51,9 @@ class WeightViewController: UIViewController {
         view.addSubview(unitSegmentedControl)
         
         // Weight Value Label
-        weightValueLabel.text = "128"
-        weightValueLabel.font = .systemFont(ofSize: 70, weight: .black)
-        weightValueLabel.textColor = .black
+        weightValueLabel.text = "60"
+        weightValueLabel.font = .systemFont(ofSize: 70, weight: .bold)
+        weightValueLabel.textColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         weightValueLabel.textAlignment = .center
         weightValueLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(weightValueLabel)
@@ -81,33 +81,30 @@ class WeightViewController: UIViewController {
         view.insertSubview(sliderTrackView, belowSubview: slider)
         
         // Min Value Label
-        minValueLabel.text = "127"
+        minValueLabel.text = " "
         minValueLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        minValueLabel.textColor = .darkGray
+        minValueLabel.textColor = .white
         minValueLabel.textAlignment = .center
         minValueLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(minValueLabel)
         
         // Max Value Label
-        maxValueLabel.text = "129"
+        maxValueLabel.text = " "
         maxValueLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        maxValueLabel.textColor = .darkGray
+        maxValueLabel.textColor = .white
         maxValueLabel.textAlignment = .center
         maxValueLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(maxValueLabel)
         
         // Continue Button
-        continueButton.setTitle("Continue", for: .normal)
+        continueButton.setTitle("Next", for: .normal)
         continueButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        continueButton.backgroundColor = UIColor(red: 228/255, green: 113/255, blue: 45/255, alpha: 1)
+        continueButton.backgroundColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         continueButton.setTitleColor(.white, for: .normal)
         continueButton.layer.cornerRadius = 14
         continueButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         continueButton.translatesAutoresizingMaskIntoConstraints = false
-        let arrowImageView = UIImageView(image: UIImage(systemName: "arrow.right"))
-        arrowImageView.tintColor = .white
-        arrowImageView.translatesAutoresizingMaskIntoConstraints = false
-        continueButton.addSubview(arrowImageView)
+       
         view.addSubview(continueButton)
         
         // Constraints
@@ -142,13 +139,12 @@ class WeightViewController: UIViewController {
             maxValueLabel.topAnchor.constraint(equalTo: sliderTrackView.bottomAnchor, constant: 8),
             maxValueLabel.trailingAnchor.constraint(equalTo: sliderTrackView.trailingAnchor, constant: -60),
             
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
+            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
             continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            continueButton.heightAnchor.constraint(equalToConstant: 56),
-            continueButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 200),
+            continueButton.widthAnchor.constraint(equalToConstant: 337),
+            continueButton.heightAnchor.constraint(equalToConstant: 54)
             
-            arrowImageView.trailingAnchor.constraint(equalTo: continueButton.trailingAnchor, constant: -20),
-            arrowImageView.centerYAnchor.constraint(equalTo: continueButton.centerYAnchor)
+               
         ])
     }
     
@@ -199,7 +195,7 @@ class WeightViewController: UIViewController {
         let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         context.addRoundedRect(in: rect, cornerWidth: 12, cornerHeight: 12)
         
-        let orangeColor = UIColor(red: 255/255, green: 128/255, blue: 54/255, alpha: 1.0)
+        let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         orangeColor.setFill()
         context.fillPath()
         
@@ -265,6 +261,7 @@ class WeightViewController: UIViewController {
 // Extension to make rounded rectangles easier
 extension CGContext {
     func addRoundedRect(in rect: CGRect, cornerWidth: CGFloat, cornerHeight: CGFloat) {
+
         let minX = rect.minX
         let minY = rect.minY
         let maxX = rect.maxX

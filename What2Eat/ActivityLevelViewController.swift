@@ -3,15 +3,123 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 
+// Custom card view for activity selection with image on left and two-line text on right
+class ActivityCard: UIControl {
+    private let horizontalStackView = UIStackView()
+    private let textStackView = UIStackView()
+    let imageView = UIImageView()
+    let titleLabel = UILabel()
+    let subtitleLabel = UILabel()
+    
+    // Define the new orange color
+    private let selectedColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
+    
+    // Updated initializer with title and subtitle
+    init(image: UIImage?, title: String, subtitle: String) {
+        super.init(frame: .zero)
+        setupView()
+        imageView.image = image
+        titleLabel.text = title
+        subtitleLabel.text = subtitle
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupView() {
+        backgroundColor = .systemGray6
+        layer.cornerRadius = 12
+        clipsToBounds = true
+        
+        // Horizontal stack view: image on left, vertical text on right
+        horizontalStackView.axis = .horizontal
+        horizontalStackView.alignment = .center
+        horizontalStackView.spacing = 12
+        horizontalStackView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(horizontalStackView)
+        
+        // Configure image view
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Vertical stack view for the text labels
+        textStackView.axis = .vertical
+        textStackView.alignment = .leading
+        textStackView.spacing = 4
+        textStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Configure title label
+        titleLabel.font = .systemFont(ofSize: 18, weight: .medium)
+        titleLabel.textColor = .darkText
+        titleLabel.textAlignment = .left
+        titleLabel.numberOfLines = 1
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Configure subtitle label
+        subtitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
+        subtitleLabel.textColor = .darkText
+        subtitleLabel.textAlignment = .left
+        subtitleLabel.numberOfLines = 1
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Assemble the text stack view
+        textStackView.addArrangedSubview(titleLabel)
+        textStackView.addArrangedSubview(subtitleLabel)
+        
+        // Add subviews to the horizontal stack view
+        horizontalStackView.addArrangedSubview(imageView)
+        horizontalStackView.addArrangedSubview(textStackView)
+        
+        // Set constraints for the horizontal stack view and image view size
+        NSLayoutConstraint.activate([
+            horizontalStackView.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            horizontalStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
+            horizontalStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            horizontalStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+            
+            imageView.widthAnchor.constraint(equalToConstant: 100),
+            imageView.heightAnchor.constraint(equalToConstant: 100)
+        ])
+        
+        // Enforce a larger minimum height for the card
+        heightAnchor.constraint(greaterThanOrEqualToConstant: 140).isActive = true
+    }
+    
+    // Update appearance based on selection state
+    override var isSelected: Bool {
+        didSet {
+            backgroundColor = isSelected ? selectedColor : .systemGray6
+            titleLabel.textColor = isSelected ? .white : .darkText
+            subtitleLabel.textColor = isSelected ? .white : .darkText
+            imageView.tintColor = isSelected ? .white : selectedColor
+        }
+    }
+}
+
 class ActivityLevelViewController: UIViewController {
     
     private let progressView = UIProgressView(progressViewStyle: .default)
     private let titleLabel = UILabel()
     private let activityStackView = UIStackView()
-    private let sedentaryButton = UIButton(type: .system)
-    private let moderateButton = UIButton(type: .system)
-    private let heavyButton = UIButton(type: .system)
     private let saveButton = UIButton(type: .system)
+    
+    // Updated cards with two-line text
+    private let sedentaryCard = ActivityCard(
+        image: UIImage(named: "sedentary"),
+        title: "Sedentary",
+        subtitle: "(Little or no exercise)"
+    )
+    private let moderateCard = ActivityCard(
+        image: UIImage(named: "moderate"),
+        title: "Moderate",
+        subtitle: "(Exercise 3-5 days/week)"
+    )
+    private let heavyCard = ActivityCard(
+        image: UIImage(named: "heavy"),
+        title: "Heavy",
+        subtitle: "(Intense exercise daily)"
+    )
     
     private let profileData: UserProfileData
     
@@ -23,7 +131,7 @@ class ActivityLevelViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -33,56 +141,34 @@ class ActivityLevelViewController: UIViewController {
     
     private func setupUI() {
         // Progress Bar
-        progressView.progressTintColor = UIColor(red: 228/255, green: 113/255, blue: 45/255, alpha: 1)
+        progressView.progressTintColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         progressView.trackTintColor = .systemGray5
         progressView.progress = 1.0 // 5/5 complete
         progressView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(progressView)
         
-        // Title
+        // Title Label
         titleLabel.text = "How Active Are You?"
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        titleLabel.textColor = UIColor(red: 228/255, green: 113/255, blue: 45/255, alpha: 1)
+        titleLabel.textColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
         
-        // Activity Selection
+        // Activity Stack View
         activityStackView.axis = .vertical
         activityStackView.spacing = 15
         activityStackView.distribution = .fillEqually
         activityStackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        sedentaryButton.setTitle("Sedentary (Little or no exercise)", for: .normal)
-        sedentaryButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        sedentaryButton.backgroundColor = .systemGray6
-        sedentaryButton.setTitleColor(.darkText, for: .normal)
-        sedentaryButton.layer.cornerRadius = 12
-        sedentaryButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        moderateButton.setTitle("Moderate (Exercise 3-5 days/week)", for: .normal)
-        moderateButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        moderateButton.backgroundColor = .systemGray6
-        moderateButton.setTitleColor(.darkText, for: .normal)
-        moderateButton.layer.cornerRadius = 12
-        moderateButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        heavyButton.setTitle("Heavy (Intense exercise daily)", for: .normal)
-        heavyButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        heavyButton.backgroundColor = .systemGray6
-        heavyButton.setTitleColor(.darkText, for: .normal)
-        heavyButton.layer.cornerRadius = 12
-        heavyButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        activityStackView.addArrangedSubview(sedentaryButton)
-        activityStackView.addArrangedSubview(moderateButton)
-        activityStackView.addArrangedSubview(heavyButton)
+        activityStackView.addArrangedSubview(sedentaryCard)
+        activityStackView.addArrangedSubview(moderateCard)
+        activityStackView.addArrangedSubview(heavyCard)
         view.addSubview(activityStackView)
         
         // Save Button
         saveButton.setTitle("Save & Continue", for: .normal)
         saveButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        saveButton.backgroundColor = UIColor(red: 228/255, green: 113/255, blue: 45/255, alpha: 1)
+        saveButton.backgroundColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         saveButton.setTitleColor(.white, for: .normal)
         saveButton.layer.cornerRadius = 12
         saveButton.translatesAutoresizingMaskIntoConstraints = false
@@ -101,41 +187,51 @@ class ActivityLevelViewController: UIViewController {
             activityStackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
             activityStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             activityStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            activityStackView.heightAnchor.constraint(equalToConstant: 180),
+            // Increased the height to give more space to each card
+            activityStackView.heightAnchor.constraint(equalToConstant: 360),
             
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
             saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            saveButton.widthAnchor.constraint(equalToConstant: 220),
-            saveButton.heightAnchor.constraint(equalToConstant: 55)
+            saveButton.widthAnchor.constraint(equalToConstant: 337),
+            saveButton.heightAnchor.constraint(equalToConstant: 54)
         ])
     }
     
     private func setupActions() {
-        sedentaryButton.addTarget(self, action: #selector(activitySelected(_:)), for: .touchUpInside)
-        moderateButton.addTarget(self, action: #selector(activitySelected(_:)), for: .touchUpInside)
-        heavyButton.addTarget(self, action: #selector(activitySelected(_:)), for: .touchUpInside)
+        let tapSedentary = UITapGestureRecognizer(target: self, action: #selector(activityCardTapped(_:)))
+        sedentaryCard.addGestureRecognizer(tapSedentary)
+        sedentaryCard.isUserInteractionEnabled = true
+        
+        let tapModerate = UITapGestureRecognizer(target: self, action: #selector(activityCardTapped(_:)))
+        moderateCard.addGestureRecognizer(tapModerate)
+        moderateCard.isUserInteractionEnabled = true
+        
+        let tapHeavy = UITapGestureRecognizer(target: self, action: #selector(activityCardTapped(_:)))
+        heavyCard.addGestureRecognizer(tapHeavy)
+        heavyCard.isUserInteractionEnabled = true
+        
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
     }
     
-    @objc private func activitySelected(_ sender: UIButton) {
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
+    @objc private func activityCardTapped(_ gesture: UITapGestureRecognizer) {
+        // Deselect all cards first
+        sedentaryCard.isSelected = false
+        moderateCard.isSelected = false
+        heavyCard.isSelected = false
         
-        sedentaryButton.backgroundColor = .systemGray6
-        moderateButton.backgroundColor = .systemGray6
-        heavyButton.backgroundColor = .systemGray6
-        sedentaryButton.setTitleColor(.darkText, for: .normal)
-        moderateButton.setTitleColor(.darkText, for: .normal)
-        heavyButton.setTitleColor(.darkText, for: .normal)
-        
-        sender.backgroundColor = UIColor(red: 228/255, green: 113/255, blue: 45/255, alpha: 1)
-        sender.setTitleColor(.white, for: .normal)
-        
-        switch sender {
-        case sedentaryButton: profileData.activityLevel = "Sedentary"
-        case moderateButton: profileData.activityLevel = "Moderate"
-        case heavyButton: profileData.activityLevel = "Heavy"
-        default: break
+        if let selectedCard = gesture.view as? ActivityCard {
+            selectedCard.isSelected = true
+            let impact = UIImpactFeedbackGenerator(style: .medium)
+            impact.impactOccurred()
+            
+            // Update profile data based on selected card
+            if selectedCard == sedentaryCard {
+                profileData.activityLevel = "Sedentary"
+            } else if selectedCard == moderateCard {
+                profileData.activityLevel = "Moderate"
+            } else if selectedCard == heavyCard {
+                profileData.activityLevel = "Heavy"
+            }
         }
     }
     
@@ -147,7 +243,6 @@ class ActivityLevelViewController: UIViewController {
         
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
-        
         updateUserProfile()
     }
     
@@ -218,7 +313,7 @@ class ActivityLevelViewController: UIViewController {
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "Oops!", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
-        alert.view.tintColor = UIColor(red: 228/255, green: 113/255, blue: 45/255, alpha: 1)
+        alert.view.tintColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         present(alert, animated: true)
     }
 }

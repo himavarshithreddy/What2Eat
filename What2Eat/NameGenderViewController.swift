@@ -12,8 +12,6 @@ class NameGenderViewController: UIViewController {
     private let genderStackView = UIStackView()
     private let maleButton = UIButton(type: .system)
     private let femaleButton = UIButton(type: .system)
-    private let maleLabel = UILabel()
-    private let femaleLabel = UILabel()
     private let nextButton = UIButton(type: .system)
     
     private let themeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
@@ -130,7 +128,7 @@ class NameGenderViewController: UIViewController {
         nextButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         nextButton.backgroundColor = themeColor
         nextButton.setTitleColor(.white, for: .normal)
-        nextButton.layer.cornerRadius = 25
+        nextButton.layer.cornerRadius = 14
         nextButton.layer.shadowColor = themeColor.cgColor
         nextButton.layer.shadowOpacity = 0.3
         nextButton.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -173,19 +171,61 @@ class NameGenderViewController: UIViewController {
             
             nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
             nextButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            nextButton.widthAnchor.constraint(equalToConstant: 200),
-            nextButton.heightAnchor.constraint(equalToConstant: 55)
+            nextButton.widthAnchor.constraint(equalToConstant: 337),
+            nextButton.heightAnchor.constraint(equalToConstant: 54)
         ])
     }
     
     private func configureGenderButton(_ button: UIButton, title: String, imageName: String) {
-        // Configure the button with icon and text
-//        button.setTitle("  " + title, for: .normal)
-//        button.titleLabel?.font = .systemFont(ofSize: 26, weight: .medium)
+        // Create a horizontal stack (label on left, image on right)
+        let contentStack = UIStackView()
+        contentStack.axis = .horizontal
+        contentStack.alignment = .center
+        // Lower spacing so the text is closer to the image
+        contentStack.spacing = 4
+        contentStack.distribution = .fill
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Let the button itself handle taps
+        contentStack.isUserInteractionEnabled = false
+
+        // Label (30%)
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 20, weight: .medium)
+        titleLabel.textColor = .darkText
+        titleLabel.tag = 100
+        // **Right-align the text** so it sits near the image
+        titleLabel.textAlignment = .right
+        
+        // Image (70%)
+        let iconImageView = UIImageView()
+        iconImageView.contentMode = .scaleAspectFit
+        iconImageView.image = UIImage(named: imageName)
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add label first, then image
+        contentStack.addArrangedSubview(titleLabel)
+        contentStack.addArrangedSubview(iconImageView)
+        
+        // Add stack to button
+        button.addSubview(contentStack)
+        
+        // Constrain the stack to the button’s edges
+        NSLayoutConstraint.activate([
+            // Increase if you want more left padding
+            contentStack.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: 16),
+            contentStack.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: -16),
+            contentStack.topAnchor.constraint(equalTo: button.topAnchor, constant: 12),
+            contentStack.bottomAnchor.constraint(equalTo: button.bottomAnchor, constant: 0),
+            
+            // 30% for label, 70% for image
+            titleLabel.widthAnchor.constraint(equalTo: contentStack.widthAnchor, multiplier: 0.3),
+            iconImageView.widthAnchor.constraint(equalTo: contentStack.widthAnchor, multiplier: 0.7),
+        ])
+        
+        // Style the button
         button.backgroundColor = .white
-//        button.setTitleColor(.darkText, for: .normal)
-        button.layer.masksToBounds = true
-        button.contentHorizontalAlignment = .center
         button.layer.cornerRadius = 12
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.systemGray5.cgColor
@@ -193,13 +233,6 @@ class NameGenderViewController: UIViewController {
         button.layer.shadowOpacity = 0.05
         button.layer.shadowOffset = CGSize(width: 0, height: 2)
         button.layer.shadowRadius = 4
-        
-        // Add icon to button
-        if let image = UIImage(named: imageName) {
-                button.setBackgroundImage(image, for: .normal)
-                // Optionally clear the default background color so the image shows fully
-                button.backgroundColor = .clear
-            }
     }
     
     private func setupActions() {
@@ -269,52 +302,63 @@ class NameGenderViewController: UIViewController {
             }
         }
     }
+    private func updateButtonLabelColor(for button: UIButton, color: UIColor) {
+        for subview in button.subviews {
+            if let stack = subview as? UIStackView {
+                for arrangedSubview in stack.arrangedSubviews {
+                    if let label = arrangedSubview as? UILabel, label.tag == 100 {
+                        label.textColor = color
+                    }
+                }
+            }
+        }
+    }
+
     
     @objc private func genderSelected(_ sender: UIButton) {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
-        
+
         UIView.animate(withDuration: 0.2) {
             if sender == self.maleButton {
                 // Male selected
-                self.maleButton.tintColor = self.themeColor
-                self.maleButton.setTitleColor(self.themeColor, for: .normal)
-                self.maleButton.layer.borderColor = self.themeColor.cgColor
-                self.maleButton.layer.borderWidth = 3
+                self.maleButton.backgroundColor = self.themeColor
+                self.maleButton.setTitleColor(.white, for: .normal)
+                self.updateButtonLabelColor(for: self.maleButton, color: .white)
+                // Remove border when selected
+                self.maleButton.layer.borderWidth = 0
                 
                 // Reset female button
-                self.femaleButton.tintColor = .darkGray
+                self.femaleButton.backgroundColor = .white
                 self.femaleButton.setTitleColor(.darkText, for: .normal)
-                self.femaleButton.layer.borderColor = UIColor.systemGray5.cgColor
                 self.femaleButton.layer.borderWidth = 1
-                
+                self.updateButtonLabelColor(for: self.femaleButton, color: .darkText)
                 self.profileData.gender = "male"
             } else {
                 // Female selected
-                self.femaleButton.tintColor = self.themeColor
-                self.femaleButton.setTitleColor(self.themeColor, for: .normal)
-                self.femaleButton.layer.borderColor = self.themeColor.cgColor
-                self.femaleButton.layer.borderWidth = 3
-                
+                self.femaleButton.backgroundColor = self.themeColor
+                self.femaleButton.setTitleColor(.white, for: .normal)
+                self.femaleButton.layer.borderWidth = 0
+                self.updateButtonLabelColor(for: self.femaleButton, color: .white)
                 // Reset male button
-                self.maleButton.tintColor = .darkGray
+                self.maleButton.backgroundColor = .white
                 self.maleButton.setTitleColor(.darkText, for: .normal)
-                self.maleButton.layer.borderColor = UIColor.systemGray5.cgColor
                 self.maleButton.layer.borderWidth = 1
-                
+                self.updateButtonLabelColor(for: self.maleButton, color: .darkText)
                 self.profileData.gender = "female"
             }
         }
-        
-        // Animate next button to draw attention to it
-        UIView.animate(withDuration: 0.3, animations: {
-            self.nextButton.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
-        }) { _ in
-            UIView.animate(withDuration: 0.2) {
-                self.nextButton.transform = .identity
-            }
-        }
+
+        // Animate the "Next" button to draw attention
+//        UIView.animate(withDuration: 0.3, animations: {
+//            self.nextButton.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+//        }) { _ in
+//            UIView.animate(withDuration: 0.2) {
+//                self.nextButton.transform = .identity
+//            }
+//        }
     }
+
     
     @objc private func nextTapped() {
         guard let name = nameTextField.text, !name.isEmpty,
@@ -335,13 +379,13 @@ class NameGenderViewController: UIViewController {
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
         
-        UIView.animate(withDuration: 0.1, animations: {
-            self.nextButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-        }) { _ in
-            UIView.animate(withDuration: 0.2) {
-                self.nextButton.transform = .identity
-            }
-        }
+//        UIView.animate(withDuration: 0.1, animations: {
+//            self.nextButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+//        }) { _ in
+//            UIView.animate(withDuration: 0.2) {
+//                self.nextButton.transform = .identity
+//            }
+//        }
         
         profileData.name = name
         let nextVC = HeightViewController(profileData: profileData)
