@@ -190,7 +190,7 @@ class ActivityLevelViewController: UIViewController {
             // Increased the height to give more space to each card
             activityStackView.heightAnchor.constraint(equalToConstant: 360),
             
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
+            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             saveButton.widthAnchor.constraint(equalToConstant: 337),
             saveButton.heightAnchor.constraint(equalToConstant: 54)
@@ -264,7 +264,7 @@ class ActivityLevelViewController: UIViewController {
             "activityLevel": profileData.activityLevel
         ]
         
-        db.collection("users").document(uid).setData(userData) { error in
+        db.collection("users").document(uid).setData(userData, merge: true) { error in
             if let error = error {
                 self.showAlert(message: "Error saving profile: \(error.localizedDescription)")
                 return

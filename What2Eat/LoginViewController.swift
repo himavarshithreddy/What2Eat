@@ -2,6 +2,7 @@ import UIKit
 import Firebase
 import FirebaseAuth
 import GoogleSignIn
+import FirebaseStorage
 import FirebaseFirestore
 
 class LoginViewController: UIViewController {
@@ -148,30 +149,86 @@ class LoginViewController: UIViewController {
     
     private func createNewUser(uid: String, googleName: String? = nil, googleImageUrl: String? = nil) {
         let db = Firestore.firestore()
+        let storageRef = Storage.storage().reference().child("profile_images/\(uid).jpg")
         
-        let newUserData: [String: Any] = [
-            "name": googleName ?? "", // Use Google name if available, otherwise empty
-            "dietaryRestrictions": [],
-            "allergies": [],
-            "gender": "",
-            "age": 0,
-            "weight": 0.0,
-            "height": 0.0,
-            "activityLevel": ""
-        ]
-        
-        db.collection("users").document(uid).setData(newUserData) { error in
-            if let error = error {
-                print("Error creating new user: \(error.localizedDescription)")
-                self.showAlert(message: "Error creating new user: \(error.localizedDescription)")
-                return
-            }
+        if let googleImageUrl = googleImageUrl, let url = URL(string: googleImageUrl) {
+            // Download Google profile image
+            URLSession.shared.dataTask(with: url) { data, response, error in
+                if let error = error {
+                    print("Error downloading image: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let data = data else {
+                    print("Failed to get image data")
+                    return
+                }
+                
+                // Upload image to Firebase Storage
+                storageRef.putData(data, metadata: nil) { _, error in
+                    if let error = error {
+                        print("Error uploading image: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    // Get download URL
+                    storageRef.downloadURL { url, error in
+                        if let error = error {
+                            print("Error fetching download URL: \(error.localizedDescription)")
+                            return
+                        }
+                        
+                        let profileImageUrl = url?.absoluteString ?? ""
+                        
+                        let newUserData: [String: Any] = [
+                            "name": googleName ?? "",
+                            "dietaryRestrictions": [],
+                            "allergies": [],
+                            "gender": "",
+                            "age": 0,
+                            "weight": 0.0,
+                            "height": 0.0,
+                            "activityLevel": "",
+                            "profileImageUrl": profileImageUrl
+                        ]
+                        
+                        // Save user data to Firestore
+                        db.collection("users").document(uid).setData(newUserData) { error in
+                            if let error = error {
+                                print("Error creating new user: \(error.localizedDescription)")
+                                return
+                            }
+                            print("New user created successfully")
+                            self.navigateToProfileSetupViewController()
+                        }
+                    }
+                }
+            }.resume()
+        } else {
+            // If user is not using Google, create a new user with an empty profileImageUrl
+            let newUserData: [String: Any] = [
+                "name": googleName ?? "",
+                "dietaryRestrictions": [],
+                "allergies": [],
+                "gender": "",
+                "age": 0,
+                "weight": 0.0,
+                "height": 0.0,
+                "activityLevel": "",
+                "profileImageUrl": ""  // No profile picture for non-Google sign-ins
+            ]
             
-            print("New user created successfully")
-            self.navigateToProfileSetupViewController()
+            db.collection("users").document(uid).setData(newUserData) { error in
+                if let error = error {
+                    print("Error creating new user: \(error.localizedDescription)")
+                    return
+                }
+                print("New user created successfully")
+                self.navigateToProfileSetupViewController()
+            }
         }
     }
-    
+
     // MARK: - Navigation Methods
     private func handleUserAuthentication(uid: String, googleName: String? = nil, googleImageUrl: String? = nil) {
         fetchUserData(uid: uid) { user in

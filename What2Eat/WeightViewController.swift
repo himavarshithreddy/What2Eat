@@ -26,8 +26,19 @@ class WeightViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         profileData.weight = 60
+        setupProgressBar()
         setupUI()
         setupActions()
+    }
+    
+    // MARK: - Setup Progress Bar
+    private func setupProgressBar() {
+        let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
+        progressView.progressTintColor = orangeColor
+        progressView.trackTintColor = .systemGray5
+        progressView.progress = 0.6  // e.g., step 3 of 5 complete
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(progressView)
     }
     
     private func setupUI() {
@@ -66,16 +77,16 @@ class WeightViewController: UIViewController {
         view.addSubview(weightUnitLabel)
         
         // Slider
-        slider.minimumValue = 5 // kg
+        slider.minimumValue = 5   // kg
         slider.maximumValue = 200 // kg
-        slider.value = 60 // Default value as shown in the image
+        slider.value = 60         // Default value
         slider.minimumTrackTintColor = .clear
         slider.maximumTrackTintColor = .clear
         slider.setThumbImage(createThumbImage(), for: .normal)
         slider.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(slider)
         
-        // Custom Slider Track (we'll create a custom track with tick marks)
+        // Custom Slider Track (with tick marks)
         let sliderTrackView = createCustomSliderTrack()
         sliderTrackView.translatesAutoresizingMaskIntoConstraints = false
         view.insertSubview(sliderTrackView, belowSubview: slider)
@@ -104,47 +115,59 @@ class WeightViewController: UIViewController {
         continueButton.layer.cornerRadius = 14
         continueButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         continueButton.translatesAutoresizingMaskIntoConstraints = false
-       
         view.addSubview(continueButton)
         
         // Constraints
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
+            // Progress Bar
+            progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            progressView.heightAnchor.constraint(equalToConstant: 6),
+            
+            // Title Label (positioned below progress bar)
+            titleLabel.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
+            // Unit Segmented Control
             unitSegmentedControl.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 50),
             unitSegmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             unitSegmentedControl.widthAnchor.constraint(equalToConstant: 320),
             unitSegmentedControl.heightAnchor.constraint(equalToConstant: 48),
             
+            // Weight Value Label
             weightValueLabel.topAnchor.constraint(equalTo: unitSegmentedControl.bottomAnchor, constant: 80),
             weightValueLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -20),
             
+            // Weight Unit Label
             weightUnitLabel.bottomAnchor.constraint(equalTo: weightValueLabel.bottomAnchor, constant: -10),
             weightUnitLabel.leadingAnchor.constraint(equalTo: weightValueLabel.trailingAnchor, constant: 5),
             
+            // Slider Track View
             sliderTrackView.topAnchor.constraint(equalTo: weightValueLabel.bottomAnchor, constant: 60),
             sliderTrackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             sliderTrackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             sliderTrackView.heightAnchor.constraint(equalToConstant: 100),
             
+            // Slider
             slider.centerYAnchor.constraint(equalTo: sliderTrackView.centerYAnchor),
             slider.leadingAnchor.constraint(equalTo: sliderTrackView.leadingAnchor),
             slider.trailingAnchor.constraint(equalTo: sliderTrackView.trailingAnchor),
             
+            // Min Value Label
             minValueLabel.topAnchor.constraint(equalTo: sliderTrackView.bottomAnchor, constant: 8),
             minValueLabel.leadingAnchor.constraint(equalTo: sliderTrackView.leadingAnchor, constant: 60),
             
+            // Max Value Label
             maxValueLabel.topAnchor.constraint(equalTo: sliderTrackView.bottomAnchor, constant: 8),
             maxValueLabel.trailingAnchor.constraint(equalTo: sliderTrackView.trailingAnchor, constant: -60),
             
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
+            // Continue Button
+            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             continueButton.widthAnchor.constraint(equalToConstant: 337),
             continueButton.heightAnchor.constraint(equalToConstant: 54)
-            
-               
         ])
     }
     
@@ -187,11 +210,9 @@ class WeightViewController: UIViewController {
     
     private func createThumbImage() -> UIImage {
         let size = CGSize(width: 24, height: 100)
-        
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         let context = UIGraphicsGetCurrentContext()!
         
-        // Draw the rectangle
         let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         context.addRoundedRect(in: rect, cornerWidth: 12, cornerHeight: 12)
         
@@ -201,7 +222,6 @@ class WeightViewController: UIViewController {
         
         let image = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
-        
         return image
     }
     
@@ -253,7 +273,7 @@ class WeightViewController: UIViewController {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
         
-        let nextVC = AgeViewController(profileData: profileData)
+        let nextVC = HeightViewController(profileData: profileData)
         navigationController?.pushViewController(nextVC, animated: true)
     }
 }
@@ -261,13 +281,11 @@ class WeightViewController: UIViewController {
 // Extension to make rounded rectangles easier
 extension CGContext {
     func addRoundedRect(in rect: CGRect, cornerWidth: CGFloat, cornerHeight: CGFloat) {
-
         let minX = rect.minX
         let minY = rect.minY
         let maxX = rect.maxX
         let maxY = rect.maxY
         
-        // Start at the bottom-left with a counterclockwise path
         move(to: CGPoint(x: minX + cornerWidth, y: minY))
         addLine(to: CGPoint(x: maxX - cornerWidth, y: minY))
         addArc(tangent1End: CGPoint(x: maxX, y: minY), tangent2End: CGPoint(x: maxX, y: minY + cornerHeight), radius: cornerWidth)
