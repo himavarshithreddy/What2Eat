@@ -4,19 +4,15 @@ class HeightViewController: UIViewController {
     
     // MARK: - UI Elements
     
+    // Add progress bar property
+    private let progressView = UIProgressView(progressViewStyle: .default)
+    
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
     private let unitSegmentedControl = UISegmentedControl(items: ["FT", "CM"])
-    
-    // Displays something like "5 ft 8 in" or "165 cm"
     private let heightDisplayLabel = UILabel()
-    
-    // Vertical slider
     private let slider = UISlider()
-    
-    // Custom track behind the slider
     private let sliderTrackView = UIView()
-    
     private let nextButton = UIButton(type: .system)
     
     // Data model passed in (storing height in cm internally)
@@ -39,6 +35,9 @@ class HeightViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        // Setup progress bar first
+        setupProgressBar()
+        
         setupUI()
         setupConstraints()
         setupActions()
@@ -46,6 +45,18 @@ class HeightViewController: UIViewController {
         // Initial state: start with "FT" unit and update display accordingly.
         unitSegmentedControl.selectedSegmentIndex = 0
         sliderChanged()
+    }
+    
+    // MARK: - Setup Progress Bar
+    
+    private func setupProgressBar() {
+        // Define your theme color (orange)
+        let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
+        progressView.progressTintColor = orangeColor
+        progressView.trackTintColor = .systemGray5
+        progressView.progress = 0.8  // For example, step 2/5 complete
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(progressView)
     }
     
     // MARK: - Setup UI
@@ -62,7 +73,7 @@ class HeightViewController: UIViewController {
         view.addSubview(titleLabel)
         
         // Subtitle Label
-        subtitleLabel.text = "We’re all heights here! Share yours."
+        subtitleLabel.text = " "
         subtitleLabel.font = .systemFont(ofSize: 16, weight: .medium)
         subtitleLabel.textColor = .darkGray
         subtitleLabel.textAlignment = .left
@@ -90,19 +101,12 @@ class HeightViewController: UIViewController {
         view.addSubview(sliderTrackView)
         
         // Vertical Slider
-        slider.minimumValue = 86  // 120 cm (about 2 ft 10 in)
-        slider.maximumValue = 220  // 220 cm (about 7 ft 3 in)
-        slider.value = 153         // Default value (~5 ft 0 in)
-        
-        // Rotate slider to make it vertical
+        slider.minimumValue = 86   // ~120 cm (about 2 ft 10 in)
+        slider.maximumValue = 220  // ~220 cm (about 7 ft 3 in)
+        slider.value = 153         // Default value
         slider.transform = CGAffineTransform(rotationAngle: -CGFloat.pi / 2)
-        
-        // Hide default track so we can use our custom track view
         slider.minimumTrackTintColor = .clear
         slider.maximumTrackTintColor = .clear
-        
-        // Set the custom pill-shaped thumb image (defined below)
-        // Increased the pill height to 120 so it appears longer horizontally on screen
         slider.setThumbImage(createPillThumbImage(), for: .normal)
         slider.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(slider)
@@ -124,23 +128,29 @@ class HeightViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // Title
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            // Progress Bar Constraints
+            progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            progressView.heightAnchor.constraint(equalToConstant: 6),
+            
+            // Title Label
+            titleLabel.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
-            // Subtitle
+            // Subtitle Label
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            // Unit Segmented Control (top-right)
+            // Unit Segmented Control
             unitSegmentedControl.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 60),
             unitSegmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             unitSegmentedControl.widthAnchor.constraint(equalToConstant: 100),
             unitSegmentedControl.heightAnchor.constraint(equalToConstant: 36),
             
-            // Slider Track View (left)
+            // Slider Track View
             sliderTrackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             sliderTrackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 60),
             sliderTrackView.widthAnchor.constraint(equalToConstant: 50),
@@ -149,7 +159,6 @@ class HeightViewController: UIViewController {
             // Slider (aligned with the track)
             slider.centerXAnchor.constraint(equalTo: sliderTrackView.centerXAnchor),
             slider.centerYAnchor.constraint(equalTo: sliderTrackView.centerYAnchor),
-            // Swapped width/height for vertical orientation
             slider.widthAnchor.constraint(equalTo: sliderTrackView.heightAnchor),
             slider.heightAnchor.constraint(equalTo: sliderTrackView.widthAnchor),
             
@@ -159,26 +168,16 @@ class HeightViewController: UIViewController {
             heightDisplayLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
             // Next Button
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             nextButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             nextButton.widthAnchor.constraint(equalToConstant: 337),
             nextButton.heightAnchor.constraint(equalToConstant: 54)
         ])
     }
     
-    // MARK: - Setup Actions
-    
-    private func setupActions() {
-        slider.addTarget(self, action: #selector(sliderChanged), for: .valueChanged)
-        unitSegmentedControl.addTarget(self, action: #selector(unitChanged), for: .valueChanged)
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
-    }
-    
     // MARK: - Custom Track and Thumb
     
-    /// Creates a custom vertical slider track with tick marks.
     private func createCustomVerticalSliderTrack(into parentView: UIView, numberOfTicks: Int) {
-        // Vertical line
         let trackLine = UIView()
         trackLine.backgroundColor = UIColor.systemGray5
         trackLine.translatesAutoresizingMaskIntoConstraints = false
@@ -191,7 +190,6 @@ class HeightViewController: UIViewController {
             trackLine.widthAnchor.constraint(equalToConstant: 2)
         ])
         
-        // Tick marks
         let totalHeight: CGFloat = 400
         let tickSpacing = totalHeight / CGFloat(numberOfTicks)
         
@@ -213,26 +211,28 @@ class HeightViewController: UIViewController {
         }
     }
     
-//    Creates a tall pill shape in the unrotated coordinate space
-//    / Increased height to 120 for a longer pill.
     private func createPillThumbImage() -> UIImage {
-        // TALL in code => WIDE after rotation
-        let size = CGSize(width: 24, height: 100) // Adjust to make the pill longer
+        let size = CGSize(width: 24, height: 100)
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         let rect = CGRect(origin: .zero, size: size)
-        
-        // Use half of the width or the smaller dimension for the corner radius
-        let cornerRadius = rect.width / 2  // 24/2 = 12
+        let cornerRadius = rect.width / 2
         let path = UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
         
-       let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
-        
+        let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         orangeColor.setFill()
         path.fill()
         
         let image = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         return image
+    }
+    
+    // MARK: - Setup Actions
+    
+    private func setupActions() {
+        slider.addTarget(self, action: #selector(sliderChanged), for: .valueChanged)
+        unitSegmentedControl.addTarget(self, action: #selector(unitChanged), for: .valueChanged)
+        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
     
     // MARK: - Actions
@@ -246,14 +246,10 @@ class HeightViewController: UIViewController {
         
         if unitSegmentedControl.selectedSegmentIndex == 0 {
             let (feet, inches) = cmToFeetInches(Double(cmValue))
-            
-            // Create mutable attributed string for the number and units separately.
             let attributedText = NSMutableAttributedString(
                 string: "\(feet)",
                 attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
             )
-            
-            // Append unit "ft" with a smaller font size and lightGray color.
             let ftUnit = NSAttributedString(
                 string: " ft ",
                 attributes: [
@@ -262,15 +258,11 @@ class HeightViewController: UIViewController {
                 ]
             )
             attributedText.append(ftUnit)
-            
-            // Append inches number.
             let inchesNumber = NSAttributedString(
                 string: "\(inches)",
                 attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
             )
             attributedText.append(inchesNumber)
-            
-            // Append unit "in" with a smaller font size and lightGray color.
             let inUnit = NSAttributedString(
                 string: " in",
                 attributes: [
@@ -279,16 +271,13 @@ class HeightViewController: UIViewController {
                 ]
             )
             attributedText.append(inUnit)
-            
             heightDisplayLabel.attributedText = attributedText
         } else {
-            // For centimeters.
             let cmValueInt = Int(cmValue)
             let attributedText = NSMutableAttributedString(
                 string: "\(cmValueInt)",
                 attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
             )
-            
             let cmUnit = NSAttributedString(
                 string: " cm",
                 attributes: [
@@ -297,91 +286,26 @@ class HeightViewController: UIViewController {
                 ]
             )
             attributedText.append(cmUnit)
-            
             heightDisplayLabel.attributedText = attributedText
         }
     }
-
-
     
     @objc private func unitChanged() {
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-        
-        let cmValue = round(slider.value)
-        profileData.height = Double(cmValue)
-        
-        if unitSegmentedControl.selectedSegmentIndex == 0 {
-            let (feet, inches) = cmToFeetInches(Double(cmValue))
-            
-            // Create mutable attributed string for the number and units separately.
-            let attributedText = NSMutableAttributedString(
-                string: "\(feet)",
-                attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-            )
-            
-            // Append unit "ft" with a smaller font size and lightGray color.
-            let ftUnit = NSAttributedString(
-                string: " ft ",
-                attributes: [
-                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    NSAttributedString.Key.foregroundColor: UIColor.lightGray
-                ]
-            )
-            attributedText.append(ftUnit)
-            
-            // Append inches number.
-            let inchesNumber = NSAttributedString(
-                string: "\(inches)",
-                attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-            )
-            attributedText.append(inchesNumber)
-            
-            // Append unit "in" with a smaller font size and lightGray color.
-            let inUnit = NSAttributedString(
-                string: " in",
-                attributes: [
-                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    NSAttributedString.Key.foregroundColor: UIColor.lightGray
-                ]
-            )
-            attributedText.append(inUnit)
-            
-            heightDisplayLabel.attributedText = attributedText
-        } else {
-            // For centimeters.
-            let cmValueInt = Int(cmValue)
-            let attributedText = NSMutableAttributedString(
-                string: "\(cmValueInt)",
-                attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-            )
-            
-            let cmUnit = NSAttributedString(
-                string: " cm",
-                attributes: [
-                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    NSAttributedString.Key.foregroundColor: UIColor.lightGray
-                ]
-            )
-            attributedText.append(cmUnit)
-            
-            heightDisplayLabel.attributedText = attributedText
-        }
+        // Similar update as in sliderChanged() when unit changes
+        sliderChanged()
     }
     
     @objc private func nextButtonTapped() {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
         
-        // Navigate to the next screen (for example, WeightViewController)
-        let nextVC = WeightViewController(profileData: profileData)
+        let nextVC = ActivityLevelViewController(profileData: profileData)
         navigationController?.pushViewController(nextVC, animated: true)
     }
     
     // MARK: - Unit Conversion Helpers
     
     private func cmToFeetInches(_ cm: Double) -> (Int, Int) {
-        // 1 inch = 2.54 cm; 1 foot = 12 inches
         let totalInches = cm / 2.54
         let feet = Int(totalInches / 12)
         let inches = Int(round(totalInches.truncatingRemainder(dividingBy: 12)))

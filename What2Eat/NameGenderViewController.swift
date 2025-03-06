@@ -129,10 +129,10 @@ class NameGenderViewController: UIViewController {
         nextButton.backgroundColor = themeColor
         nextButton.setTitleColor(.white, for: .normal)
         nextButton.layer.cornerRadius = 14
-        nextButton.layer.shadowColor = themeColor.cgColor
-        nextButton.layer.shadowOpacity = 0.3
-        nextButton.layer.shadowOffset = CGSize(width: 0, height: 4)
-        nextButton.layer.shadowRadius = 8
+//        nextButton.layer.shadowColor = themeColor.cgColor
+//        nextButton.layer.shadowOpacity = 0.3
+//        nextButton.layer.shadowOffset = CGSize(width: 0, height: 4)
+//        nextButton.layer.shadowRadius = 8
         nextButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(nextButton)
         
@@ -166,10 +166,13 @@ class NameGenderViewController: UIViewController {
 //
             genderStackView.topAnchor.constraint(equalTo: genderLabel.bottomAnchor, constant: 15),
                genderStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-               genderStackView.widthAnchor.constraint(equalToConstant: 344),
+//               genderStackView.widthAnchor.constraint(equalToConstant: 344),
+//               genderStackView.heightAnchor.constraint(equalToConstant: 388),
+            genderStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25),
+               // 2 buttons * 55 height each + 20 spacing
                genderStackView.heightAnchor.constraint(equalToConstant: 388),
             
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             nextButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             nextButton.widthAnchor.constraint(equalToConstant: 337),
             nextButton.heightAnchor.constraint(equalToConstant: 54)
@@ -373,6 +376,7 @@ class NameGenderViewController: UIViewController {
                 shakeView(genderStackView)
             }
             return
+            
         }
         
         // Success animation
@@ -388,7 +392,7 @@ class NameGenderViewController: UIViewController {
 //        }
         
         profileData.name = name
-        let nextVC = HeightViewController(profileData: profileData)
+        let nextVC = AgeViewController(profileData: profileData)
         navigationController?.pushViewController(nextVC, animated: true)
     }
     

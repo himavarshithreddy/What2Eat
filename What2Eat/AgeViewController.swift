@@ -41,7 +41,7 @@ class AgeViewController: UIViewController {
         // Progress Bar
         progressView.progressTintColor = orangeColor
         progressView.trackTintColor = .systemGray5
-        progressView.progress = 0.8 // 4/5 complete
+        progressView.progress = 0.4 // 4/5 complete
         progressView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(progressView)
         
@@ -135,7 +135,7 @@ class AgeViewController: UIViewController {
             rightAgeLabel.trailingAnchor.constraint(equalTo: ageContainerView.trailingAnchor),
             
             // Next Button
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             nextButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             nextButton.widthAnchor.constraint(equalToConstant: 337),
             nextButton.heightAnchor.constraint(equalToConstant: 54)
@@ -146,15 +146,29 @@ class AgeViewController: UIViewController {
     }
     
     private func setupGestureRecognizers() {
-        let leftSwipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleLeftSwipe))
-        leftSwipeGesture.direction = .left
-        ageContainerView.addGestureRecognizer(leftSwipeGesture)
-        
-        let rightSwipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleRightSwipe))
-        rightSwipeGesture.direction = .right
-        ageContainerView.addGestureRecognizer(rightSwipeGesture)
+        // Remove the swipe gestures and add a pan gesture recognizer
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        ageContainerView.addGestureRecognizer(panGesture)
     }
-    
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        // Determine the horizontal movement
+        let translation = gesture.translation(in: ageContainerView)
+        // Define a threshold for each age increment (adjust as needed)
+        let threshold: CGFloat = 20.0
+
+        if abs(translation.x) >= threshold {
+            // Calculate steps: negative translation (left swipe) should increase age,
+            // positive translation (right swipe) should decrease age.
+            let steps = Int(translation.x / threshold)
+            // Update the current age while clamping it between 1 and 100.
+            // Note: Subtracting steps works because a leftward pan (negative translation)
+            // results in adding to the age.
+            currentAge = min(max(currentAge - steps, 1), 100)
+            updateAgeDisplay()
+            // Reset translation so that the next increment is measured from zero.
+            gesture.setTranslation(.zero, in: ageContainerView)
+        }
+    }
     private func setupActions() {
         nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
     }
@@ -188,7 +202,7 @@ class AgeViewController: UIViewController {
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
         
-        let nextVC = ActivityLevelViewController(profileData: profileData)
+        let nextVC = WeightViewController(profileData: profileData)
         navigationController?.pushViewController(nextVC, animated: true)
     }
 }
