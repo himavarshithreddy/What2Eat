@@ -1,4 +1,7 @@
 import UIKit
+import Firebase
+import FirebaseAuth
+import FirebaseFirestore
 
 class WeightViewController: UIViewController {
     
@@ -11,10 +14,14 @@ class WeightViewController: UIViewController {
     private let minValueLabel = UILabel()
     private let maxValueLabel = UILabel()
     private let continueButton = UIButton(type: .system)
-    private let profileData: UserProfileData
     
-    init(profileData: UserProfileData) {
+    private let profileData: UserProfileData
+    private let isEditingProfile: Bool
+    
+    // Updated initializer with an editing flag
+    init(profileData: UserProfileData, isEditingProfile: Bool = false) {
         self.profileData = profileData
+        self.isEditingProfile = isEditingProfile
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -22,16 +29,28 @@ class WeightViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        
+        // Default to 60 for the onboarding flow
         profileData.weight = 60
+        
         setupProgressBar()
         setupUI()
         setupActions()
+        
+        // If editing, hide the progress bar and change button title
+        if isEditingProfile {
+            progressView.isHidden = true
+            continueButton.setTitle("Save", for: .normal)
+        }
     }
     
-    // MARK: - Setup Progress Bar
+    // MARK: - Setup Methods
+    
     private func setupProgressBar() {
         let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         progressView.progressTintColor = orangeColor
@@ -77,16 +96,16 @@ class WeightViewController: UIViewController {
         view.addSubview(weightUnitLabel)
         
         // Slider
-        slider.minimumValue = 5   // kg
-        slider.maximumValue = 200 // kg
-        slider.value = 60         // Default value
+        slider.minimumValue = 5
+        slider.maximumValue = 200
+        slider.value = 60
         slider.minimumTrackTintColor = .clear
         slider.maximumTrackTintColor = .clear
         slider.setThumbImage(createThumbImage(), for: .normal)
         slider.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(slider)
         
-        // Custom Slider Track (with tick marks)
+        // Slider Track
         let sliderTrackView = createCustomSliderTrack()
         sliderTrackView.translatesAutoresizingMaskIntoConstraints = false
         view.insertSubview(sliderTrackView, belowSubview: slider)
@@ -125,7 +144,7 @@ class WeightViewController: UIViewController {
             progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             progressView.heightAnchor.constraint(equalToConstant: 6),
             
-            // Title Label (positioned below progress bar)
+            // Title Label
             titleLabel.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
@@ -164,24 +183,24 @@ class WeightViewController: UIViewController {
             maxValueLabel.trailingAnchor.constraint(equalTo: sliderTrackView.trailingAnchor, constant: -60),
             
             // Continue Button
-            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
             continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             continueButton.widthAnchor.constraint(equalToConstant: 337),
             continueButton.heightAnchor.constraint(equalToConstant: 54)
         ])
     }
     
+    // MARK: - Slider Track
+    
     private func createCustomSliderTrack() -> UIView {
         let trackView = UIView()
         trackView.backgroundColor = .clear
         
-        // Create main track line
         let trackLine = UIView()
         trackLine.backgroundColor = UIColor.systemGray5
         trackLine.translatesAutoresizingMaskIntoConstraints = false
         trackView.addSubview(trackLine)
         
-        // Add tick marks (vertical lines)
         for i in 0...20 {
             let tickView = UIView()
             tickView.backgroundColor = i % 5 == 0 ? UIColor.systemGray3 : UIColor.systemGray5
@@ -189,9 +208,11 @@ class WeightViewController: UIViewController {
             trackView.addSubview(tickView)
             
             let height: CGFloat = i % 5 == 0 ? 24 : 12
-            
             NSLayoutConstraint.activate([
-                tickView.centerXAnchor.constraint(equalTo: trackView.leadingAnchor, constant: CGFloat(i) * (UIScreen.main.bounds.width - 48) / 20),
+                tickView.centerXAnchor.constraint(
+                    equalTo: trackView.leadingAnchor,
+                    constant: CGFloat(i) * (UIScreen.main.bounds.width - 48) / 20
+                ),
                 tickView.centerYAnchor.constraint(equalTo: trackView.centerYAnchor),
                 tickView.widthAnchor.constraint(equalToConstant: 1),
                 tickView.heightAnchor.constraint(equalToConstant: height)
@@ -213,7 +234,7 @@ class WeightViewController: UIViewController {
         UIGraphicsBeginImageContextWithOptions(size, false, 0)
         let context = UIGraphicsGetCurrentContext()!
         
-        let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+        let rect = CGRect(origin: .zero, size: size)
         context.addRoundedRect(in: rect, cornerWidth: 12, cornerHeight: 12)
         
         let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
@@ -224,6 +245,8 @@ class WeightViewController: UIViewController {
         UIGraphicsEndImageContext()
         return image
     }
+    
+    // MARK: - Actions
     
     private func setupActions() {
         slider.addTarget(self, action: #selector(sliderChanged), for: .valueChanged)
@@ -273,10 +296,49 @@ class WeightViewController: UIViewController {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
         
-        let nextVC = HeightViewController(profileData: profileData)
-        navigationController?.pushViewController(nextVC, animated: true)
+        // If editing, save to Firebase immediately
+        if isEditingProfile {
+            updateFirebaseWeight()
+        } else {
+            // Onboarding flow
+            let nextVC = HeightViewController(profileData: profileData)
+            navigationController?.pushViewController(nextVC, animated: true)
+        }
+    }
+    
+    // MARK: - Firebase Update
+    
+    private func updateFirebaseWeight() {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            showAlert(message: "User not authenticated.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let updatedData: [String: Any] = [
+            "weight": profileData.weight
+        ]
+        
+        db.collection("users").document(uid).setData(updatedData, merge: true) { [weak self] error in
+            guard let self = self else { return }
+            if let error = error {
+                self.showAlert(message: "Error saving weight: \(error.localizedDescription)")
+            } else {
+                // Pop back on success
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+    
+    // MARK: - Alert Helper
+    
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "Oops!", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
+
 
 // Extension to make rounded rectangles easier
 extension CGContext {

@@ -20,7 +20,6 @@ class ProductDetailsViewController: UIViewController {
     var cachedSavedProductIDs = Set<String>()
 
     var productId: String?
-    
     @IBOutlet weak var progressView: UIView!
     @IBOutlet weak var progressLabel: UILabel!
     @IBOutlet weak var segmentedControl: UISegmentedControl!
@@ -410,7 +409,7 @@ class ProductDetailsViewController: UIViewController {
                 
                 // Extract data from Firestore
                 let name = data["name"] as? String ?? "Unknown"
-                let barcode = data["barcode"] as? [String] ?? []
+                let barcodes = data["barcodes"] as? [String] ?? []
                 let imageURL = data["imageURL"] as? String ?? ""
                 let ingredients = data["ingredients"] as? [String] ?? []
                 let artificialIngredients = data["artificialIngredients"] as? [String] ?? []
@@ -420,11 +419,22 @@ class ProductDetailsViewController: UIViewController {
                 let numberOfRatings = data["numberOfRatings"] as? Int ?? 0
                 let categoryId = data["categoryId"] as? String ?? ""
                 let healthScore = data["healthScore"] as? Double ?? 0.0
-                let nutritionInfo = data["nutritionInfo"] as? [String: String] ?? [:]
+                var nutritionInfo: [Nutrition] = []
+                        if let nutritionArray = data["nutritionInfo"] as? [[String: Any]] {
+                            nutritionInfo = nutritionArray.compactMap { nutritionDict in
+                                guard let name = nutritionDict["name"] as? String,
+                                      let value = nutritionDict["value"] as? Double,
+                                      let unit = nutritionDict["unit"] as? String else {
+                                    print("⚠️ Failed to parse nutrition item: \(nutritionDict)")
+                                    return Nutrition(name: "", value: 0, unit: "")
+                                }
+                                return Nutrition(name: name, value: Float(value), unit: unit)
+                            }
+                        }
                 
                 let fetchedProduct = ProductData(
                     id: productId,
-                    barcode: barcode,
+                    barcode: barcodes,
                     name: name,
                     imageURL: imageURL,
                     ingredients: ingredients,

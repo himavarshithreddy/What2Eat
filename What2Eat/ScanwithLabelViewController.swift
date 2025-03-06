@@ -613,10 +613,38 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         - Ignore unnecessary words or unrelated text.
 
         Nutritional Information Extraction:
-        - Identify the section labeled "Nutrition Information" or "Nutritional Facts".
-        - Extract key nutrient names, values, and units (e.g., "Protein: 9.1 g").
-        - Ensure proper formatting and structure for readability.
-
+                - Identify the section labeled "Nutrition Information" or "Nutritional Facts".
+                - Extract key nutrient names, values, and units (e.g., "Protein: 9.1 g").
+                - Standardize nutrient names to match the following expected format (case-insensitive):
+                  • "Energy" (instead of "Calories", "kcal", etc.)
+                  • "Protein"
+                  • "Total Fat" (instead of "Fat", "Total Fats", etc.)
+                  • "Saturated Fat" (instead of "Saturated Fatty Acids", "Sat Fat", etc.)
+                  • "Carbohydrates" (instead of "Total Carbohydrates", "Carbs", etc.)
+                  • "Fiber" (instead of "Dietary Fiber", etc.)
+                  • "Sugars"
+                  • "Calcium"
+                  • "Magnesium"
+                  • "Iron"
+                  • "Zinc"
+                  • "Iodine"
+                  • "Sodium"
+                  • "Potassium"
+                  • "Phosphorus"
+                  • "Copper"
+                  • "Selenium"
+                  • "Vitamin A"
+                  • "Vitamin C"
+                  • "Vitamin D"
+                  • "Vitamin E"
+                  • "Thiamine" (instead of "Vitamin B1")
+                  • "Riboflavin" (instead of "Vitamin B2")
+                  • "Niacin" (instead of "Vitamin B3")
+                  • "Vitamin B6"
+                  • "Folate" (instead of "Vitamin B9", "Folic Acid")
+                  • "Vitamin B12"
+                - If a nutrient name does not match the above list, include it as-is.
+                
         Healthscore Extraction:
         - From the nutritional data, extract only the following:
           • Energy

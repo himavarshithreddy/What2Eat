@@ -104,7 +104,10 @@ class ActivityLevelViewController: UIViewController {
     private let activityStackView = UIStackView()
     private let saveButton = UIButton(type: .system)
     
-    // Updated cards with two-line text
+    // 1. New property to indicate editing mode
+    private let isEditingProfile: Bool
+    
+    // Updated cards
     private let sedentaryCard = ActivityCard(
         image: UIImage(named: "sedentary"),
         title: "Sedentary",
@@ -123,8 +126,10 @@ class ActivityLevelViewController: UIViewController {
     
     private let profileData: UserProfileData
     
-    init(profileData: UserProfileData) {
+    // 2. Updated initializer with an editing flag
+    init(profileData: UserProfileData, isEditingProfile: Bool = false) {
         self.profileData = profileData
+        self.isEditingProfile = isEditingProfile
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -137,6 +142,12 @@ class ActivityLevelViewController: UIViewController {
         view.backgroundColor = .white
         setupUI()
         setupActions()
+        
+        // 3. Hide progress & change button title if editing
+        if isEditingProfile {
+            progressView.isHidden = true
+            saveButton.setTitle("Save", for: .normal)
+        }
     }
     
     private func setupUI() {
@@ -187,10 +198,9 @@ class ActivityLevelViewController: UIViewController {
             activityStackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
             activityStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             activityStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            // Increased the height to give more space to each card
             activityStackView.heightAnchor.constraint(equalToConstant: 360),
             
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
             saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             saveButton.widthAnchor.constraint(equalToConstant: 337),
             saveButton.heightAnchor.constraint(equalToConstant: 54)
@@ -225,12 +235,15 @@ class ActivityLevelViewController: UIViewController {
             impact.impactOccurred()
             
             // Update profile data based on selected card
-            if selectedCard == sedentaryCard {
+            switch selectedCard {
+            case sedentaryCard:
                 profileData.activityLevel = "Sedentary"
-            } else if selectedCard == moderateCard {
+            case moderateCard:
                 profileData.activityLevel = "Moderate"
-            } else if selectedCard == heavyCard {
+            case heavyCard:
                 profileData.activityLevel = "Heavy"
+            default:
+                break
             }
         }
     }
@@ -243,6 +256,7 @@ class ActivityLevelViewController: UIViewController {
         
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
+        
         updateUserProfile()
     }
     
@@ -270,25 +284,29 @@ class ActivityLevelViewController: UIViewController {
                 return
             }
             
-            let user = Users(
-                name: self.profileData.name,
-                dietaryRestrictions: [],
-                allergies: [],
-                gender: self.profileData.gender,
-                age: self.profileData.age,
-                weight: self.profileData.weight,
-                height: self.profileData.height,
-                activityLevel: self.profileData.activityLevel
-            )
-            
             do {
                 let encoder = JSONEncoder()
-                let encodedData = try encoder.encode(user)
+                let encodedData = try encoder.encode(Users(
+                    name: self.profileData.name,
+                    dietaryRestrictions: [],
+                    allergies: [],
+                    gender: self.profileData.gender,
+                    age: self.profileData.age,
+                    weight: self.profileData.weight,
+                    height: self.profileData.height,
+                    activityLevel: self.profileData.activityLevel
+                ))
                 UserDefaults.standard.set(encodedData, forKey: "currentUser")
                 UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
-                self.navigateToAllergyViewController()
             } catch {
                 self.showAlert(message: "Error saving locally: \(error.localizedDescription)")
+            }
+            
+            // 4. If editing, just pop; otherwise continue onboarding
+            if self.isEditingProfile {
+                self.navigationController?.popViewController(animated: true)
+            } else {
+                self.navigateToAllergyViewController()
             }
         }
     }

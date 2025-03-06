@@ -71,6 +71,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     override func viewDidLoad() {
         super.viewDidLoad()
         markOnboardingComplete()
+//        setupCustomSearchBar()
         HomeImage.transform = CGAffineTransform(rotationAngle: .pi * 1.845)
         collectionView.delegate = self
         RecentScansTableView.delegate = self
@@ -529,5 +530,68 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                     self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
                 }
             }
+        }
+    
+    //SearchBar
+    private let customSearchBar: UIView = {
+            let view = UIView()
+            view.backgroundColor = .systemGray6 // Mimic the typical search bar background
+            view.layer.cornerRadius = 12
+            view.translatesAutoresizingMaskIntoConstraints = false
+            return view
+        }()
+        
+        private let searchIcon: UIImageView = {
+            let imageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
+            imageView.tintColor = .gray
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            return imageView
+        }()
+        
+        private let placeholderLabel: UILabel = {
+            let label = UILabel()
+            label.text = "Search for items..."
+            label.textColor = .gray
+            label.font = .systemFont(ofSize: 16)
+            label.translatesAutoresizingMaskIntoConstraints = false
+            return label
+        }()
+    private func setupCustomSearchBar() {
+            // Add the custom search bar to the view
+            view.addSubview(customSearchBar)
+            customSearchBar.addSubview(searchIcon)
+            customSearchBar.addSubview(placeholderLabel)
+            
+            // Set constraints to make it sticky at the top
+            NSLayoutConstraint.activate([
+                customSearchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+                customSearchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                customSearchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+                customSearchBar.heightAnchor.constraint(equalToConstant: 60) // Increased height as per your earlier request
+            ])
+            
+            // Constraints for the magnifying glass icon
+            NSLayoutConstraint.activate([
+                searchIcon.leadingAnchor.constraint(equalTo: customSearchBar.leadingAnchor, constant: 12),
+                searchIcon.centerYAnchor.constraint(equalTo: customSearchBar.centerYAnchor),
+                searchIcon.widthAnchor.constraint(equalToConstant: 20),
+                searchIcon.heightAnchor.constraint(equalToConstant: 20)
+            ])
+            
+            // Constraints for the placeholder label
+            NSLayoutConstraint.activate([
+                placeholderLabel.leadingAnchor.constraint(equalTo: searchIcon.trailingAnchor, constant: 8),
+                placeholderLabel.centerYAnchor.constraint(equalTo: customSearchBar.centerYAnchor)
+            ])
+            
+            // Add tap gesture recognizer to trigger segue
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapCustomSearchBar))
+            customSearchBar.addGestureRecognizer(tapGesture)
+            customSearchBar.isUserInteractionEnabled = true
+        }
+        
+        @objc private func didTapCustomSearchBar() {
+            // Perform segue when the custom search bar is tapped
+            performSegue(withIdentifier: "showSearchScreen", sender: nil)
         }
 }

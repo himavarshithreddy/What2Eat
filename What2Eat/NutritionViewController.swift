@@ -7,10 +7,10 @@
 
 import UIKit
 
+
 class NutritionViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
- 
     
-    // Store nutrition data as (name, value) with value as String
+    // Store nutrition data as (name, value) with value as String (including unit)
     var nutritionData: [(name: String, value: String)] = []
     
     var product: ProductData? {
@@ -18,7 +18,6 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
             print("[DEBUG] Product set: \(product?.name ?? "Unknown")")
             print("[DEBUG] About to dispatch to main queue")
             DispatchQueue.main.async {
-                
                 print("[DEBUG] Starting extractNutritionData")
                 self.extractNutritionData()
                 print("[DEBUG] Finished extractNutritionData")
@@ -26,29 +25,26 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
                 print(self.nutritionData.count)
                 self.NutritionTableView.reloadData()
                 print("[DEBUG] Finished reloading table view")
-                
-                
             }
         }
     }
+    
     @IBOutlet weak var NutritionTableView: UITableView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-     
-    
+        
         NutritionTableView.delegate = self
         NutritionTableView.dataSource = self
         extractNutritionData()
-   
     }
-    
-
     
     func updateWithProduct(_ product: ProductData) {
         print("[DEBUG] updateWithProduct called for: \(product.name)")
         self.product = product
     }
     
+    // MARK: - Table View Data Source
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return nutritionData.count
     }
@@ -61,100 +57,14 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
         
         cell.NutrientLabel.text = nutrition.name
         cell.NutrientGrams.text = nutrition.value
-        let numericValue = extractNumericValue(from: nutrition.value)
-            
-           
-        let progressValue = normalizedProgress(for: numericValue, with: nutrition.value)
-        print(progressValue)
-            
-           
-            cell.NutritionProgress.progress = Float(progressValue)
         
         return cell
     }
-    func normalizedProgress(for numericValue: Double, with rawValue: String) -> Float {
-        let lowercasedValue = rawValue.lowercased()
-        var progress: Double = 0.0
-        
-        if lowercasedValue.contains("mg") {
-            // Assume 1000 mg is the maximum value for full progress
-            progress = numericValue / 1000.0
-        } else if lowercasedValue.contains("kcal") {
-            // Assume 2000 kcal is the maximum value for full progress
-            progress = numericValue / 1000.0
-        } else {
-            // Default normalization
-            progress = numericValue / 100.0
-        }
-        
-        return Float(progress)
-    }
-
     
-    // MARK: - Nutrition Data Extraction
-    func extractNutritionData() {
-        guard let nutritionInfo = product?.nutritionInfo else {
-            print("[DEBUG] No nutritionInfo found in product")
-            return
-        }
-        
-        print("[DEBUG] Extracting nutrition data for product")
-        nutritionData.removeAll()
-        
-        let mirror = Mirror(reflecting: nutritionInfo)
-        
-        for child in mirror.children {
-            if let pair = child.value as? (key: String, value: String) {
-                let formattedName = formatNutritionName(pair.key)
-                
-                // Extract numeric value from the string
-                let numericValue = extractNumericValue(from: pair.value)
-                
-                // Only add to nutrition data if the value is not zero
-                if numericValue != 0 {
-                    nutritionData.append((name: formattedName, value: pair.value))
-                    print("[DEBUG] Extracted \(formattedName): \(pair.value)")
-                }
-            }
-        }
-        
-        nutritionData.sort { $0.name < $1.name }
-        print("[DEBUG] Nutrition data sorted and updated")
-        
-        // Reload table view in the main thread
-        DispatchQueue.main.async {
-            self.NutritionTableView.reloadData()
-        }
-    }
-    
-    func extractNumericValue(from value: String) -> Double {
-        do {
-            // This regex pattern captures numbers with optional decimals.
-            let regex = try NSRegularExpression(pattern: "[0-9]+(?:\\.[0-9]+)?", options: [])
-            let range = NSRange(location: 0, length: value.utf16.count)
-            if let match = regex.firstMatch(in: value, options: [], range: range),
-               let swiftRange = Range(match.range, in: value) {
-                let numberString = String(value[swiftRange])
-                return Double(numberString) ?? 0.0
-            }
-        } catch {
-            print("[ERROR] Regex error: \(error)")
-        }
-        return 0.0
-    }
-    
-    
-    func formatNutritionName(_ name: String) -> String {
-        // Convert camelCase to space-separated words for readability
-        let formatted = name.replacingOccurrences(of: "([a-z])([A-Z])",
-                                                  with: "$1 $2",
-                                                  options: .regularExpression,
-                                                  range: name.range(of: name))
-        return formatted.capitalized
-    }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        60
+        return 60
     }
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let verticalPadding: CGFloat = 6
         let maskLayer = CALayer()
@@ -167,5 +77,60 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
             height: cell.bounds.height
         ).insetBy(dx: 0, dy: verticalPadding / 2)
         cell.layer.mask = maskLayer
+    }
+    
+    // MARK: - Nutrition Data Extraction
+    func extractNutritionData() {
+     
+        guard let nutritionInfo = product?.nutritionInfo else {
+            
+            print("[DEBUG] No nutritionInfo found in product")
+            nutritionData = []
+            DispatchQueue.main.async {
+                self.NutritionTableView.reloadData()
+            }
+            return
+        }
+        
+        print("[DEBUG] Extracting nutrition data for product")
+        nutritionData.removeAll()
+        
+        // Iterate over the nutritionInfo array
+        for nutrition in nutritionInfo {
+       
+            let formattedName = formatNutritionName(nutrition.name)
+            let numericValue = nutrition.value
+            
+            // Only add to nutrition data if the value is not zero
+            if numericValue != 0 {
+                let displayValue = formatDisplayValue(value: Double(numericValue), unit: nutrition.unit)
+                nutritionData.append((name: formattedName, value: displayValue))
+                print("[DEBUG] Extracted \(formattedName): \(displayValue)")
+            }
+        }
+        
+        // Sort alphabetically by name
+        nutritionData.sort { $0.name < $1.name }
+        print("[DEBUG] Nutrition data sorted and updated")
+        print(nutritionData)
+        
+        // Reload table view on the main thread
+        DispatchQueue.main.async {
+            self.NutritionTableView.reloadData()
+        }
+    }
+    
+    // Format the display value with unit (e.g., "200 kcal", "5 g")
+    func formatDisplayValue(value: Double, unit: String) -> String {
+        // Avoid displaying ".0" for whole numbers
+        let formattedValue = value.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", value) : String(format: "%.1f", value)
+        return "\(formattedValue) \(unit)"
+    }
+    
+    // Format nutrient name for display (e.g., "total fat" -> "Total Fat")
+    func formatNutritionName(_ name: String) -> String {
+        // Split by spaces and capitalize each word
+        let words = name.split(separator: " ").map { $0.capitalized }
+        return words.joined(separator: " ")
     }
 }
