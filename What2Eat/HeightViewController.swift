@@ -36,23 +36,34 @@ class HeightViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
+
         setupProgressBar()
         setupUI()
         setupConstraints()
         setupActions()
         
-        // Default unit & initial display
+        // Default unit selection
         unitSegmentedControl.selectedSegmentIndex = 0
+        
+        // If profileData already contains a height (non-zero), use it;
+        // otherwise, default to 153 (cm)
+        if profileData.height != 0 {
+            slider.value = Float(profileData.height)
+        } else {
+            slider.value = 153
+            profileData.height = 153.0
+        }
+        
+        // Update the display label based on the slider value
         sliderChanged()
         
-        // Hide progress & change button title if editing
+        // Hide progress & update button title for editing mode
         if isEditingProfile {
             progressView.isHidden = true
             nextButton.setTitle("Save", for: .normal)
         }
     }
-    
+
     // MARK: - Setup Progress Bar
     
     private func setupProgressBar() {
@@ -302,13 +313,8 @@ class HeightViewController: UIViewController {
     @objc private func nextButtonTapped() {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
-        
-        if isEditingProfile {
-            updateFirebaseHeight()
-        } else {
-            let nextVC = ActivityLevelViewController(profileData: profileData)
-            navigationController?.pushViewController(nextVC, animated: true)
-        }
+        updateFirebaseHeight()
+       
     }
     
     // MARK: - Firebase Update
@@ -329,10 +335,30 @@ class HeightViewController: UIViewController {
             if let error = error {
                 self.showAlert(message: "Error saving height: \(error.localizedDescription)")
             } else {
-                self.navigationController?.popViewController(animated: true)
+                // Update UserDefaults
+                if let savedData = UserDefaults.standard.data(forKey: "currentUser"),
+                   var savedUser = try? JSONDecoder().decode(Users.self, from: savedData) {
+                    savedUser.height = self.profileData.height
+                    do {
+                        let encoder = JSONEncoder()
+                        let encodedData = try encoder.encode(savedUser)
+                        UserDefaults.standard.set(encodedData, forKey: "currentUser")
+                    } catch {
+                        self.showAlert(message: "Error updating local data: \(error.localizedDescription)")
+                    }
+                }
+                if isEditingProfile {
+                   
+                    self.navigationController?.popViewController(animated: true)
+                } else {
+                   
+                    let nextVC = ActivityLevelViewController(profileData: profileData)
+                    navigationController?.pushViewController(nextVC, animated: true)
+                }
             }
         }
     }
+
     
     // MARK: - Unit Conversion Helpers
     

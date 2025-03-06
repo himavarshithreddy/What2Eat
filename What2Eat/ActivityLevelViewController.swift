@@ -148,6 +148,18 @@ class ActivityLevelViewController: UIViewController {
             progressView.isHidden = true
             saveButton.setTitle("Save", for: .normal)
         }
+        if !profileData.activityLevel.isEmpty {
+                switch profileData.activityLevel.lowercased() {
+                case "sedentary":
+                    sedentaryCard.isSelected = true
+                case "moderate":
+                    moderateCard.isSelected = true
+                case "heavy":
+                    heavyCard.isSelected = true
+                default:
+                    break
+                }
+            }
     }
     
     private func setupUI() {
@@ -265,44 +277,35 @@ class ActivityLevelViewController: UIViewController {
             showAlert(message: "User not authenticated.")
             return
         }
-        
+
         let db = Firestore.firestore()
         let userData: [String: Any] = [
-            "name": profileData.name,
-            "dietaryRestrictions": [],
-            "allergies": [],
-            "gender": profileData.gender,
-            "age": profileData.age,
-            "weight": profileData.weight,
-            "height": profileData.height,
             "activityLevel": profileData.activityLevel
         ]
-        
+
         db.collection("users").document(uid).setData(userData, merge: true) { error in
             if let error = error {
                 self.showAlert(message: "Error saving profile: \(error.localizedDescription)")
                 return
             }
-            
-            do {
-                let encoder = JSONEncoder()
-                let encodedData = try encoder.encode(Users(
-                    name: self.profileData.name,
-                    dietaryRestrictions: [],
-                    allergies: [],
-                    gender: self.profileData.gender,
-                    age: self.profileData.age,
-                    weight: self.profileData.weight,
-                    height: self.profileData.height,
-                    activityLevel: self.profileData.activityLevel
-                ))
-                UserDefaults.standard.set(encodedData, forKey: "currentUser")
-                UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
-            } catch {
-                self.showAlert(message: "Error saving locally: \(error.localizedDescription)")
+
+            // Update UserDefaults
+            if let savedData = UserDefaults.standard.data(forKey: "currentUser"),
+               var savedUser = try? JSONDecoder().decode(Users.self, from: savedData) {
+                
+                // Update only the activityLevel field
+                savedUser.activityLevel = self.profileData.activityLevel
+
+                do {
+                    let encoder = JSONEncoder()
+                    let encodedData = try encoder.encode(savedUser)
+                    UserDefaults.standard.set(encodedData, forKey: "currentUser")
+                } catch {
+                    self.showAlert(message: "Error updating local data: \(error.localizedDescription)")
+                }
             }
-            
-            // 4. If editing, just pop; otherwise continue onboarding
+
+            // If editing, just pop; otherwise, continue onboarding
             if self.isEditingProfile {
                 self.navigationController?.popViewController(animated: true)
             } else {
@@ -310,6 +313,7 @@ class ActivityLevelViewController: UIViewController {
             }
         }
     }
+
     
     private func navigateToAllergyViewController() {
         guard let windowScene = view.window?.windowScene,
