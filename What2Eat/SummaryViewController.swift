@@ -15,6 +15,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     var userAllergens: [Allergen] = []
         var productAllergenAlerts: [Allergen] = []
+    var expandedIndexPaths: [IndexPath: Bool] = [:] 
     
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
@@ -37,7 +38,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         AlertTableView.delegate = self
         AlertView.isHidden = true
         SummaryTableView.estimatedRowHeight = 30
-        SummaryTableView.rowHeight = 40
+        SummaryTableView.rowHeight = UITableView.automaticDimension
 
                 // Setup stars for user rating
         setStarRating(Float(product?.userRating ?? 0))
@@ -45,7 +46,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         setupStarTapGestures()
         fetchUserAllergensForSummary()
         AlertTableView.sectionHeaderHeight = 0  // Explicit header height
-          
+        updateUI()
        
     }
     
@@ -65,7 +66,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
             return sections
         } else if tableView.tag == 2 {
-            return 1 // For allergens (or other data)
+            return productAllergenAlerts.isEmpty ? 0 : 1 // For allergens (or other data)
         }
         return 0
     }
@@ -97,23 +98,47 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView.tag == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightsCell", for: indexPath) as! HighlightsCell
-            
+            let isExpanded = expandedIndexPaths[indexPath] ?? false
             if let product = product {
                 if !product.pros.isEmpty && indexPath.section == 0 {
                     // Pros section
                     let pro = product.pros[indexPath.row]
                     cell.HighlightText.text = pro.description
+                    cell.DescriptionText.text = "of your recommended daily Intake."
+                    cell.ProgressBar.progress = 20 / 100.0
+                    cell.ProgressBar.progressTintColor = .systemGreen
                     cell.iconImage.image = UIImage(systemName: "checkmark.square.fill")
                     cell.iconImage.tintColor = .systemGreen
                 } else if !product.cons.isEmpty && indexPath.section == (product.pros.isEmpty ? 0 : 1) {
                     // Cons section
                     let con = product.cons[indexPath.row]
                     cell.HighlightText.text = con.description
+                    cell.DescriptionText.text = "of your recommended daily Intake."
+                    cell.ProgressBar.progress =  20 / 100.0
+                    cell.ProgressBar.progressTintColor = .systemRed
                     cell.iconImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     cell.iconImage.tintColor = .systemRed
                 }
             }
+            cell.configureExpandButton(isExpanded: isExpanded)
+                    cell.onExpandButtonTapped = { [weak self] in
+                        guard let self = self else { return }
+                        // Toggle the expanded state
+                        self.expandedIndexPaths[indexPath] = !isExpanded
+                        // Reload the row to reflect the new state
+                        tableView.beginUpdates()
+                        tableView.reloadRows(at: [indexPath], with: .automatic)
+                        tableView.endUpdates()
+                        // Update the table height
+                        self.updateSummaryTableHeight()
+                    }
+            // Show/Hide elements based on expanded state
+            cell.DescriptionText.isHidden = !isExpanded
+            cell.ProgressBar.isHidden = !isExpanded
             
+            // Enable wrapping for longer text
+            cell.HighlightText.numberOfLines = 0
+            cell.DescriptionText.numberOfLines = 0
             return cell
         } else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertCell", for: indexPath) as! AlertCell
@@ -128,7 +153,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if tableView.tag == 1 {
-               return 20
+               return 30
            } else if tableView.tag == 2 {
                return 0
            }
@@ -164,34 +189,55 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if tableView.tag == 1 {
-            return 60
+            let isExpanded = expandedIndexPaths[indexPath] ?? false
+            return isExpanded ? 100 : 50 // Collapsed height: 60, Expanded height: 120
         } else if tableView.tag == 2 {
-            return 25
+            return 25 // Original height for AlertTableView
         }
         return 0
     }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView.tag == 1 {
+            // Toggle the expanded state
+            let isExpanded = expandedIndexPaths[indexPath] ?? false
+            expandedIndexPaths[indexPath] = !isExpanded
+            
+            // Reload the row to reflect the new state
+            tableView.beginUpdates()
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            tableView.endUpdates()
+            
+            // Update the table height
+            updateSummaryTableHeight()
+        }
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     private func updateSummaryTableHeight() {
         guard let product = product else { return }
-
-        var numberOfRows = 0
+        var totalHeight: CGFloat = 0
         var headerHeight: CGFloat = 0
+        
+
         if !product.pros.isEmpty {
-            numberOfRows += product.pros.count
-            headerHeight += 40
+            headerHeight += 50 // Header height for "What’s Good"
+            for row in 0..<product.pros.count {
+                let indexPath = IndexPath(row: row, section: 0)
+                let isExpanded = expandedIndexPaths[indexPath] ?? false
+                totalHeight += isExpanded ? 100 : 50
+            }
         }
         if !product.cons.isEmpty {
-            numberOfRows += product.cons.count
-            headerHeight += 40
+            headerHeight += 50 // Header height for "What’s Concerning"
+            let section = product.pros.isEmpty ? 0 : 1
+            for row in 0..<product.cons.count {
+                let indexPath = IndexPath(row: row, section: section)
+                let isExpanded = expandedIndexPaths[indexPath] ?? false
+                totalHeight += isExpanded ? 100 : 50
+            }
         }
-
-        // Calculate the new height based on the number of rows and row height
-        let rowHeight: CGFloat = 60 // Match the row height set in tableView(_:heightForRowAt:)
-        let newHeight = (CGFloat(numberOfRows) * rowHeight) + headerHeight // 80 for header heights
-
-        // Update the height constraint
+        let newHeight = totalHeight + headerHeight
         SummaryTableHeight.constant = newHeight
-
-        // Force layout update to avoid animation delays
         self.view.layoutIfNeeded()
     }
 
@@ -209,7 +255,12 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     
     // MARK: - Star Rating Setup
-    
+    private func updateUI() {
+        updateSummaryTableHeight()
+        updateAlertView()
+        SummaryTableView.reloadData()
+        AlertTableView.reloadData()
+    }
     func setStarRating(_ rating: Float) {
         let starViews = UserRatingStarStack.arrangedSubviews.compactMap { $0 as? UIImageView }
         RatingText.text = String(format: "%.1f", rating)

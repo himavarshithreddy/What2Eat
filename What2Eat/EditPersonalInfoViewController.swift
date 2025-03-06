@@ -168,34 +168,35 @@ extension EditProfileViewController: UITableViewDelegate {
         let tappedItem = profileItems[indexPath.row]
         switch tappedItem.title {
         case "Name", "Gender":
-            let nextVC = NameGenderViewController(profileData: userProfileData)
-            // Hide the tab bar on the pushed screen
+            let nextVC = NameGenderViewController(profileData: userProfileData, isEditingProfile: true)
             nextVC.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(nextVC, animated: true)
             
         case "Age":
-            let nextVC = AgeViewController(profileData: userProfileData)
-            nextVC.hidesBottomBarWhenPushed = true
-            navigationController?.pushViewController(nextVC, animated: true)
-            
-        case "Height":
-            let nextVC = HeightViewController(profileData: userProfileData)
-            nextVC.hidesBottomBarWhenPushed = true
-            navigationController?.pushViewController(nextVC, animated: true)
-            
-        case "Weight":
-            let nextVC = WeightViewController(profileData: userProfileData)
-            nextVC.hidesBottomBarWhenPushed = true
-            navigationController?.pushViewController(nextVC, animated: true)
-            
-        case "Activity Level":
-            let nextVC = ActivityLevelViewController(profileData: userProfileData)
-            nextVC.hidesBottomBarWhenPushed = true
-            navigationController?.pushViewController(nextVC, animated: true)
+                let nextVC = AgeViewController(profileData: userProfileData, isEditingProfile: true)
+                nextVC.hidesBottomBarWhenPushed = true
+                navigationController?.pushViewController(nextVC, animated: true)
+                
+            case "Height":
+                let nextVC = HeightViewController(profileData: userProfileData, isEditingProfile: true)
+                nextVC.hidesBottomBarWhenPushed = true
+                navigationController?.pushViewController(nextVC, animated: true)
+                
+            case "Weight":
+                let nextVC = WeightViewController(profileData: userProfileData, isEditingProfile: true)
+                nextVC.hidesBottomBarWhenPushed = true
+                navigationController?.pushViewController(nextVC, animated: true)
+                
+            case "Activity Level":
+                let nextVC = ActivityLevelViewController(profileData: userProfileData, isEditingProfile: true)
+                nextVC.hidesBottomBarWhenPushed = true
+                navigationController?.pushViewController(nextVC, animated: true)
+       
             
         default:
             print("Tapped on \(tappedItem.title), but no navigation set.")
         }
     }
+    
 
 }

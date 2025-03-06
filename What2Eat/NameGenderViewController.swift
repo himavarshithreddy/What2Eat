@@ -18,11 +18,13 @@ class NameGenderViewController: UIViewController {
     private let backgroundGradientLayer = CAGradientLayer()
     
     private let profileData: UserProfileData
+    private let isEditingProfile: Bool
     
-    init(profileData: UserProfileData) {
-        self.profileData = profileData
-        super.init(nibName: nil, bundle: nil)
-    }
+    init(profileData: UserProfileData, isEditingProfile: Bool = false) {
+           self.profileData = profileData
+           self.isEditingProfile = isEditingProfile
+           super.init(nibName: nil, bundle: nil)
+       }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -36,6 +38,11 @@ class NameGenderViewController: UIViewController {
         setupKeyboardDismissal()
         prefillGoogleName()
         animateElements()
+        
+        if isEditingProfile {
+                    progressView.isHidden = true
+                    nextButton.setTitle("Save", for: .normal)
+                }
     }
     
     override func viewDidLayoutSubviews() {
@@ -367,8 +374,6 @@ class NameGenderViewController: UIViewController {
         guard let name = nameTextField.text, !name.isEmpty,
               !profileData.gender.isEmpty else {
             showAlert(message: "Please enter your name and select a gender.")
-            
-            // Shake animation for empty fields
             if nameTextField.text?.isEmpty == true {
                 shakeView(nameTextField)
             }
@@ -376,25 +381,42 @@ class NameGenderViewController: UIViewController {
                 shakeView(genderStackView)
             }
             return
-            
         }
         
-        // Success animation
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-        
-//        UIView.animate(withDuration: 0.1, animations: {
-//            self.nextButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-//        }) { _ in
-//            UIView.animate(withDuration: 0.2) {
-//                self.nextButton.transform = .identity
-//            }
-//        }
-        
         profileData.name = name
-        let nextVC = AgeViewController(profileData: profileData)
-        navigationController?.pushViewController(nextVC, animated: true)
+        
+        if isEditingProfile {
+            updateFirebaseProfile()
+        } else {
+            let nextVC = AgeViewController(profileData: profileData)
+            navigationController?.pushViewController(nextVC, animated: true)
+        }
     }
+
+    private func updateFirebaseProfile() {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            showAlert(message: "User not authenticated.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        // Create a dictionary with only the updated fields (in this case, name and gender)
+        let updatedData: [String: Any] = [
+            "name": profileData.name,
+            "gender": profileData.gender
+        ]
+        
+        db.collection("users").document(uid).setData(updatedData, merge: true) { [weak self] error in
+            guard let self = self else { return }
+            if let error = error {
+                self.showAlert(message: "Error saving profile: \(error.localizedDescription)")
+            } else {
+                // Optionally update local storage here
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+
     
     private func shakeView(_ view: UIView) {
         let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")

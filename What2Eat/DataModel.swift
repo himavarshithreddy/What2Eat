@@ -53,7 +53,7 @@ struct ProductData: Codable {
     let imageURL: String
     let ingredients: [String]
     let artificialIngredients: [String]
-    let nutritionInfo: [String: String]  // Dynamic dictionary to accommodate varying nutrition fields
+    let nutritionInfo: [Nutrition] // Dynamic dictionary to accommodate varying nutrition fields
     var userRating: Float
     var numberOfRatings: Int
     let categoryId: String

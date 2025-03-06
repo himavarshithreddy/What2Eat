@@ -1,12 +1,13 @@
 import UIKit
+import Firebase
+import FirebaseAuth
+import FirebaseFirestore
 
 class HeightViewController: UIViewController {
     
     // MARK: - UI Elements
     
-    // Add progress bar property
     private let progressView = UIProgressView(progressViewStyle: .default)
-    
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
     private let unitSegmentedControl = UISegmentedControl(items: ["FT", "CM"])
@@ -15,13 +16,14 @@ class HeightViewController: UIViewController {
     private let sliderTrackView = UIView()
     private let nextButton = UIButton(type: .system)
     
-    // Data model passed in (storing height in cm internally)
-    private let profileData: UserProfileData
+    private let isEditingProfile: Bool
+    private let profileData: UserProfileData  // Stores height in cm internally
     
     // MARK: - Initializer
     
-    init(profileData: UserProfileData) {
+    init(profileData: UserProfileData, isEditingProfile: Bool = false) {
         self.profileData = profileData
+        self.isEditingProfile = isEditingProfile
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -35,26 +37,29 @@ class HeightViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        // Setup progress bar first
         setupProgressBar()
-        
         setupUI()
         setupConstraints()
         setupActions()
         
-        // Initial state: start with "FT" unit and update display accordingly.
+        // Default unit & initial display
         unitSegmentedControl.selectedSegmentIndex = 0
         sliderChanged()
+        
+        // Hide progress & change button title if editing
+        if isEditingProfile {
+            progressView.isHidden = true
+            nextButton.setTitle("Save", for: .normal)
+        }
     }
     
     // MARK: - Setup Progress Bar
     
     private func setupProgressBar() {
-        // Define your theme color (orange)
         let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         progressView.progressTintColor = orangeColor
         progressView.trackTintColor = .systemGray5
-        progressView.progress = 0.8  // For example, step 2/5 complete
+        progressView.progress = 0.8
         progressView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(progressView)
     }
@@ -64,7 +69,7 @@ class HeightViewController: UIViewController {
     private func setupUI() {
         let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
         
-        // Title Label
+        // Title
         titleLabel.text = "How tall are you?"
         titleLabel.font = .systemFont(ofSize: 26, weight: .bold)
         titleLabel.textColor = .black
@@ -72,7 +77,7 @@ class HeightViewController: UIViewController {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
         
-        // Subtitle Label
+        // Subtitle
         subtitleLabel.text = " "
         subtitleLabel.font = .systemFont(ofSize: 16, weight: .medium)
         subtitleLabel.textColor = .darkGray
@@ -101,9 +106,9 @@ class HeightViewController: UIViewController {
         view.addSubview(sliderTrackView)
         
         // Vertical Slider
-        slider.minimumValue = 86   // ~120 cm (about 2 ft 10 in)
-        slider.maximumValue = 220  // ~220 cm (about 7 ft 3 in)
-        slider.value = 153         // Default value
+        slider.minimumValue = 86   // ~120 cm
+        slider.maximumValue = 220  // ~220 cm
+        slider.value = 153         // Default
         slider.transform = CGAffineTransform(rotationAngle: -CGFloat.pi / 2)
         slider.minimumTrackTintColor = .clear
         slider.maximumTrackTintColor = .clear
@@ -111,7 +116,7 @@ class HeightViewController: UIViewController {
         slider.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(slider)
         
-        // Create custom tick marks for the slider track
+        // Custom tick marks
         createCustomVerticalSliderTrack(into: sliderTrackView, numberOfTicks: 20)
         
         // Next Button
@@ -128,18 +133,18 @@ class HeightViewController: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // Progress Bar Constraints
+            // Progress Bar
             progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
             progressView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
             progressView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             progressView.heightAnchor.constraint(equalToConstant: 6),
             
-            // Title Label
+            // Title
             titleLabel.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
-            // Subtitle Label
+            // Subtitle
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
@@ -150,19 +155,19 @@ class HeightViewController: UIViewController {
             unitSegmentedControl.widthAnchor.constraint(equalToConstant: 100),
             unitSegmentedControl.heightAnchor.constraint(equalToConstant: 36),
             
-            // Slider Track View
+            // Slider Track
             sliderTrackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             sliderTrackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 60),
             sliderTrackView.widthAnchor.constraint(equalToConstant: 50),
             sliderTrackView.heightAnchor.constraint(equalToConstant: 400),
             
-            // Slider (aligned with the track)
+            // Slider
             slider.centerXAnchor.constraint(equalTo: sliderTrackView.centerXAnchor),
             slider.centerYAnchor.constraint(equalTo: sliderTrackView.centerYAnchor),
             slider.widthAnchor.constraint(equalTo: sliderTrackView.heightAnchor),
             slider.heightAnchor.constraint(equalTo: sliderTrackView.widthAnchor),
             
-            // Height Display Label
+            // Height Display
             heightDisplayLabel.centerYAnchor.constraint(equalTo: sliderTrackView.centerYAnchor),
             heightDisplayLabel.leadingAnchor.constraint(equalTo: sliderTrackView.trailingAnchor, constant: 40),
             heightDisplayLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
@@ -248,26 +253,26 @@ class HeightViewController: UIViewController {
             let (feet, inches) = cmToFeetInches(Double(cmValue))
             let attributedText = NSMutableAttributedString(
                 string: "\(feet)",
-                attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
             )
             let ftUnit = NSAttributedString(
                 string: " ft ",
                 attributes: [
-                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    NSAttributedString.Key.foregroundColor: UIColor.lightGray
+                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                    .foregroundColor: UIColor.lightGray
                 ]
             )
             attributedText.append(ftUnit)
             let inchesNumber = NSAttributedString(
                 string: "\(inches)",
-                attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
             )
             attributedText.append(inchesNumber)
             let inUnit = NSAttributedString(
                 string: " in",
                 attributes: [
-                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    NSAttributedString.Key.foregroundColor: UIColor.lightGray
+                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                    .foregroundColor: UIColor.lightGray
                 ]
             )
             attributedText.append(inUnit)
@@ -276,13 +281,13 @@ class HeightViewController: UIViewController {
             let cmValueInt = Int(cmValue)
             let attributedText = NSMutableAttributedString(
                 string: "\(cmValueInt)",
-                attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
             )
             let cmUnit = NSAttributedString(
                 string: " cm",
                 attributes: [
-                    NSAttributedString.Key.font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    NSAttributedString.Key.foregroundColor: UIColor.lightGray
+                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                    .foregroundColor: UIColor.lightGray
                 ]
             )
             attributedText.append(cmUnit)
@@ -291,7 +296,6 @@ class HeightViewController: UIViewController {
     }
     
     @objc private func unitChanged() {
-        // Similar update as in sliderChanged() when unit changes
         sliderChanged()
     }
     
@@ -299,8 +303,35 @@ class HeightViewController: UIViewController {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
         
-        let nextVC = ActivityLevelViewController(profileData: profileData)
-        navigationController?.pushViewController(nextVC, animated: true)
+        if isEditingProfile {
+            updateFirebaseHeight()
+        } else {
+            let nextVC = ActivityLevelViewController(profileData: profileData)
+            navigationController?.pushViewController(nextVC, animated: true)
+        }
+    }
+    
+    // MARK: - Firebase Update
+    
+    private func updateFirebaseHeight() {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            showAlert(message: "User not authenticated.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let updatedData: [String: Any] = [
+            "height": profileData.height
+        ]
+        
+        db.collection("users").document(uid).setData(updatedData, merge: true) { [weak self] error in
+            guard let self = self else { return }
+            if let error = error {
+                self.showAlert(message: "Error saving height: \(error.localizedDescription)")
+            } else {
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
     }
     
     // MARK: - Unit Conversion Helpers
@@ -315,5 +346,13 @@ class HeightViewController: UIViewController {
     private func feetInchesToCm(feet: Int, inches: Int) -> Double {
         let totalInches = Double(feet * 12 + inches)
         return totalInches * 2.54
+    }
+    
+    // MARK: - Alert Helper
+    
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "Oops!", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }

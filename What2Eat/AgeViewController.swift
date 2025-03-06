@@ -1,5 +1,7 @@
 import UIKit
-
+import Firebase
+import FirebaseAuth
+import FirebaseFirestore
 class AgeViewController: UIViewController {
     
     private let progressView = UIProgressView(progressViewStyle: .default)
@@ -15,27 +17,35 @@ class AgeViewController: UIViewController {
     private let nextButton = UIButton(type: .system)
     
     private let profileData: UserProfileData
+    private let isEditingProfile: Bool
     private var currentAge = 20
     
     private let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
     private let softColor = UIColor(red: 240/255, green: 233/255, blue: 222/255, alpha: 1)
     
-    init(profileData: UserProfileData) {
-        self.profileData = profileData
-        super.init(nibName: nil, bundle: nil)
-    }
+    init(profileData: UserProfileData, isEditingProfile: Bool = false) {
+           self.profileData = profileData
+           self.isEditingProfile = isEditingProfile
+           super.init(nibName: nil, bundle: nil)
+       }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .white
-        profileData.age = currentAge
-        setupUI()
-        setupActions()
-    }
+           super.viewDidLoad()
+           view.backgroundColor = .white
+           profileData.age = currentAge
+           setupUI()
+           setupActions()
+           
+           // Adjust UI for editing mode
+           if isEditingProfile {
+               progressView.isHidden = true
+               nextButton.setTitle("Save", for: .normal)
+           }
+       }
     
     private func setupUI() {
         // Progress Bar
@@ -197,12 +207,40 @@ class AgeViewController: UIViewController {
         // Update profile data
         profileData.age = currentAge
     }
-    
+    private func updateFirebaseProfile() {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            showAlert(message: "User not authenticated.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let updatedData: [String: Any] = [
+            "age": profileData.age
+        ]
+        
+        db.collection("users").document(uid).setData(updatedData, merge: true) { [weak self] error in
+            guard let self = self else { return }
+            if let error = error {
+                self.showAlert(message: "Error saving age: \(error.localizedDescription)")
+            } else {
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
     @objc private func nextTapped() {
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
         
-        let nextVC = WeightViewController(profileData: profileData)
-        navigationController?.pushViewController(nextVC, animated: true)
+        if isEditingProfile {
+            updateFirebaseProfile()
+        } else {
+            let nextVC = WeightViewController(profileData: profileData)
+            navigationController?.pushViewController(nextVC, animated: true)
+        }
+    }
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "Oops!", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
