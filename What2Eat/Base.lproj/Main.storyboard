@@ -2545,7 +2545,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="pum-Ow-rHB">
-                                <rect key="frame" x="16" y="301" width="370" height="583"/>
+                                <rect key="frame" x="16" y="306" width="370" height="583"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="583" id="MkO-tM-b3F"/>
@@ -2559,9 +2559,9 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jeQ-0L-FJq">
-                                                    <rect key="frame" x="20" y="0.0" width="42" height="25.333333333333332"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
+                                                    <rect key="frame" x="20" y="0.0" width="45" height="25.333333333333332"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
+                                                    <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pencil" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="2zm-uF-e5a">
@@ -2572,9 +2572,9 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LSX-5H-alS">
-                                                    <rect key="frame" x="264.66666666666669" y="0.0" width="42" height="25.333333333333332"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
+                                                    <rect key="frame" x="267" y="0.0" width="39.666666666666686" height="25.333333333333332"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" white="0.30029864296636083" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
@@ -2604,7 +2604,7 @@
                                 </prototypes>
                             </tableView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="profile" translatesAutoresizingMaskIntoConstraints="NO" id="isJ-BD-Epa">
-                                <rect key="frame" x="141" y="116" width="120" height="120"/>
+                                <rect key="frame" x="141" y="136" width="120" height="120"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="120" id="52F-Ej-qXL"/>
                                     <constraint firstAttribute="width" constant="120" id="hZ9-xB-ghc"/>
@@ -2614,8 +2614,8 @@
                         <viewLayoutGuide key="safeArea" id="4Gm-gn-NPc"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="pum-Ow-rHB" firstAttribute="top" secondItem="isJ-BD-Epa" secondAttribute="bottom" constant="65" id="Bxw-rt-GBK"/>
-                            <constraint firstItem="isJ-BD-Epa" firstAttribute="top" secondItem="4Gm-gn-NPc" secondAttribute="top" constant="10" id="NQv-wA-s88"/>
+                            <constraint firstItem="pum-Ow-rHB" firstAttribute="top" secondItem="isJ-BD-Epa" secondAttribute="bottom" constant="50" id="Bxw-rt-GBK"/>
+                            <constraint firstItem="isJ-BD-Epa" firstAttribute="top" secondItem="4Gm-gn-NPc" secondAttribute="top" constant="30" id="NQv-wA-s88"/>
                             <constraint firstItem="isJ-BD-Epa" firstAttribute="centerX" secondItem="RHm-3D-7Jz" secondAttribute="centerX" id="SOD-QG-KnE"/>
                             <constraint firstItem="pum-Ow-rHB" firstAttribute="leading" secondItem="RHm-3D-7Jz" secondAttribute="leadingMargin" id="kKw-dp-CCn"/>
                             <constraint firstItem="isJ-BD-Epa" firstAttribute="centerX" secondItem="pum-Ow-rHB" secondAttribute="centerX" id="uXr-Jt-Taa"/>

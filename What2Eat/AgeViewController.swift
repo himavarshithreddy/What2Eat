@@ -36,10 +36,16 @@ class AgeViewController: UIViewController {
     override func viewDidLoad() {
            super.viewDidLoad()
            view.backgroundColor = .white
-           profileData.age = currentAge
+        if profileData.age != 0 {
+                currentAge = profileData.age
+            } else {
+                currentAge = 20
+            }
+            profileData.age = currentAge
+        
            setupUI()
            setupActions()
-           
+        updateAgeDisplay()
            // Adjust UI for editing mode
            if isEditingProfile {
                progressView.isHidden = true
@@ -66,7 +72,7 @@ class AgeViewController: UIViewController {
         // Subtitle Label
         subtitleLabel.text = "Age is Just a Number, but it helps us tailor\nthings just right for you."
         subtitleLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        subtitleLabel.textColor = .darkGray
+        subtitleLabel.textColor = .clear
         subtitleLabel.numberOfLines = 2
         subtitleLabel.textAlignment = .center
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -223,20 +229,39 @@ class AgeViewController: UIViewController {
             if let error = error {
                 self.showAlert(message: "Error saving age: \(error.localizedDescription)")
             } else {
-                self.navigationController?.popViewController(animated: true)
+                // Update UserDefaults
+                if let savedData = UserDefaults.standard.data(forKey: "currentUser"),
+                   var savedUser = try? JSONDecoder().decode(Users.self, from: savedData) {
+                    
+                    // Update only the age field
+                    savedUser.age = self.profileData.age
+
+                    do {
+                        let encoder = JSONEncoder()
+                        let encodedData = try encoder.encode(savedUser)
+                        UserDefaults.standard.set(encodedData, forKey: "currentUser")
+                    } catch {
+                        self.showAlert(message: "Error updating local data: \(error.localizedDescription)")
+                    }
+                }
+                if isEditingProfile {
+                    
+                    self.navigationController?.popViewController(animated: true)
+                } else {
+                    let nextVC = WeightViewController(profileData: profileData)
+                   
+                    navigationController?.pushViewController(nextVC, animated: true)
+                }
+               
             }
         }
     }
+
     @objc private func nextTapped() {
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
-        
-        if isEditingProfile {
-            updateFirebaseProfile()
-        } else {
-            let nextVC = WeightViewController(profileData: profileData)
-            navigationController?.pushViewController(nextVC, animated: true)
-        }
+        updateFirebaseProfile()
+       
     }
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "Oops!", message: message, preferredStyle: .alert)

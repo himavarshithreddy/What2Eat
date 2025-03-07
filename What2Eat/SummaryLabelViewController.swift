@@ -79,16 +79,16 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
                 if !product.pros.isEmpty && indexPath.section == 0 {
                     let pro = product.pros[indexPath.row]
                     cell.HighlightText.text = pro.summaryPoint
-                    cell.DescriptionText.text = "\(pro.value) of your recommended daily Intake."
-                    cell.ProgressBar.progress = Float(pro.value) ?? 20 / 100.0
+                    cell.DescriptionText.text = "\(pro.value)% of your recommended daily Intake."
+                    cell.ProgressBar.progress = Float(pro.value) / 100.0
                     cell.ProgressBar.progressTintColor = .systemGreen
                     cell.iconImage.image = UIImage(systemName: "checkmark.square.fill")
                     cell.iconImage.tintColor = .systemGreen
                 } else if !product.cons.isEmpty && indexPath.section == (product.pros.isEmpty ? 0 : 1) {
                     let con = product.cons[indexPath.row]
                     cell.HighlightText.text = con.summaryPoint
-                    cell.DescriptionText.text = "\(con.value) of your recommended daily Intake."
-                    cell.ProgressBar.progress = Float(con.value) ?? 20 / 100.0
+                    cell.DescriptionText.text = "\(con.value)% of your recommended daily Intake."
+                    cell.ProgressBar.progress = Float(con.value) / 100.0
                     cell.ProgressBar.progressTintColor = .systemRed
                     cell.iconImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     cell.iconImage.tintColor = .systemRed

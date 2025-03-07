@@ -149,6 +149,16 @@ class LoginViewController: UIViewController {
     
     private func createNewUser(uid: String, googleName: String? = nil, googleImageUrl: String? = nil) {
         let db = Firestore.firestore()
+        let newUser = Users(
+                name: googleName ?? "",
+                dietaryRestrictions: [],
+                allergies: [],
+                gender: "",
+                age: 0,
+                weight: 0.0,
+                height: 0.0,
+                activityLevel: ""
+            )
         let storageRef = Storage.storage().reference().child("profile_images/\(uid).jpg")
         
         if let googleImageUrl = googleImageUrl, let url = URL(string: googleImageUrl) {
@@ -198,6 +208,13 @@ class LoginViewController: UIViewController {
                                 print("Error creating new user: \(error.localizedDescription)")
                                 return
                             }
+                            do {
+                                        let encoder = JSONEncoder()
+                                        let encodedData = try encoder.encode(newUser)
+                                        UserDefaults.standard.set(encodedData, forKey: "currentUser")
+                                    } catch {
+                                        print("Error encoding new user for UserDefaults: \(error.localizedDescription)")
+                                    }
                             print("New user created successfully")
                             self.navigateToProfileSetupViewController()
                         }
@@ -224,6 +241,14 @@ class LoginViewController: UIViewController {
                     return
                 }
                 print("New user created successfully")
+                do {
+                            let encoder = JSONEncoder()
+                            let encodedData = try encoder.encode(newUser)
+                            UserDefaults.standard.set(encodedData, forKey: "currentUser")
+                        } catch {
+                            print("Error encoding new user for UserDefaults: \(error.localizedDescription)")
+                        }
+                
                 self.navigateToProfileSetupViewController()
             }
         }

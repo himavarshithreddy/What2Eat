@@ -35,19 +35,29 @@ class WeightViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        // Default to 60 for the onboarding flow
-        profileData.weight = 60
-        
         setupProgressBar()
         setupUI()
         setupActions()
         
-        // If editing, hide the progress bar and change button title
+        // Prepopulate the slider AFTER the UI is set up.
+        if profileData.weight != 0 {
+            slider.value = Float(profileData.weight)
+        } else {
+            slider.value = 60
+            profileData.weight = 60
+        }
+        
+        // Hide progress & change button title if editing
         if isEditingProfile {
             progressView.isHidden = true
             continueButton.setTitle("Save", for: .normal)
         }
+        
+        // Update display labels based on the slider's current value
+        sliderChanged()
     }
+
+
     
     // MARK: - Setup Methods
     
@@ -255,55 +265,49 @@ class WeightViewController: UIViewController {
     }
     
     @objc private func sliderChanged() {
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
+        // The slider value is always in kg.
+        let kgValue = round(slider.value)
+        profileData.weight = Double(kgValue)
         
-        let weight = round(slider.value)
-        weightValueLabel.text = String(format: "%.0f", weight)
-        
-        // Update the min and max labels to show values around the current value
-        minValueLabel.text = String(format: "%.0f", weight - 1)
-        maxValueLabel.text = String(format: "%.0f", weight + 1)
-        
-        profileData.weight = Double(weight)
+        // Update labels based on selected unit.
+        if unitSegmentedControl.selectedSegmentIndex == 0 {
+            // Display in kg.
+            weightValueLabel.text = String(format: "%.0f", kgValue)
+            minValueLabel.text = String(format: "%.0f", kgValue - 1)
+            maxValueLabel.text = String(format: "%.0f", kgValue + 1)
+        } else {
+            // Convert kg to lbs.
+            let lbsValue = kgValue * 2.20462
+            weightValueLabel.text = String(format: "%.0f", lbsValue)
+            minValueLabel.text = String(format: "%.0f", lbsValue - 1)
+            maxValueLabel.text = String(format: "%.0f", lbsValue + 1)
+        }
     }
     
     @objc private func unitChanged() {
-        let isKg = unitSegmentedControl.selectedSegmentIndex == 0
-        weightUnitLabel.text = isKg ? "kg" : "lbs"
+        // Simply update the display based on the current kg value.
+        let kgValue = Double(slider.value)
+        weightUnitLabel.text = (unitSegmentedControl.selectedSegmentIndex == 0) ? "kg" : "lbs"
         
-        // Convert the current value if needed
-        let currentValue = Double(slider.value)
-        if isKg {
-            // Convert from lbs to kg
-            let kgValue = round(currentValue / 2.20462)
-            slider.value = Float(kgValue)
+        if unitSegmentedControl.selectedSegmentIndex == 0 {
+            // Display in kg.
             weightValueLabel.text = String(format: "%.0f", kgValue)
+            minValueLabel.text = String(format: "%.0f", kgValue - 1)
+            maxValueLabel.text = String(format: "%.0f", kgValue + 1)
         } else {
-            // Convert from kg to lbs
-            let lbsValue = round(currentValue * 2.20462)
-            slider.value = Float(lbsValue)
+            // Convert kg to lbs.
+            let lbsValue = kgValue * 2.20462
             weightValueLabel.text = String(format: "%.0f", lbsValue)
+            minValueLabel.text = String(format: "%.0f", lbsValue - 1)
+            maxValueLabel.text = String(format: "%.0f", lbsValue + 1)
         }
-        
-        // Update min/max values
-        let weight = round(slider.value)
-        minValueLabel.text = String(format: "%.0f", weight - 1)
-        maxValueLabel.text = String(format: "%.0f", weight + 1)
     }
-    
     @objc private func continueTapped() {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
-        
+        updateFirebaseWeight()
         // If editing, save to Firebase immediately
-        if isEditingProfile {
-            updateFirebaseWeight()
-        } else {
-            // Onboarding flow
-            let nextVC = HeightViewController(profileData: profileData)
-            navigationController?.pushViewController(nextVC, animated: true)
-        }
+        
     }
     
     // MARK: - Firebase Update
@@ -324,11 +328,32 @@ class WeightViewController: UIViewController {
             if let error = error {
                 self.showAlert(message: "Error saving weight: \(error.localizedDescription)")
             } else {
-                // Pop back on success
-                self.navigationController?.popViewController(animated: true)
+                // Update UserDefaults with the new weight value
+                if let savedData = UserDefaults.standard.data(forKey: "currentUser"),
+                   var savedUser = try? JSONDecoder().decode(Users.self, from: savedData) {
+                    savedUser.weight = self.profileData.weight
+                    do {
+                        let encoder = JSONEncoder()
+                        let encodedData = try encoder.encode(savedUser)
+                        UserDefaults.standard.set(encodedData, forKey: "currentUser")
+                     
+                    } catch {
+                        self.showAlert(message: "Error updating local data: \(error.localizedDescription)")
+                    }
+                }
+                if isEditingProfile {
+                    
+                    self.navigationController?.popViewController(animated: true)
+                } else {
+                    // Onboarding flow
+                    
+                    let nextVC = HeightViewController(profileData: profileData)
+                    navigationController?.pushViewController(nextVC, animated: true)
+                }
             }
         }
     }
+
     
     // MARK: - Alert Helper
     

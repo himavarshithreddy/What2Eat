@@ -12,7 +12,7 @@ import FirebaseFirestore
 class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     var product: ProductData?
     var isUserRatingPresent: Bool = false
-
+    var productAnalysis: ProductAnalysis?
     var userAllergens: [Allergen] = []
         var productAllergenAlerts: [Allergen] = []
     var expandedIndexPaths: [IndexPath: Bool] = [:] 
@@ -60,7 +60,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func numberOfSections(in tableView: UITableView) -> Int {
         if tableView.tag == 1 {
             var sections = 0
-            if let product = product {
+            if let product = productAnalysis {
                 if !product.pros.isEmpty { sections += 1 }
                 if !product.cons.isEmpty { sections += 1 }
             }
@@ -73,7 +73,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView.tag == 1 {
-            if let product = product {
+            if let product = productAnalysis {
                 // Adjust section index based on the available pros and cons
                 if !product.pros.isEmpty && section == 0 {
                     return product.pros.count // Pros section
@@ -99,22 +99,22 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         if tableView.tag == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightsCell", for: indexPath) as! HighlightsCell
             let isExpanded = expandedIndexPaths[indexPath] ?? false
-            if let product = product {
+            if let product = productAnalysis {
                 if !product.pros.isEmpty && indexPath.section == 0 {
                     // Pros section
                     let pro = product.pros[indexPath.row]
-                    cell.HighlightText.text = pro.description
-                    cell.DescriptionText.text = "of your recommended daily Intake."
-                    cell.ProgressBar.progress = 20 / 100.0
+                    cell.HighlightText.text = pro.summaryPoint
+                    cell.DescriptionText.text = "\(pro.value)% of your recommended daily Intake."
+                    cell.ProgressBar.progress = Float(pro.value) / 100.0
                     cell.ProgressBar.progressTintColor = .systemGreen
                     cell.iconImage.image = UIImage(systemName: "checkmark.square.fill")
                     cell.iconImage.tintColor = .systemGreen
                 } else if !product.cons.isEmpty && indexPath.section == (product.pros.isEmpty ? 0 : 1) {
                     // Cons section
                     let con = product.cons[indexPath.row]
-                    cell.HighlightText.text = con.description
-                    cell.DescriptionText.text = "of your recommended daily Intake."
-                    cell.ProgressBar.progress =  20 / 100.0
+                    cell.HighlightText.text = con.summaryPoint
+                    cell.DescriptionText.text = "\(con.value)% of your recommended daily Intake."
+                    cell.ProgressBar.progress = Float(con.value) / 100.0
                     cell.ProgressBar.progressTintColor = .systemRed
                     cell.iconImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     cell.iconImage.tintColor = .systemRed
@@ -171,7 +171,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         titleLabel.textColor = .black // Text color
         titleLabel.textAlignment = .left // Align text to the left
         
-        if let product = product {
+        if let product = productAnalysis {
             // Determine section titles based on pros and cons availability
             if !product.pros.isEmpty && section == 0 {
                 titleLabel.text = "What’s Good 🙂" // For pros
@@ -214,7 +214,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     private func updateSummaryTableHeight() {
-        guard let product = product else { return }
+        guard let product = productAnalysis else { return }
         var totalHeight: CGFloat = 0
         var headerHeight: CGFloat = 0
         
@@ -505,6 +505,13 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         // Update UI on the main thread
         DispatchQueue.main.async {
+            self.fetchUserData { user in
+                guard let user = user else {
+                    return
+                }
+                
+                self.productAnalysis = generateProsAndCons(product: product, user: user)
+            }
             // Update star rating and number of ratings
             self.setStarRating(product.userRating)
             self.NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
@@ -583,5 +590,57 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
             AlertTableView.reloadData()
         }
-
+    private func fetchUserData(completion: @escaping (Users?) -> Void) {
+            if let userData = UserDefaults.standard.data(forKey: "currentUser") {
+                do {
+                    let decoder = JSONDecoder()
+                    let user = try decoder.decode(Users.self, from: userData)
+                    completion(user)
+                    return
+                } catch {
+                    print("Error decoding user from UserDefaults: \(error.localizedDescription)")
+                }
+            }
+            
+            guard let uid = Auth.auth().currentUser?.uid else {
+                completion(nil)
+                return
+            }
+            
+            let db = Firestore.firestore()
+            db.collection("users").document(uid).getDocument { document, error in
+                if let error = error {
+                    print("Error fetching user data: \(error.localizedDescription)")
+                    completion(nil)
+                    return
+                }
+                
+                guard let document = document, document.exists, let data = document.data() else {
+                    completion(nil)
+                    return
+                }
+                
+                let user = Users(
+                    name: data["name"] as? String ?? "",
+                    dietaryRestrictions: data["dietaryRestrictions"] as? [String] ?? [],
+                    allergies: data["allergies"] as? [String] ?? [],
+                    gender: data["gender"] as? String ?? "",
+                    age: data["age"] as? Int ?? 0,
+                    weight: data["weight"] as? Double ?? 0.0,
+                    height: data["height"] as? Double ?? 0.0,
+                    activityLevel: data["activityLevel"] as? String ?? ""
+                )
+                
+                do {
+                    let encoder = JSONEncoder()
+                    let encodedUser = try encoder.encode(user)
+                    UserDefaults.standard.set(encodedUser, forKey: "currentUser")
+                } catch {
+                    print("Error encoding user to UserDefaults: \(error.localizedDescription)")
+                }
+                
+                completion(user)
+            }
+        }
+    
 }

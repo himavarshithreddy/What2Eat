@@ -17,7 +17,7 @@ class NameGenderViewController: UIViewController {
     private let themeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
     private let backgroundGradientLayer = CAGradientLayer()
     
-    private let profileData: UserProfileData
+    private var profileData: UserProfileData
     private let isEditingProfile: Bool
     
     init(profileData: UserProfileData, isEditingProfile: Bool = false) {
@@ -37,6 +37,33 @@ class NameGenderViewController: UIViewController {
         setupActions()
         setupKeyboardDismissal()
         prefillGoogleName()
+        if !profileData.gender.isEmpty {
+             // Update the buttons based on the stored gender (assuming "male" or "female")
+             if profileData.gender.lowercased() == "male" {
+                 maleButton.backgroundColor = themeColor
+                 maleButton.setTitleColor(.white, for: .normal)
+                 maleButton.layer.borderWidth = 0
+                 updateButtonLabelColor(for: maleButton, color: .white)
+                 
+                 // Reset the female button
+                 femaleButton.backgroundColor = .white
+                 femaleButton.setTitleColor(.darkText, for: .normal)
+                 femaleButton.layer.borderWidth = 1
+                 updateButtonLabelColor(for: femaleButton, color: .darkText)
+             } else if profileData.gender.lowercased() == "female" {
+                 femaleButton.backgroundColor = themeColor
+                 femaleButton.setTitleColor(.white, for: .normal)
+                 femaleButton.layer.borderWidth = 0
+                 updateButtonLabelColor(for: femaleButton, color: .white)
+                 
+                 // Reset the male button
+                 maleButton.backgroundColor = .white
+                 maleButton.setTitleColor(.darkText, for: .normal)
+                 maleButton.layer.borderWidth = 1
+                 updateButtonLabelColor(for: maleButton, color: .darkText)
+             }
+         }
+         
         animateElements()
         
         if isEditingProfile {
@@ -329,7 +356,7 @@ class NameGenderViewController: UIViewController {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
 
-        UIView.animate(withDuration: 0.2) {
+      
             if sender == self.maleButton {
                 // Male selected
                 self.maleButton.backgroundColor = self.themeColor
@@ -357,7 +384,7 @@ class NameGenderViewController: UIViewController {
                 self.updateButtonLabelColor(for: self.maleButton, color: .darkText)
                 self.profileData.gender = "female"
             }
-        }
+        
 
         // Animate the "Next" button to draw attention
 //        UIView.animate(withDuration: 0.3, animations: {
@@ -384,13 +411,8 @@ class NameGenderViewController: UIViewController {
         }
         
         profileData.name = name
+        updateFirebaseProfile()
         
-        if isEditingProfile {
-            updateFirebaseProfile()
-        } else {
-            let nextVC = AgeViewController(profileData: profileData)
-            navigationController?.pushViewController(nextVC, animated: true)
-        }
     }
 
     private func updateFirebaseProfile() {
@@ -405,17 +427,47 @@ class NameGenderViewController: UIViewController {
             "name": profileData.name,
             "gender": profileData.gender
         ]
-        
+        var updatedname: String = profileData.name
+        var updatedgender: String = profileData.gender
         db.collection("users").document(uid).setData(updatedData, merge: true) { [weak self] error in
             guard let self = self else { return }
+           print("✅✅✅✅✅✅")
+            print(profileData.gender)
+            print(updatedData)
+            
             if let error = error {
                 self.showAlert(message: "Error saving profile: \(error.localizedDescription)")
             } else {
-                // Optionally update local storage here
-                self.navigationController?.popViewController(animated: true)
+                // Update UserDefaults with the new name and gender values
+                if let savedData = UserDefaults.standard.data(forKey: "currentUser"),
+                   var savedUser = try? JSONDecoder().decode(Users.self, from: savedData) {
+                    savedUser.name = updatedname
+                    savedUser.gender = updatedgender
+                    
+                    do {
+                        let encoder = JSONEncoder()
+                        let encodedData = try encoder.encode(savedUser)
+                        UserDefaults.standard.set(encodedData, forKey: "currentUser")
+                        print("✅✅✅✅✅✅")
+                        print(savedUser.gender)
+                    } catch {
+                        self.showAlert(message: "Error updating local data: \(error.localizedDescription)")
+                    }
+                }
+                if isEditingProfile {
+                    
+                    self.navigationController?.popViewController(animated: true)
+                } else {
+                   
+                    let nextVC = AgeViewController(profileData: profileData)
+                    navigationController?.pushViewController(nextVC, animated: true)
+                }
+                
             }
         }
+        
     }
+
 
     
     private func shakeView(_ view: UIView) {
