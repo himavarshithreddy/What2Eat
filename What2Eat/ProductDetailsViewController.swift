@@ -3,22 +3,22 @@ import FirebaseFirestore
 import FirebaseAuth
 import SDWebImage
 
-// Assuming your SavedList model is defined somewhere in your project:
+
 
 
 class ProductDetailsViewController: UIViewController {
     var product: ProductData? {
         didSet {
-            // Whenever the product is updated, pass it on to the child view controllers if available.
+           
             if let product = product {
                 summaryVC?.updateWithProduct(product)
                 ingredientsVC?.updateWithProduct(product)
                 nutritionVC?.updateWithProduct(product)
+                
             }
         }
     }
     var cachedSavedProductIDs = Set<String>()
-
     var productId: String?
     @IBOutlet weak var progressView: UIView!
     @IBOutlet weak var progressLabel: UILabel!
@@ -43,6 +43,7 @@ class ProductDetailsViewController: UIViewController {
             print("❌ No productId found!")
             return
         }
+       
         print("🔍 Fetching product for ID: \(productId)")
         NotificationCenter.default.addObserver(self, selector: #selector(handleNewListCreated(_:)), name: Notification.Name("NewListCreated"), object: nil)
         // Fetch product details asynchronously

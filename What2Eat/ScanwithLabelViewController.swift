@@ -779,6 +779,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
                             }
                             
                             let analysis = generateProsAndCons(product: decodedProduct, user: user)
+                            print(user)
                             
                             self.fetchHealthScore(from: decodedProduct.healthscore) { [weak self] score in
                                 DispatchQueue.main.async {
