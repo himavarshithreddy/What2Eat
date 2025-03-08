@@ -17,8 +17,6 @@ class NutritionLabelViewController:UIViewController, UITableViewDelegate, UITabl
 
         NutritionLabelTableView.delegate = self
         NutritionLabelTableView.dataSource = self
-     
-
     }
     
         
@@ -38,7 +36,7 @@ class NutritionLabelViewController:UIViewController, UITableViewDelegate, UITabl
             let nutrition = nutritionData[indexPath.row]
             cell.NutrientLabel.text = nutrition.name
             cell.NutrientGrams.text = nutrition.value
-            
+            cell.RDAPercentage.text = "\(nutrition.rdaPercentage)%"
             return cell
         }
         
