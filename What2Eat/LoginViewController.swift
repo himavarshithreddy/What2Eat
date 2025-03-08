@@ -160,7 +160,13 @@ class LoginViewController: UIViewController {
                 activityLevel: ""
             )
         let storageRef = Storage.storage().reference().child("profile_images/\(uid).jpg")
-        
+        let defaultListId = UUID().uuidString
+         let defaultList: [String: Any] = [
+             "listId": defaultListId,
+             "name": "Favorites",
+             "iconName": "heart.fill", // Use a default SF Symbol icon (or your own)
+             "products": []  // Initially empty
+         ]
         if let googleImageUrl = googleImageUrl, let url = URL(string: googleImageUrl) {
             // Download Google profile image
             URLSession.shared.dataTask(with: url) { data, response, error in
@@ -199,7 +205,8 @@ class LoginViewController: UIViewController {
                             "weight": 0.0,
                             "height": 0.0,
                             "activityLevel": "",
-                            "profileImageUrl": profileImageUrl
+                            "profileImageUrl": profileImageUrl,
+                            "savedLists": [defaultList]
                         ]
                         
                         // Save user data to Firestore
@@ -232,7 +239,8 @@ class LoginViewController: UIViewController {
                 "weight": 0.0,
                 "height": 0.0,
                 "activityLevel": "",
-                "profileImageUrl": ""  // No profile picture for non-Google sign-ins
+                "profileImageUrl": "",
+                "savedLists": [defaultList]// No profile picture for non-Google sign-ins
             ]
             
             db.collection("users").document(uid).setData(newUserData) { error in

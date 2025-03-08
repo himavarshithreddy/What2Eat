@@ -156,7 +156,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
             } else if percentage >= 10 {
                 return ([NutrientFeedback(summaryPoint: "Contains decent amount of protein", value: Int(percentage), message: "contributes to daily needs")], [])
             } else if percentage > 0 {
-                return ([NutrientFeedback(summaryPoint: "Provides some protein", value: Int(percentage), message: "a small boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -176,7 +176,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
             } else if percentage < 5 && percentage > 0 {
                 return ([NutrientFeedback(summaryPoint: "Low in saturated fat", value: Int(percentage), message: "heart-friendly")], [])
             } else if percentage > 0 {
-                return ([NutrientFeedback(summaryPoint: "Contains some saturated fat", value: Int(percentage), message: "acceptable in balance")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -189,7 +189,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Has low amount of carbs", value: Int(percentage), message: "may lack energy")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some carbohydrates", value: Int(percentage), message: "light energy")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -202,7 +202,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in fiber", value: Int(percentage), message: "may not support digestion")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some fiber", value: Int(percentage), message: "slight digestive boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -215,7 +215,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([NutrientFeedback(summaryPoint: "Low in sugar", value: Int(percentage), message: "suits your goals")], [])
                 }
-                return ([], [NutrientFeedback(summaryPoint: "Contains some sugar", value: Int(percentage), message: "consider reducing if excessive")])
+                return ([], [])
             }
             return ([], [])
         },
@@ -228,7 +228,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([NutrientFeedback(summaryPoint: "Low in sodium", value: Int(percentage), message: "heart-friendly")], [])
                 }
-                return ([NutrientFeedback(summaryPoint: "Contains some sodium", value: Int(percentage), message: "acceptable balance")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -241,7 +241,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in calcium", value: Int(percentage), message: "may affect bone strength")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some calcium", value: Int(percentage), message: "slight bone support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -254,7 +254,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in magnesium", value: Int(percentage), message: "may impact energy")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some magnesium", value: Int(percentage), message: "slight benefit")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -267,7 +267,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in iron", value: Int(percentage), message: "may impact oxygen transport")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some iron", value: Int(percentage), message: "slight boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -280,7 +280,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in zinc", value: Int(percentage), message: "may weaken immune function")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some zinc", value: Int(percentage), message: "slight immunity aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -293,7 +293,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in iodine", value: Int(percentage), message: "may affect thyroid function")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some iodine", value: Int(percentage), message: "slight thyroid support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -306,7 +306,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in potassium", value: Int(percentage), message: "may affect muscle function")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some potassium", value: Int(percentage), message: "slight benefit")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -319,7 +319,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in phosphorus", value: Int(percentage), message: "may affect bone strength")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some phosphorus", value: Int(percentage), message: "slight support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -332,7 +332,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in copper", value: Int(percentage), message: "may affect energy levels")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some copper", value: Int(percentage), message: "slight boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -345,7 +345,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in selenium", value: Int(percentage), message: "limited antioxidant support")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some selenium", value: Int(percentage), message: "minor antioxidant aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -358,7 +358,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin A", value: Int(percentage), message: "may affect vision")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin A", value: Int(percentage), message: "slight vision support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -371,7 +371,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin C", value: Int(percentage), message: "limited immune support")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin C", value: Int(percentage), message: "minor immunity aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -384,7 +384,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin D", value: Int(percentage), message: "may affect bone strength")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin D", value: Int(percentage), message: "slight bone support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -397,7 +397,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin E", value: Int(percentage), message: "limited antioxidant support")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin E", value: Int(percentage), message: "minor antioxidant aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -410,7 +410,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in thiamine", value: Int(percentage), message: "may affect energy levels")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some thiamine", value: Int(percentage), message: "slight energy boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -423,7 +423,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in riboflavin", value: Int(percentage), message: "may impact energy")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some riboflavin", value: Int(percentage), message: "minor metabolism aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -436,7 +436,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in niacin", value: Int(percentage), message: "may affect digestion")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some niacin", value: Int(percentage), message: "slight digestion support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -449,7 +449,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B6", value: Int(percentage), message: "may impact mood")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin B6", value: Int(percentage), message: "minor brain support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -462,7 +462,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in folate", value: Int(percentage), message: "may affect cell function")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some folate", value: Int(percentage), message: "slight cell support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -475,7 +475,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B12", value: Int(percentage), message: "may affect nerve health")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin B12", value: Int(percentage), message: "minor nerve support")], [])
+                return ([], [])
             }
             return ([], [])
         }
@@ -575,7 +575,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
             } else if percentage >= 10 {
                 return ([NutrientFeedback(summaryPoint: "Contains decent amount of protein", value: Int(percentage), message: "contributes to daily needs")], [])
             } else if percentage > 0 {
-                return ([NutrientFeedback(summaryPoint: "Provides some protein", value: Int(percentage), message: "a small boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -595,7 +595,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
             } else if percentage < 5 && percentage > 0 {
                 return ([NutrientFeedback(summaryPoint: "Low in saturated fat", value: Int(percentage), message: "heart-friendly")], [])
             } else if percentage > 0 {
-                return ([NutrientFeedback(summaryPoint: "Contains some saturated fat", value: Int(percentage), message: "acceptable in balance")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -608,7 +608,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Has low amount of carbs", value: Int(percentage), message: "may lack energy")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some carbohydrates", value: Int(percentage), message: "light energy")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -621,7 +621,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in fiber", value: Int(percentage), message: "may not support digestion")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some fiber", value: Int(percentage), message: "slight digestive boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -634,7 +634,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([NutrientFeedback(summaryPoint: "Low in sugar", value: Int(percentage), message: "suits your goals")], [])
                 }
-                return ([], [NutrientFeedback(summaryPoint: "Contains some sugar", value: Int(percentage), message: "consider reducing if excessive")])
+                return ([], [])
             }
             return ([], [])
         },
@@ -647,7 +647,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([NutrientFeedback(summaryPoint: "Low in sodium", value: Int(percentage), message: "heart-friendly")], [])
                 }
-                return ([NutrientFeedback(summaryPoint: "Contains some sodium", value: Int(percentage), message: "acceptable balance")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -660,7 +660,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in calcium", value: Int(percentage), message: "may affect bone strength")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some calcium", value: Int(percentage), message: "slight bone support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -673,7 +673,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in magnesium", value: Int(percentage), message: "may impact energy")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some magnesium", value: Int(percentage), message: "slight benefit")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -686,7 +686,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in iron", value: Int(percentage), message: "may impact oxygen transport")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some iron", value: Int(percentage), message: "slight boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -699,7 +699,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in zinc", value: Int(percentage), message: "may weaken immune function")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some zinc", value: Int(percentage), message: "slight immunity aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -712,7 +712,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in iodine", value: Int(percentage), message: "may affect thyroid function")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some iodine", value: Int(percentage), message: "slight thyroid support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -725,7 +725,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in potassium", value: Int(percentage), message: "may affect muscle function")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some potassium", value: Int(percentage), message: "slight benefit")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -738,7 +738,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in phosphorus", value: Int(percentage), message: "may affect bone strength")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some phosphorus", value: Int(percentage), message: "slight support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -751,7 +751,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in copper", value: Int(percentage), message: "may affect energy levels")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some copper", value: Int(percentage), message: "slight boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -764,7 +764,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in selenium", value: Int(percentage), message: "limited antioxidant support")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some selenium", value: Int(percentage), message: "minor antioxidant aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -777,7 +777,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin A", value: Int(percentage), message: "may affect vision")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin A", value: Int(percentage), message: "slight vision support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -790,7 +790,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin C", value: Int(percentage), message: "limited immune support")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin C", value: Int(percentage), message: "minor immunity aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -803,7 +803,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin D", value: Int(percentage), message: "may affect bone strength")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin D", value: Int(percentage), message: "slight bone support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -816,7 +816,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin E", value: Int(percentage), message: "limited antioxidant support")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin E", value: Int(percentage), message: "minor antioxidant aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -829,7 +829,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in thiamine", value: Int(percentage), message: "may affect energy levels")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some thiamine", value: Int(percentage), message: "slight energy boost")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -842,7 +842,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in riboflavin", value: Int(percentage), message: "may impact energy")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some riboflavin", value: Int(percentage), message: "minor metabolism aid")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -855,7 +855,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in niacin", value: Int(percentage), message: "may affect digestion")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some niacin", value: Int(percentage), message: "slight digestion support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -868,7 +868,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B6", value: Int(percentage), message: "may impact mood")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin B6", value: Int(percentage), message: "minor brain support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -881,7 +881,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in folate", value: Int(percentage), message: "may affect cell function")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some folate", value: Int(percentage), message: "slight cell support")], [])
+                return ([], [])
             }
             return ([], [])
         },
@@ -894,7 +894,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
                 if percentage < 5 {
                     return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B12", value: Int(percentage), message: "may affect nerve health")])
                 }
-                return ([NutrientFeedback(summaryPoint: "Provides some Vitamin B12", value: Int(percentage), message: "minor nerve support")], [])
+                return ([], [])
             }
             return ([], [])
         }

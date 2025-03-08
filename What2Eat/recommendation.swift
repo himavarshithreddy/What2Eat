@@ -44,7 +44,7 @@ class RecommendationManager {
         let userScannedProductIds = recentScans.prefix(5).compactMap { $0["productId"] as? String } // Taking top 5
         
         // Fetch the allergens (stored under "userAllergens")
-        let userAllergens = defaults.array(forKey: "userAllergens") as? [String] ?? []
+        let userAllergens = defaults.array(forKey: "localAllergies") as? [String] ?? []
         
         // Construct the JSON payload for the API call.
         let requestBody: [String: Any] = [

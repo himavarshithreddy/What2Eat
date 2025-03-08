@@ -139,7 +139,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
             let nestedGroup = NSCollectionLayoutGroup.vertical(
                 layoutSize: NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .estimated(300)
+                    heightDimension: .estimated(240)
                 ),
                 subitems: [
                     firstRowGroup,
@@ -151,11 +151,11 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                     seventhRowGroup
                 ]
             )
-            nestedGroup.interItemSpacing = NSCollectionLayoutSpacing.fixed(10)
+            nestedGroup.interItemSpacing = NSCollectionLayoutSpacing.fixed(15)
             
             let section = NSCollectionLayoutSection(group: nestedGroup)
-            section.interGroupSpacing = 5
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            section.interGroupSpacing = 25
+            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
             
             return section
         }
@@ -171,8 +171,8 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
             ),
             subitems: items
         )
-        rowGroup.interItemSpacing = .fixed(7)
-        rowGroup.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+        rowGroup.interItemSpacing = .fixed(12)
+        rowGroup.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12)
         
         return rowGroup
     }
