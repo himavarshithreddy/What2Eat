@@ -1,4 +1,7 @@
 import Foundation
+import Firebase
+import FirebaseAuth
+import FirebaseFirestore
 
 // Struct to hold split components of pros and cons
 struct NutrientFeedback:Codable {
@@ -938,4 +941,150 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
     }
     
     return ProductAnalysis(pros: pros, cons: cons)
+}
+ func fetchUserData(completion: @escaping (Users?) -> Void) {
+        if let userData = UserDefaults.standard.data(forKey: "currentUser") {
+            do {
+                let decoder = JSONDecoder()
+                let user = try decoder.decode(Users.self, from: userData)
+                completion(user)
+                return
+            } catch {
+                print("Error decoding user from UserDefaults: \(error.localizedDescription)")
+            }
+        }
+        
+        guard let uid = Auth.auth().currentUser?.uid else {
+            completion(nil)
+            return
+        }
+        
+        let db = Firestore.firestore()
+        db.collection("users").document(uid).getDocument { document, error in
+            if let error = error {
+                print("Error fetching user data: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            
+            guard let document = document, document.exists, let data = document.data() else {
+                completion(nil)
+                return
+            }
+            
+            let user = Users(
+                name: data["name"] as? String ?? "",
+                dietaryRestrictions: data["dietaryRestrictions"] as? [String] ?? [],
+                allergies: data["allergies"] as? [String] ?? [],
+                gender: data["gender"] as? String ?? "",
+                age: data["age"] as? Int ?? 0,
+                weight: data["weight"] as? Double ?? 0.0,
+                height: data["height"] as? Double ?? 0.0,
+                activityLevel: data["activityLevel"] as? String ?? ""
+            )
+            
+            do {
+                let encoder = JSONEncoder()
+                let encodedUser = try encoder.encode(user)
+                UserDefaults.standard.set(encodedUser, forKey: "currentUser")
+            } catch {
+                print("Error encoding user to UserDefaults: \(error.localizedDescription)")
+            }
+            
+            completion(user)
+        }
+    }
+
+// New function to calculate RDA percentages for all nutrients
+func getRDAPercentages(product: ProductResponse, user: Users) -> [String: Double] {
+    let rda = getRDA(for: user)
+    var percentages: [String: Double] = [:]
+    
+    // Helper function to calculate percentage of DV/RDA (reused from your code)
+    func calculatePercentage(nutrient: Nutrition, rdaValue: Double) -> Double {
+        var value = Double(nutrient.value)
+        switch nutrient.unit.lowercased() {
+        case "mg":
+            if ["calcium", "magnesium", "iron", "zinc", "sodium", "potassium", "phosphorus", "vitamin c", "thiamine", "riboflavin", "niacin", "vitamin b6", "vitamin e"].contains(nutrient.name.lowercased()) {
+                break
+            } else {
+                value /= 1000 // Convert to grams if not in expected mg units
+            }
+        case "mcg", "μg":
+            if ["iodine", "vitamin a", "vitamin d", "folate", "vitamin b12", "selenium", "copper"].contains(nutrient.name.lowercased()) {
+                break
+            } else {
+                value /= 1000 // Convert to mg if not in expected mcg units
+            }
+        case "g":
+            if ["protein", "total fat", "saturated fat", "carbohydrates", "fiber", "sugars"].contains(nutrient.name.lowercased()) {
+                break
+            } else {
+                value *= 1000 // Convert to mg if not in expected g units
+            }
+        case "kcal":
+            break
+        default:
+            break
+        }
+        return (value / rdaValue) * 100
+    }
+    
+    // Process each nutrient in the product
+    for nutrient in product.nutrition {
+        let nutrientKey = nutrient.name.lowercased()
+        if let rdaValue = rda[nutrientKey] {
+            let percentage = calculatePercentage(nutrient: nutrient, rdaValue: rdaValue)
+            percentages[nutrientKey] = percentage
+        }
+    }
+    
+    return percentages
+}
+
+// Overloaded version for ProductData
+func getRDAPercentages(product: ProductData, user: Users) -> [String: Double] {
+    let rda = getRDA(for: user)
+    var percentages: [String: Double] = [:]
+    
+    // Helper function to calculate percentage of DV/RDA (reused from your code)
+    func calculatePercentage(nutrient: Nutrition, rdaValue: Double) -> Double {
+        var value = Double(nutrient.value)
+        switch nutrient.unit.lowercased() {
+        case "mg":
+            if ["calcium", "magnesium", "iron", "zinc", "sodium", "potassium", "phosphorus", "vitamin c", "thiamine", "riboflavin", "niacin", "vitamin b6", "vitamin e"].contains(nutrient.name.lowercased()) {
+                break
+            } else {
+                value /= 1000
+            }
+        case "mcg", "μg":
+            if ["iodine", "vitamin a", "vitamin d", "folate", "vitamin b12", "selenium", "copper"].contains(nutrient.name.lowercased()) {
+                break
+            } else {
+                value /= 1000
+            }
+        case "g":
+            if ["protein", "total fat", "saturated fat", "carbohydrates", "fiber", "sugars"].contains(nutrient.name.lowercased()) {
+                break
+            } else {
+                value *= 1000
+            }
+        case "kcal":
+            break
+        default:
+            break
+        }
+        return (value / rdaValue) * 100
+    }
+    
+    // Process each nutrient in the product
+    for nutrient in product.nutritionInfo {
+        let nutrientKey = nutrient.name.lowercased()
+        if let rdaValue = rda[nutrientKey] {
+            let percentage = calculatePercentage(nutrient: nutrient, rdaValue: rdaValue)
+            percentages[nutrientKey] = percentage
+        }
+    }
+    
+    return percentages
 }

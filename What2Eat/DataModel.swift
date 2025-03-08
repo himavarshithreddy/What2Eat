@@ -241,6 +241,7 @@ var isOnboarding:Bool = false
 struct NutritionDetail {
     let name: String
     let value: String
+    let rdaPercentage:Int;
 }
 class UserProfileData {
     var name: String = ""

@@ -153,7 +153,9 @@ class ProductDetailsViewController: UIViewController {
         backgroundLayer.lineWidth = 17
         backgroundLayer.fillColor = UIColor.clear.cgColor
         progressView.layer.addSublayer(backgroundLayer)
-        
+        progressView.layer.shadowOpacity = 0
+        progressView.layer.shadowColor = UIColor.clear.cgColor
+
         progressLayer = CAShapeLayer()
         progressLayer.path = circularPath.cgPath
         progressLayer.strokeColor = UIColor.orange.cgColor

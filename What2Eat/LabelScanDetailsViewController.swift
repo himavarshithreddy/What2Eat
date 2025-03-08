@@ -7,7 +7,7 @@ class LabelScanDetailsViewController: UIViewController {
     var productModel: ProductResponse?
     var healthScore: Int?
     var productAnalysis: ProductAnalysis?
-    
+    private var user: Users?
     var cachedSavedProductIDs = Set<String>()
     private var db = Firestore.firestore()
     
@@ -29,6 +29,17 @@ class LabelScanDetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCircularProgressBar()
+        fetchUserData { user in
+                    guard let user = user else {
+                        print("[DEBUG] Failed to fetch user data")
+                        return
+                    }
+                    self.user = user
+                    print("[DEBUG] User data fetched: \(user)")
+                    
+                    // Trigger extraction once user data is available
+                    
+                }
         setupProductDetails()
         
         let bookmarkButton = UIBarButtonItem(
@@ -133,13 +144,25 @@ class LabelScanDetailsViewController: UIViewController {
     private func setupProductDetails() {
         ProductName.text = productModel?.name
         ProductImage.image = capturedImage
-        ingredientsVC?.updateIngredients(with: productModel!.ingredients)
-        if let nutritionVC = nutritionVC {
-            let parsedNutrition = productModel!.nutrition.map {
-                NutritionDetail(name: $0.name, value: "\($0.value) \($0.unit)")
-            }
-            nutritionVC.updateNutrition(with: parsedNutrition)
-        }
+        
+        if let nutritionVC = nutritionVC, let user = user {
+                    // Parse nutrition data with RDA percentages
+            let rdaPercentages = getRDAPercentages(product: productModel!, user: user)
+            let nutritionDetails = productModel!.nutrition.map {
+                        NutritionDetail(
+                            name: $0.name,
+                            value: "\($0.value) \($0.unit)",
+                            rdaPercentage: Int(rdaPercentages[$0.name.lowercased()] ?? 0.0)
+                        )
+                    }
+                    nutritionVC.updateNutrition(with: nutritionDetails)
+                } else {
+                    // Fallback if no user data or nutritionVC isn't ready
+                    let parsedNutrition = productModel!.nutrition.map {
+                        NutritionDetail(name: $0.name, value: "\($0.value) \($0.unit)", rdaPercentage: 0)
+                    }
+                    nutritionVC?.updateNutrition(with: parsedNutrition)
+                }
         if let summaryVC = summaryVC {
             summaryVC.productAnalysis = self.productAnalysis
             summaryVC.ingredients = productModel!.ingredients

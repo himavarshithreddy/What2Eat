@@ -14,4 +14,5 @@ class NutritionLabelCell: UITableViewCell {
     
     @IBOutlet var NutrientGrams: UILabel!
     
+    @IBOutlet var RDAPercentage: UILabel!
 }

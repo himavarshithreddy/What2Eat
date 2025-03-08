@@ -14,5 +14,6 @@ class NutritionCell: UITableViewCell {
 
     @IBOutlet weak var NutrientGrams: UILabel!
     
+    @IBOutlet var RDAPercentage: UILabel!
     @IBOutlet weak var NutritionProgress: UIProgressView!
 }

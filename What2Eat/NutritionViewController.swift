@@ -11,8 +11,8 @@ import UIKit
 class NutritionViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     // Store nutrition data as (name, value) with value as String (including unit)
-    var nutritionData: [(name: String, value: String)] = []
-    
+    var nutritionData: [(name: String, value: String, rdaPercentage: Int)] = []
+    private var user: Users?
     var product: ProductData? {
         didSet {
             print("[DEBUG] Product set: \(product?.name ?? "Unknown")")
@@ -36,7 +36,17 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
         
         NutritionTableView.delegate = self
         NutritionTableView.dataSource = self
-        extractNutritionData()
+        fetchUserData { user in
+                    guard let user = user else {
+                        print("[DEBUG] Failed to fetch user data")
+                        return
+                    }
+                    self.user = user
+                    print("[DEBUG] User data fetched: \(user)")
+                    
+                    // Trigger extraction once user data is available
+                    self.extractNutritionData()
+                }
     }
     
     func updateWithProduct(_ product: ProductData) {
@@ -57,6 +67,7 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
         
         cell.NutrientLabel.text = nutrition.name
         cell.NutrientGrams.text = nutrition.value
+        cell.RDAPercentage.text = String(format: "%d%%", nutrition.rdaPercentage)
         
         return cell
     }
@@ -82,7 +93,7 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
     // MARK: - Nutrition Data Extraction
     func extractNutritionData() {
      
-        guard let nutritionInfo = product?.nutritionInfo else {
+        guard let nutritionInfo = product?.nutritionInfo, let product = product else {
             
             print("[DEBUG] No nutritionInfo found in product")
             nutritionData = []
@@ -91,10 +102,17 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
             }
             return
         }
-        
+        guard let user = user else {
+                    print("[DEBUG] No user data available yet, waiting for fetchUserData")
+                    nutritionData = []
+                    DispatchQueue.main.async {
+                        self.NutritionTableView.reloadData()
+                    }
+                    return
+                }
         print("[DEBUG] Extracting nutrition data for product")
         nutritionData.removeAll()
-        
+        let rdaPercentages = getRDAPercentages(product: product, user: user)
         // Iterate over the nutritionInfo array
         for nutrition in nutritionInfo {
        
@@ -104,7 +122,8 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
             // Only add to nutrition data if the value is not zero
             if numericValue != 0 {
                 let displayValue = formatDisplayValue(value: Double(numericValue), unit: nutrition.unit)
-                nutritionData.append((name: formattedName, value: displayValue))
+                let percentage = rdaPercentages[nutrition.name.lowercased()] ?? 0.0
+                nutritionData.append((name: formattedName, value: displayValue, rdaPercentage: Int(percentage)))
                 print("[DEBUG] Extracted \(formattedName): \(displayValue)")
             }
         }
