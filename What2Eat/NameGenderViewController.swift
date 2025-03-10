@@ -2,7 +2,7 @@ import UIKit
 import Firebase
 import FirebaseAuth
 
-class NameGenderViewController: UIViewController {
+class NameGenderViewController: UIViewController, UITextFieldDelegate {
     
     private let progressView = UIProgressView(progressViewStyle: .default)
     private let titleLabel = UILabel()
@@ -70,6 +70,8 @@ class NameGenderViewController: UIViewController {
                     progressView.isHidden = true
                     nextButton.setTitle("Save", for: .normal)
                 }
+        nameTextField.returnKeyType = .done
+        nameTextField.delegate = self
     }
     
     override func viewDidLayoutSubviews() {
@@ -132,7 +134,7 @@ class NameGenderViewController: UIViewController {
         nameTextField.leftViewMode = .always
         nameTextField.rightView = paddingView
         nameTextField.rightViewMode = .always
-        
+
         nameTextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(nameTextField)
         
@@ -212,6 +214,10 @@ class NameGenderViewController: UIViewController {
             nextButton.heightAnchor.constraint(equalToConstant: 54)
         ])
     }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            textField.resignFirstResponder() // Dismiss the keyboard
+            return true
+        }
     
     private func configureGenderButton(_ button: UIButton, title: String, imageName: String) {
         // Create a horizontal stack (label on left, image on right)
@@ -528,3 +534,4 @@ class NameGenderViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
     }
 }
+

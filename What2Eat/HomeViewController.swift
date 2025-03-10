@@ -58,15 +58,23 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     private var profileListener: ListenerRegistration?
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet var HomeView: UIView!
     @IBOutlet var recentScansSeeAll: UIButton!
+    @IBOutlet var searchView: UIView!
     @IBOutlet var noRecentScansLabel: UILabel!
     @IBOutlet var ScanNowButton: UIButton!
     @IBOutlet var UserName: UILabel!
     @IBOutlet var RecentScansTableView: UITableView!
     @IBOutlet var HomeImage: UIImageView!
-    
+    var statusBarHeight: CGFloat {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            return windowScene.statusBarManager?.statusBarFrame.height ?? 0
+        }
+        return 0
+    }
+
     // Outlet for the right bar button (profile picture)
-    @IBOutlet var rightbarButton: UIBarButtonItem!
+    @IBOutlet var rightbarButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -78,9 +86,9 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         RecentScansTableView.dataSource = self
         collectionView.dataSource = self
         collectionView.setCollectionViewLayout(generateLayout(), animated: true)
-        
+        self.navigationController?.navigationBar.isHidden = true
         updateUserName()
-       
+        setupRightBarButton()
         scanNowButtonUI()
         noRecentScansLabel.isHidden = true
         setupProfileListener()
@@ -90,10 +98,30 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         fetchRecommendedProducts {
             self.collectionView.reloadData()
         }
+        let statusBarView = UIView()
+        statusBarView.backgroundColor = UIColor(red: 1.0, green: 150/255, blue: 70/255, alpha: 1)
+        HomeView.backgroundColor = UIColor(red: 1.0, green: 150/255, blue: 70/255, alpha: 1)
+        view.addSubview(statusBarView)
+            
+            // Set auto-layout constraints
+            statusBarView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                statusBarView.topAnchor.constraint(equalTo: view.topAnchor),
+                statusBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                statusBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                statusBarView.heightAnchor.constraint(equalToConstant: statusBarHeight)
+            ])
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(searchBarTapped))
+        searchView.addGestureRecognizer(tapGesture)
+        searchView.isUserInteractionEnabled = true
+    }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .default  // Use .lightContent if the background is dark
     }
     override func viewWillDisappear(_ animated: Bool) {
             super.viewWillDisappear(animated)
             profileListener?.remove() // Stop listening when leaving the view
+        self.navigationController?.navigationBar.isHidden = false
         }
         
         deinit {
@@ -106,6 +134,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 750)
         }
         updateUserName()
+        self.navigationController?.navigationBar.isHidden = true
         self.collectionView.reloadData()
         fetchRecommendedProducts {
             self.collectionView.reloadData()
@@ -113,6 +142,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.isHidden = true
         setupProfileListener()
         
     }
@@ -163,8 +193,8 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     
     func scanNowButtonUI() {
-        ScanNowButton.layer.borderWidth = 4
-        ScanNowButton.layer.borderColor = UIColor(red: 254/255, green: 231/255, blue: 206/255, alpha: 0.8).cgColor
+        ScanNowButton.layer.borderWidth = 1.5
+        ScanNowButton.layer.borderColor = UIColor(red: 255/255, green: 120/255, blue: 30/255, alpha: 0.8).cgColor
         ScanNowButton.layer.masksToBounds = true
     }
     
@@ -479,7 +509,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                         let size = CGSize(width: 32, height: 32)
                         let circularImage = image.circularImage(size: size)
                         DispatchQueue.main.async {
-                            self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                            self.rightbarButton.setImage(circularImage.withRenderingMode(.alwaysOriginal), for: .normal)
                         }
                     } else {
                         // Use Firestore data, not SDWebImage data
@@ -497,7 +527,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             let size = CGSize(width: 32, height: 32)
             if let image = UIImage.imageWithInitial(initial, size: size) {
                 DispatchQueue.main.async {
-                    self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
+                    self.rightbarButton.setImage(image.withRenderingMode(.alwaysOriginal), for: .normal)
                 }
             }
         }
@@ -510,7 +540,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                         let size = CGSize(width: 32, height: 32)
                         let circularImage = image.circularImage(size: size)
                         DispatchQueue.main.async {
-                            self.rightbarButton.image = circularImage.withRenderingMode(.alwaysOriginal)
+                            self.rightbarButton.setImage(circularImage.withRenderingMode(.alwaysOriginal), for: .normal)
                         }
                     }
                 }
@@ -527,7 +557,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             let size = CGSize(width: 32, height: 32)
             if let image = UIImage.imageWithInitial(initial, size: size) {
                 DispatchQueue.main.async {
-                    self.rightbarButton.image = image.withRenderingMode(.alwaysOriginal)
+                    self.rightbarButton.setImage(image.withRenderingMode(.alwaysOriginal), for: .normal)
                 }
             }
         }
@@ -594,4 +624,18 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             // Perform segue when the custom search bar is tapped
             performSegue(withIdentifier: "showSearchScreen", sender: nil)
         }
+    func setupRightBarButton() {
+        // Ensure the button is circular and sized appropriately
+        rightbarButton.layer.cornerRadius = rightbarButton.frame.height / 2
+        rightbarButton.clipsToBounds = true
+        
+ 
+        rightbarButton.isUserInteractionEnabled = true
+        
+        // Initial setup of the profile image (will be updated by setupProfileListener)
+        updateProfilePictureAsGuest()
+    }
+    @objc func searchBarTapped() {
+        performSegue(withIdentifier: "showSearchScreen", sender: self)
+    }
 }

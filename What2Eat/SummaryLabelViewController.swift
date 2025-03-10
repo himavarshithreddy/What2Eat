@@ -79,19 +79,39 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
                 if !product.pros.isEmpty && indexPath.section == 0 {
                     let pro = product.pros[indexPath.row]
                     cell.HighlightText.text = pro.summaryPoint
-                    cell.DescriptionText.text = "\(pro.value)% of your recommended daily Intake."
-                    cell.ProgressBar.progress = Float(pro.value) / 100.0
-                    cell.ProgressBar.progressTintColor = .systemGreen
                     cell.iconImage.image = UIImage(systemName: "checkmark.square.fill")
                     cell.iconImage.tintColor = .systemGreen
+                    if pro.summaryPoint != "Contains some nutrients" {
+                        cell.DescriptionText.text = "\(pro.value)% of your recommended daily Intake."
+                        cell.ProgressBar.progress = Float(pro.value) / 100.0
+                        cell.ProgressBar.progressTintColor = .systemGreen
+                        cell.ProgressBar.alpha=1
+                       
+                    }
+                    else{
+                        cell.DescriptionText.text = "Check Nutrition tab for more Details"
+                        cell.ProgressBar.progress=0.0
+                        cell.ProgressBar.alpha=0.0
+                      
+                        
+                    }
                 } else if !product.cons.isEmpty && indexPath.section == (product.pros.isEmpty ? 0 : 1) {
+                    // Cons section
                     let con = product.cons[indexPath.row]
                     cell.HighlightText.text = con.summaryPoint
-                    cell.DescriptionText.text = "\(con.value)% of your recommended daily Intake."
-                    cell.ProgressBar.progress = Float(con.value) / 100.0
-                    cell.ProgressBar.progressTintColor = .systemRed
                     cell.iconImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     cell.iconImage.tintColor = .systemRed
+                    if con.summaryPoint != "No major concerns detected"{
+                        cell.DescriptionText.text = "\(con.value)% of your recommended daily Intake."
+                        cell.ProgressBar.progress = Float(con.value) / 100.0
+                        cell.ProgressBar.progressTintColor = .systemRed
+                        cell.ProgressBar.alpha=1
+                    }
+                    else{
+                        cell.DescriptionText.text = "Check Nutrition tab for more Details"
+                        cell.ProgressBar.progress=0.0
+                        cell.ProgressBar.alpha=0.0
+                    }
                 }
             }
             cell.configureExpandButton(isExpanded: isExpanded)

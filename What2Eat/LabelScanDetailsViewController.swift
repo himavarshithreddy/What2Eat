@@ -167,6 +167,9 @@ class LabelScanDetailsViewController: UIViewController {
             summaryVC.productAnalysis = self.productAnalysis
             summaryVC.ingredients = productModel!.ingredients
         }
+        if let ingredientsVC = ingredientsVC {
+            ingredientsVC.ingredients = productModel!.ingredients
+        }
         
         if let healthScore = healthScore {
             setProgress(to: CGFloat(healthScore) / 100)

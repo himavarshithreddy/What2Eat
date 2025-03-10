@@ -287,7 +287,11 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             do {
                 try Auth.auth().signOut()
                 print("ProfileViewController: Successfully signed out")
-                UserDefaults.standard.removeObject(forKey: "currentUser")
+                let defaults = UserDefaults.standard
+                            if let domain = Bundle.main.bundleIdentifier {
+                                defaults.removePersistentDomain(forName: domain)
+                            }
+                            defaults.synchronize()
                 signOutButton.setTitle("Sign In", for: .normal)
                 updateProfileAsGuest()
             } catch let error as NSError {
