@@ -572,35 +572,50 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     
     func compareAllergens() {
-        guard let productIngredients = product?.ingredients else {
+        guard let product = product else {
             self.productAllergenAlerts = []
             updateAlertView()
             return
         }
-        
+
         var alerts: [Allergen] = []
-        
-        // For each user-selected allergen, check its mapped synonyms
-        for allergen in userAllergens {
-            if let synonyms = allergenMapping[allergen.rawValue] {
-                for synonym in synonyms {
-                    for ingredient in productIngredients {
-                        if ingredient.lowercased().contains(synonym.lowercased()) {
-                            if !alerts.contains(allergen) {
-                                alerts.append(allergen)
+
+        func checkForMatches(_ items: [String], against allergens: [Allergen]) -> [Allergen] {
+            var matchedAllergens: [Allergen] = []
+            for allergen in allergens {
+                if let synonyms = allergenMapping[allergen.rawValue] {
+                    for synonym in synonyms {
+                        for item in items {
+                            if item.lowercased().contains(synonym.lowercased()) {
+                                if !matchedAllergens.contains(allergen) {
+                                    matchedAllergens.append(allergen)
+                                }
+                                break
                             }
-                            // Once a synonym matches for this allergen, break out
-                            break
                         }
                     }
                 }
             }
+            return matchedAllergens
         }
-        
+
+        // Check product.allergens (optional)
+        if let productAllergens = product.allergens {
+            let allergenMatches = checkForMatches(productAllergens, against: userAllergens)
+            alerts.append(contentsOf: allergenMatches)
+        }
+
+        // Check product.ingredients (non-optional)
+        let ingredientMatches = checkForMatches(product.ingredients, against: userAllergens)
+        for match in ingredientMatches {
+            if !alerts.contains(match) {
+                alerts.append(match)
+            }
+        }
+
         productAllergenAlerts = alerts
         updateAlertView()
     }
-
     func updateAlertView() {
             if productAllergenAlerts.isEmpty {
                 AlertView.isHidden = true

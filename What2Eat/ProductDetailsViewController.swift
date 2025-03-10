@@ -421,6 +421,7 @@ class ProductDetailsViewController: UIViewController {
                 let userRating = data["userRating"] as? Float ?? 0.0
                 let numberOfRatings = data["numberOfRatings"] as? Int ?? 0
                 let categoryId = data["categoryId"] as? String ?? ""
+                let allergens = data["Allergens"] as? [String] ?? []
                 let healthScore = data["healthScore"] as? Double ?? 0.0
                 var nutritionInfo: [Nutrition] = []
                         if let nutritionArray = data["nutritionInfo"] as? [[String: Any]] {
@@ -446,8 +447,10 @@ class ProductDetailsViewController: UIViewController {
                     userRating: userRating,
                     numberOfRatings: numberOfRatings,
                     categoryId: categoryId,
+                    allergens: allergens,
                     pros: pros,
                     cons: cons,
+                    
                     healthScore: healthScore
                 )
                 self.product = fetchedProduct

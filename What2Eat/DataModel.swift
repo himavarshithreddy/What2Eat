@@ -57,6 +57,7 @@ struct ProductData: Codable {
     var userRating: Float
     var numberOfRatings: Int
     let categoryId: String
+    let allergens: [String]?
     let pros: [String]
     let cons: [String]
     let healthScore: Double
