@@ -26,28 +26,31 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
     }
     
     private func fetchUserAllergies() {
-        if let uid = Auth.auth().currentUser?.uid {
-            let db = Firestore.firestore()
-            let userDocument = db.collection("users").document(uid)
-            
-            userDocument.getDocument { (document, error) in
-                if let error = error {
-                    print("Error fetching allergies: \(error.localizedDescription)")
-                    self.showAlert(message: "Error fetching allergies: \(error.localizedDescription)")
-                } else if let document = document, document.exists,
-                          let allergiesFromDB = document.get("allergies") as? [String] {
-                    self.selectedAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
-                    self.collectionView.reloadData()
-                }
-            }
-        } else {
             let defaults = UserDefaults.standard
-            if let localAllergies = defaults.array(forKey: "localAllergies") as? [String] {
+            if let localAllergies = defaults.array(forKey: "localAllergies") as? [String], !localAllergies.isEmpty {
+                // Load from UserDefaults if available and non-empty
+                print(localAllergies)
                 selectedAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
                 collectionView.reloadData()
+            } else if let uid = Auth.auth().currentUser?.uid {
+                // Fallback to Firebase if local data is missing
+                let db = Firestore.firestore()
+                let userDocument = db.collection("users").document(uid)
+                
+                userDocument.getDocument { [weak self] (document, error) in
+                    guard let self = self else { return }
+                    if let error = error {
+                        print("Error fetching allergies: \(error.localizedDescription)")
+                        self.showAlert(message: "Error fetching allergies: \(error.localizedDescription)")
+                    } else if let document = document, document.exists,
+                              let allergiesFromDB = document.get("allergies") as? [String] {
+                        self.selectedAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
+                        defaults.set(allergiesFromDB, forKey: "localAllergies") // Cache to UserDefaults
+                        self.collectionView.reloadData()
+                    }
+                }
             }
         }
-    }
     
     // MARK: - UICollectionView DataSource
     
@@ -144,26 +147,33 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
     // MARK: - Continue Button Action
     
     @IBAction func ContinueButton(_ sender: Any) {
-        let selectedAllergenNames = selectedAllergens.map { $0.rawValue }
-        
-        if let uid = Auth.auth().currentUser?.uid {
-            let db = Firestore.firestore()
-            let userDocument = db.collection("users").document(uid)
-            
-            userDocument.updateData(["allergies": selectedAllergenNames]) { error in
-                if let error = error {
-                    self.showAlert(message: "Error updating allergies: \(error.localizedDescription)")
-                } else {
-                    self.progressView.setProgress(0.5, animated: true)
-                }
-            }
-        } else {
+            let selectedAllergenNames = selectedAllergens.map { $0.rawValue }
             let defaults = UserDefaults.standard
+            
+            // Always save to UserDefaults
             defaults.set(selectedAllergenNames, forKey: "localAllergies")
-            self.progressView.setProgress(0.5, animated: true)
+            
+            // Save to Firebase if user is authenticated
+            if let uid = Auth.auth().currentUser?.uid {
+                let db = Firestore.firestore()
+                let userDocument = db.collection("users").document(uid)
+                
+                userDocument.updateData(["allergies": selectedAllergenNames]) { [weak self] error in
+                    guard let self = self else { return }
+                    if let error = error {
+                        self.showAlert(message: "Error updating allergies in Firebase: \(error.localizedDescription)")
+                    } else {
+                        self.progressView.setProgress(0.5, animated: true)
+                        print("Allergies saved to Firebase successfully")
+                    }
+                }
+            } else {
+                // If no user is authenticated, still update progress (local save succeeded)
+                progressView.setProgress(0.5, animated: true)
+                print("Allergies saved locally (no Firebase sync due to no authenticated user)")
+            }
+       
         }
-    }
-    
     // MARK: - Utility
     
     private func showAlert(message: String) {

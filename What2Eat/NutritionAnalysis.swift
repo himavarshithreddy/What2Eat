@@ -834,3 +834,119 @@ func getRDAPercentages(product: ProductData, user: Users) -> [String: Double] {
     
     return percentages
 }
+let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
+        .lowSodium: { product in
+            if let sodium = product.nutritionInfo.first(where: { $0.name.lowercased() == "sodium" }) {
+                return sodium.value <= 140
+            }
+            return false
+        },
+        .vegan: { product in
+            let nonVegan = [
+                "milk", "egg", "fish", "meat", "honey", "gelatin", "cheese", "butter", "cream", "whey",
+                "casein", "lactose", "albumin", "lard", "tallow", "collagen", "carmine", "isinglass",
+                "shellac", "rennet", "peppered", "bone", "broth", "stock", "animal fat", "beef", "pork",
+                "chicken", "turkey", "duck", "goose", "venison", "seafood", "shrimp", "crab", "lobster"
+            ]
+            let ingredientsViolate = product.ingredients.contains { ingredient in
+                nonVegan.contains { ingredient.lowercased().contains($0.lowercased()) }
+            }
+            let allergensViolate = product.allergens?.contains { allergen in
+                nonVegan.contains { allergen.lowercased().contains($0.lowercased()) }
+            } ?? false
+            let artificialViolate = product.artificialIngredients.contains { artificial in
+                nonVegan.contains { artificial.lowercased().contains($0.lowercased()) }
+            }
+            return !ingredientsViolate && !allergensViolate && !artificialViolate
+        },
+        .vegetarian: { product in
+            let nonVegetarian = [
+                "meat", "fish", "chicken", "beef", "pork", "gelatin", "lard", "tallow", "broth", "stock",
+                "animal fat", "turkey", "duck", "goose", "venison", "seafood", "shrimp", "crab", "lobster",
+                "anchovy", "rennet", "bone", "suet", "pepperoni", "sausage", "bacon", "ham"
+            ]
+            let ingredientsViolate = product.ingredients.contains { ingredient in
+                nonVegetarian.contains { ingredient.lowercased().contains($0.lowercased()) }
+            }
+            let allergensViolate = product.allergens?.contains { allergen in
+                nonVegetarian.contains { allergen.lowercased().contains($0.lowercased()) }
+            } ?? false
+            let artificialViolate = product.artificialIngredients.contains { artificial in
+                nonVegetarian.contains { artificial.lowercased().contains($0.lowercased()) }
+            }
+            return !ingredientsViolate && !allergensViolate && !artificialViolate
+        },
+        .sugarFree: { product in
+            if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugar" || $0.name.lowercased() == "total sugars" }) {
+                return sugar.value < 0.5
+            }
+            return false
+        },
+        .lowCalorie: { product in
+            if let calories = product.nutritionInfo.first(where: { $0.name.lowercased() == "calories" }) {
+                return calories.value <= 40
+            }
+            return false
+        },
+        .ketoDiet: { product in
+            if let carbs = product.nutritionInfo.first(where: { $0.name.lowercased() == "carbohydrates" || $0.name.lowercased() == "total carbohydrates" }),
+               let fat = product.nutritionInfo.first(where: { $0.name.lowercased() == "fat" || $0.name.lowercased() == "total fat" }) {
+                return carbs.value <= 5.0 && fat.value >= 10.0
+            }
+            return false
+        },
+        .paleoDiet: { product in
+            let nonPaleo = [
+                "wheat", "milk", "cheese", "sugar", "rice", "soy", "corn", "barley", "oats", "rye",
+                "peanut", "bean", "lentil", "chickpea", "soybean", "tofu", "tempeh", "lactose", "whey",
+                "casein", "cream", "butter", "syrup", "molasses", "artificial", "preservative", "coloring"
+            ]
+            let ingredientsViolate = product.ingredients.contains { ingredient in
+                nonPaleo.contains { ingredient.lowercased().contains($0.lowercased()) }
+            }
+            let allergensViolate = product.allergens?.contains { allergen in
+                nonPaleo.contains { allergen.lowercased().contains($0.lowercased()) }
+            } ?? false
+            let artificialViolate = !product.artificialIngredients.isEmpty
+            return !ingredientsViolate && !allergensViolate && !artificialViolate
+        },
+        .lowSugar: { product in
+            if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugar" || $0.name.lowercased() == "total sugars" }) {
+                return sugar.value < 5.0
+            }
+            return false
+        },
+        .lactoseFree: { product in
+            let dairy = [
+                "milk", "cheese", "butter", "cream", "lactose", "whey", "casein", "yogurt", "curd",
+                "ghee", "custard", "ice cream", "sour cream", "half and half", "milk powder",
+                "condensed milk", "evaporated milk", "buttermilk", "maltodextrin"
+            ]
+            let ingredientsViolate = product.ingredients.contains { ingredient in
+                dairy.contains { ingredient.lowercased().contains($0.lowercased()) }
+            }
+            let allergensViolate = product.allergens?.contains { allergen in
+                dairy.contains { allergen.lowercased().contains($0.lowercased()) }
+            } ?? false
+            let artificialViolate = product.artificialIngredients.contains { artificial in
+                dairy.contains { artificial.lowercased().contains($0.lowercased()) }
+            }
+            return !ingredientsViolate && !allergensViolate && !artificialViolate
+        },
+        .glutenFree: { product in
+            let gluten = [
+                "wheat", "barley", "rye", "malt", "spelt", "kamut", "triticale", "farro", "durum",
+                "semolina", "bulgur", "couscous", "maltodextrin", "gluten", "flour"
+            ]
+            let ingredientsViolate = product.ingredients.contains { ingredient in
+                gluten.contains { ingredient.lowercased().contains($0.lowercased()) }
+            }
+            let allergensViolate = product.allergens?.contains { allergen in
+                gluten.contains { allergen.lowercased().contains($0.lowercased()) }
+            } ?? false
+            let artificialViolate = product.artificialIngredients.contains { artificial in
+                gluten.contains { artificial.lowercased().contains($0.lowercased()) }
+            }
+            return !ingredientsViolate && !allergensViolate && !artificialViolate
+        }
+    ]

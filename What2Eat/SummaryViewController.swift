@@ -16,7 +16,8 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var userAllergens: [Allergen] = []
         var productAllergenAlerts: [Allergen] = []
     var expandedIndexPaths: [IndexPath: Bool] = [:] 
-    
+    var userDietaryRestrictions: [DietaryRestriction] = []
+        var dietaryRestrictionAlerts: [DietaryRestriction] = []
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
     @IBOutlet weak var AlertTableView: UITableView!
@@ -45,6 +46,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         setupEmptyStars()
         setupStarTapGestures()
         fetchUserAllergensForSummary()
+        fetchUserDietaryRestrictions()
         AlertTableView.sectionHeaderHeight = 0  // Explicit header height
         updateUI()
        
@@ -544,7 +546,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             // Reload the summary table view to reflect new data
             self.SummaryTableView.reloadData()
             self.compareAllergens()
-            
+            self.compareDietaryRestrictions()
             
         }
     }
@@ -627,4 +629,40 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             AlertTableView.reloadData()
         }
     
+    func fetchUserDietaryRestrictions() {
+            if let uid = Auth.auth().currentUser?.uid {
+                let db = Firestore.firestore()
+                let userDocument = db.collection("users").document(uid)
+                userDocument.getDocument { [weak self] (document, error) in
+                    if let document = document, document.exists,
+                       let restrictionsFromDB = document.get("dietaryRestrictions") as? [String] {
+                        self?.userDietaryRestrictions = restrictionsFromDB.compactMap { dietaryRestrictionMapping[$0] }
+                        self?.compareDietaryRestrictions()
+                    }
+                }
+            } else {
+                let defaults = UserDefaults.standard
+                if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String] {
+                    userDietaryRestrictions = localRestrictions.compactMap { dietaryRestrictionMapping[$0] }
+                    compareDietaryRestrictions()
+                }
+            }
+        }
+    func compareDietaryRestrictions() {
+            guard let product = product else {
+                dietaryRestrictionAlerts = []
+                updateAlertView()
+                return
+            }
+
+            var alerts: [DietaryRestriction] = []
+            for restriction in userDietaryRestrictions {
+                if let rule = dietaryRestrictionRules[restriction], !rule(product) {
+                    alerts.append(restriction)
+                }
+            }
+
+            dietaryRestrictionAlerts = alerts
+            updateAlertView()
+        }
 }
