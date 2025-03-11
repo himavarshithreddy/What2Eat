@@ -34,32 +34,30 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     
     // Fetch saved dietary restrictions either from Firestore (if logged in) or locally.
     private func fetchUserDietaryRestrictions() {
-            let defaults = UserDefaults.standard
-            if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String], !localRestrictions.isEmpty {
-             
-                selectedDietaryRestrictions = localRestrictions.compactMap { DietaryRestriction(rawValue: $0) }
-                updateUIWithSelectedDietaryRestrictions()
-                collectionView.reloadData()
-            } else if let uid = Auth.auth().currentUser?.uid {
-                // Fallback to Firebase if local data is missing
-                let db = Firestore.firestore()
-                let userDocument = db.collection("users").document(uid)
-                
-                userDocument.getDocument { [weak self] (document, error) in
-                    guard let self = self else { return }
-                    if let error = error {
-                        print("Error fetching dietary restrictions: \(error.localizedDescription)")
-                        self.showAlert(message: "Error fetching dietary restrictions: \(error.localizedDescription)")
-                    } else if let document = document, document.exists,
-                              let restrictionsFromDB = document.get("dietaryRestrictions") as? [String] {
-                        self.selectedDietaryRestrictions = restrictionsFromDB.compactMap { DietaryRestriction(rawValue: $0) }
-                        defaults.set(restrictionsFromDB, forKey: "localDietaryRestrictions") // Cache to UserDefaults
-                        self.updateUIWithSelectedDietaryRestrictions()
-                        self.collectionView.reloadData()
-                    }
+        if let uid = Auth.auth().currentUser?.uid {
+            // User is logged in, fetch from Firestore
+            let db = Firestore.firestore()
+            let userDocument = db.collection("users").document(uid)
+            
+            userDocument.getDocument { (document, error) in
+                if let error = error {
+                    print("Error fetching dietary restrictions: \(error.localizedDescription)")
+                    self.showAlert(message: "Error fetching dietary restrictions: \(error.localizedDescription)")
+                } else if let document = document, document.exists,
+                          let restrictions = document.get("dietaryRestrictions") as? [String] {
+                    self.selectedDietaryRestrictions = restrictions.compactMap { DietaryRestriction(rawValue: $0) }
+                    self.updateUIWithSelectedDietaryRestrictions()
                 }
             }
+        } else {
+            // User not logged in, load from local storage
+            let defaults = UserDefaults.standard
+            if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String] {
+                self.selectedDietaryRestrictions = localRestrictions.compactMap { DietaryRestriction(rawValue: $0) }
+                self.updateUIWithSelectedDietaryRestrictions()
+            }
         }
+    }
     
     // Update UI: Set the initial state of each cell based on the saved restrictions.
     private func updateUIWithSelectedDietaryRestrictions() {
@@ -219,8 +217,6 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
                 }
                 print("Dietary restrictions saved locally (no Firebase sync due to no authenticated user)")
             }
-        
-        print(selectedDietaryNames)
         }
 
     private func navigateBackToProfile() {
@@ -274,3 +270,4 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
         present(alertController, animated: true, completion: nil)
     }
 }
+

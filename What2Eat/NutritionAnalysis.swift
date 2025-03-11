@@ -688,60 +688,87 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
     
     return ProductAnalysis(pros: pros, cons: cons)
 }
- func fetchUserData(completion: @escaping (Users?) -> Void) {
-        if let userData = UserDefaults.standard.data(forKey: "currentUser") {
-            do {
-                let decoder = JSONDecoder()
-                let user = try decoder.decode(Users.self, from: userData)
-                completion(user)
-                return
-            } catch {
-                print("Error decoding user from UserDefaults: \(error.localizedDescription)")
+func fetchUserData(completion: @escaping (Users?) -> Void) {
+    let defaults = UserDefaults.standard
+    
+    // Check UserDefaults for cached full user data (excluding allergies and dietary restrictions)
+    if let userData = defaults.data(forKey: "currentUser") {
+        do {
+            let decoder = JSONDecoder()
+            var user = try decoder.decode(Users.self, from: userData)
+            // Override allergies and dietary restrictions with local-specific keys
+            if let localAllergies = defaults.array(forKey: "localAllergies") as? [String], !localAllergies.isEmpty {
+                user.allergies = localAllergies
             }
+            if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String], !localRestrictions.isEmpty {
+                user.dietaryRestrictions = localRestrictions
+            }
+            completion(user)
+            return
+        } catch {
+            print("Error decoding user from UserDefaults: \(error.localizedDescription)")
         }
-        
-        guard let uid = Auth.auth().currentUser?.uid else {
+    }
+    
+    guard let uid = Auth.auth().currentUser?.uid else {
+        completion(nil)
+        return
+    }
+    
+    let db = Firestore.firestore()
+    db.collection("users").document(uid).getDocument { document, error in
+        if let error = error {
+            print("Error fetching user data: \(error.localizedDescription)")
             completion(nil)
             return
         }
         
-        let db = Firestore.firestore()
-        db.collection("users").document(uid).getDocument { document, error in
-            if let error = error {
-                print("Error fetching user data: \(error.localizedDescription)")
-                completion(nil)
-                return
-            }
-            
-            guard let document = document, document.exists, let data = document.data() else {
-                completion(nil)
-                return
-            }
-            
-            let user = Users(
-                name: data["name"] as? String ?? "",
-                dietaryRestrictions: data["dietaryRestrictions"] as? [String] ?? [],
-                allergies: data["allergies"] as? [String] ?? [],
-                gender: data["gender"] as? String ?? "",
-                age: data["age"] as? Int ?? 0,
-                weight: data["weight"] as? Double ?? 0.0,
-                height: data["height"] as? Double ?? 0.0,
-                activityLevel: data["activityLevel"] as? String ?? ""
-            )
-            
-            do {
-                let encoder = JSONEncoder()
-                let encodedUser = try encoder.encode(user)
-                UserDefaults.standard.set(encodedUser, forKey: "currentUser")
-            } catch {
-                print("Error encoding user to UserDefaults: \(error.localizedDescription)")
-            }
-            
-            completion(user)
+        guard let document = document, document.exists, let data = document.data() else {
+            completion(nil)
+            return
         }
+        
+        // Fetch allergies and dietary restrictions with local-first logic
+        var allergies: [String] = []
+        if let localAllergies = defaults.array(forKey: "localAllergies") as? [String], !localAllergies.isEmpty {
+            allergies = localAllergies
+        } else if let allergiesFromDB = data["allergies"] as? [String] {
+            allergies = allergiesFromDB
+            defaults.set(allergiesFromDB, forKey: "localAllergies") // Cache to UserDefaults
+        }
+        
+        var dietaryRestrictions: [String] = []
+        if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String], !localRestrictions.isEmpty {
+            dietaryRestrictions = localRestrictions
+        } else if let restrictionsFromDB = data["dietaryRestrictions"] as? [String] {
+            dietaryRestrictions = restrictionsFromDB
+            defaults.set(restrictionsFromDB, forKey: "localDietaryRestrictions") // Cache to UserDefaults
+        }
+        
+        // Construct Users object with all fields
+        let user = Users(
+            name: data["name"] as? String ?? "",
+            dietaryRestrictions: dietaryRestrictions,
+            allergies: allergies,
+            gender: data["gender"] as? String ?? "",
+            age: data["age"] as? Int ?? 0,
+            weight: data["weight"] as? Double ?? 0.0,
+            height: data["height"] as? Double ?? 0.0,
+            activityLevel: data["activityLevel"] as? String ?? ""
+        )
+        
+        // Cache the full user object to "currentUser" (optional)
+        do {
+            let encoder = JSONEncoder()
+            let encodedUser = try encoder.encode(user)
+            UserDefaults.standard.set(encodedUser, forKey: "currentUser")
+        } catch {
+            print("Error encoding user to UserDefaults: \(error.localizedDescription)")
+        }
+        
+        completion(user)
     }
-
-// New function to calculate RDA percentages for all nutrients
+}
 func getRDAPercentages(product: ProductResponse, user: Users) -> [String: Double] {
     let rda = getRDA(for: user)
     var percentages: [String: Double] = [:]
@@ -863,7 +890,7 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
             let nonVegetarian = [
                 "meat", "fish", "chicken", "beef", "pork", "gelatin", "lard", "tallow", "broth", "stock",
                 "animal fat", "turkey", "duck", "goose", "venison", "seafood", "shrimp", "crab", "lobster",
-                "anchovy", "rennet", "bone", "suet", "pepperoni", "sausage", "bacon", "ham"
+                "anchovy", "rennet", "bone", "suet", "pepperoni", "sausage", "bacon", "ham","egg"
             ]
             let ingredientsViolate = product.ingredients.contains { ingredient in
                 nonVegetarian.contains { ingredient.lowercased().contains($0.lowercased()) }
@@ -877,7 +904,7 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
             return !ingredientsViolate && !allergensViolate && !artificialViolate
         },
         .sugarFree: { product in
-            if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugar" || $0.name.lowercased() == "total sugars" }) {
+            if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugars" || $0.name.lowercased() == "total sugars" }) {
                 return sugar.value < 0.5
             }
             return false
@@ -948,5 +975,23 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
                 gluten.contains { artificial.lowercased().contains($0.lowercased()) }
             }
             return !ingredientsViolate && !allergensViolate && !artificialViolate
-        }
+        },
+        .eggetarian: { product in
+                    // Allows eggs but excludes meat, fish, and their derivatives
+                    let nonEggetarian = [
+                        "meat", "fish", "chicken", "beef", "pork", "gelatin", "lard", "tallow", "broth", "stock",
+                        "animal fat", "turkey", "duck", "goose", "venison", "seafood", "shrimp", "crab", "lobster",
+                        "anchovy", "rennet", "bone", "suet", "pepperoni", "sausage", "bacon", "ham"
+                    ]
+                    let ingredientsViolate = product.ingredients.contains { ingredient in
+                        nonEggetarian.contains { ingredient.lowercased().contains($0.lowercased()) }
+                    }
+                    let allergensViolate = product.allergens?.contains { allergen in
+                        nonEggetarian.contains { allergen.lowercased().contains($0.lowercased()) }
+                    } ?? false
+                    let artificialViolate = product.artificialIngredients.contains { artificial in
+                        nonEggetarian.contains { artificial.lowercased().contains($0.lowercased()) }
+                    }
+                    return !ingredientsViolate && !allergensViolate && !artificialViolate
+                }
     ]

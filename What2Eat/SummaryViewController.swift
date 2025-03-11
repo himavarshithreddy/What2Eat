@@ -68,7 +68,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
             return sections
         } else if tableView.tag == 2 {
-            return productAllergenAlerts.isEmpty ? 0 : 1 // For allergens (or other data)
+            return (productAllergenAlerts.isEmpty && dietaryRestrictionAlerts.isEmpty) ? 0 : 1
         }
         return 0
     }
@@ -85,7 +85,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         } else if tableView.tag == 2 {
          
-            return productAllergenAlerts.count
+            return productAllergenAlerts.count + dietaryRestrictionAlerts.count
             // Allergen section
         }
         return 0
@@ -165,11 +165,17 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             return cell
         } else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertCell", for: indexPath) as! AlertCell
-            let allergen = productAllergenAlerts[indexPath.row]
-                        cell.AlertText.text = "Contains \(allergen.rawValue)"
+            let totalAllergens = productAllergenAlerts.count
+            if indexPath.row < totalAllergens {
+                let allergen = productAllergenAlerts[indexPath.row]
+                cell.AlertText.text = "Contains \(allergen.rawValue)"
+            } else {
+                let dietaryIndex = indexPath.row - totalAllergens
+                let restriction = dietaryRestrictionAlerts[dietaryIndex]
+                cell.AlertText.text = "Violates \(restriction.rawValue)"
+            }
             return cell
         }
-        
         return UITableViewCell()
     }
 
@@ -551,24 +557,20 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     func fetchUserAllergensForSummary() {
-            if let uid = Auth.auth().currentUser?.uid {
+            let defaults = UserDefaults.standard
+            if let localAllergies = defaults.array(forKey: "localAllergies") as? [String], !localAllergies.isEmpty {
+                userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
+                compareAllergens()
+            } else if let uid = Auth.auth().currentUser?.uid {
                 let db = Firestore.firestore()
                 let userDocument = db.collection("users").document(uid)
                 userDocument.getDocument { [weak self] (document, error) in
-                    if let error = error {
-                        print("Error fetching user allergens: \(error.localizedDescription)")
-                    } else if let document = document, document.exists,
-                              let allergiesFromDB = document.get("allergies") as? [String] {
+                    if let document = document, document.exists,
+                       let allergiesFromDB = document.get("allergies") as? [String] {
                         self?.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
-                        // Once fetched, compare with product ingredients
+                        defaults.set(allergiesFromDB, forKey: "localAllergies") // Cache to UserDefaults
                         self?.compareAllergens()
                     }
-                }
-            } else {
-                let defaults = UserDefaults.standard
-                if let localAllergies = defaults.array(forKey: "localAllergies") as? [String] {
-                    userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
-                    compareAllergens()
                 }
             }
         }
@@ -619,50 +621,46 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         updateAlertView()
     }
     func updateAlertView() {
-            if productAllergenAlerts.isEmpty {
-                AlertView.isHidden = true
-            } else {
-                AlertView.isHidden = false
-                // Assuming each alert row is 25 points in height
-                AlertViewHeight.constant = CGFloat(30*productAllergenAlerts.count+35)
-            }
-            AlertTableView.reloadData()
+        let totalAlerts = productAllergenAlerts.count + dietaryRestrictionAlerts.count
+        if totalAlerts == 0 {
+            AlertView.isHidden = true
+        } else {
+            AlertView.isHidden = false
+            AlertViewHeight.constant = CGFloat(30 * totalAlerts + 35)
         }
-    
+        AlertTableView.reloadData()
+    }
     func fetchUserDietaryRestrictions() {
-            if let uid = Auth.auth().currentUser?.uid {
-                let db = Firestore.firestore()
-                let userDocument = db.collection("users").document(uid)
-                userDocument.getDocument { [weak self] (document, error) in
-                    if let document = document, document.exists,
-                       let restrictionsFromDB = document.get("dietaryRestrictions") as? [String] {
-                        self?.userDietaryRestrictions = restrictionsFromDB.compactMap { dietaryRestrictionMapping[$0] }
-                        self?.compareDietaryRestrictions()
-                    }
-                }
-            } else {
-                let defaults = UserDefaults.standard
-                if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String] {
-                    userDietaryRestrictions = localRestrictions.compactMap { dietaryRestrictionMapping[$0] }
-                    compareDietaryRestrictions()
+        let defaults = UserDefaults.standard
+        if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String], !localRestrictions.isEmpty {
+            userDietaryRestrictions = localRestrictions.compactMap { dietaryRestrictionMapping[$0] }
+            compareDietaryRestrictions()
+        } else if let uid = Auth.auth().currentUser?.uid {
+            let db = Firestore.firestore()
+            let userDocument = db.collection("users").document(uid)
+            userDocument.getDocument { [weak self] (document, error) in
+                if let document = document, document.exists,
+                   let restrictionsFromDB = document.get("dietaryRestrictions") as? [String] {
+                    self?.userDietaryRestrictions = restrictionsFromDB.compactMap { dietaryRestrictionMapping[$0] }
+                    defaults.set(restrictionsFromDB, forKey: "localDietaryRestrictions") // Cache to UserDefaults
+                    self?.compareDietaryRestrictions()
                 }
             }
         }
+    }
     func compareDietaryRestrictions() {
-            guard let product = product else {
-                dietaryRestrictionAlerts = []
-                updateAlertView()
-                return
-            }
-
-            var alerts: [DietaryRestriction] = []
-            for restriction in userDietaryRestrictions {
-                if let rule = dietaryRestrictionRules[restriction], !rule(product) {
-                    alerts.append(restriction)
-                }
-            }
-
-            dietaryRestrictionAlerts = alerts
+        guard let product = product else {
+            dietaryRestrictionAlerts = []
             updateAlertView()
+            return
         }
+        var alerts: [DietaryRestriction] = []
+        for restriction in userDietaryRestrictions {
+            if let rule = dietaryRestrictionRules[restriction], !rule(product) {
+                alerts.append(restriction)
+            }
+        }
+        dietaryRestrictionAlerts = alerts
+        updateAlertView()
+    }
 }

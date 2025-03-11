@@ -265,24 +265,26 @@ class WeightViewController: UIViewController {
     }
     
     @objc private func sliderChanged() {
-        // The slider value is always in kg.
-        let kgValue = round(slider.value)
-        profileData.weight = Double(kgValue)
-        
-        // Update labels based on selected unit.
-        if unitSegmentedControl.selectedSegmentIndex == 0 {
-            // Display in kg.
-            weightValueLabel.text = String(format: "%.0f", kgValue)
-            minValueLabel.text = String(format: "%.0f", kgValue - 1)
-            maxValueLabel.text = String(format: "%.0f", kgValue + 1)
-        } else {
-            // Convert kg to lbs.
-            let lbsValue = kgValue * 2.20462
-            weightValueLabel.text = String(format: "%.0f", lbsValue)
-            minValueLabel.text = String(format: "%.0f", lbsValue - 1)
-            maxValueLabel.text = String(format: "%.0f", lbsValue + 1)
+            // Define a step value (e.g., 1 kg). Adjust this if you'd like a larger step.
+            let step: Float = 1.0
+            let steppedValue = round(slider.value / step) * step
+            slider.value = steppedValue
+            profileData.weight = Double(steppedValue)
+            
+            // Update labels based on the selected unit.
+            if unitSegmentedControl.selectedSegmentIndex == 0 {
+                // Display in kg.
+                weightValueLabel.text = String(format: "%.0f", steppedValue)
+                minValueLabel.text = String(format: "%.0f", steppedValue - 1)
+                maxValueLabel.text = String(format: "%.0f", steppedValue + 1)
+            } else {
+                // Convert kg to lbs.
+                let lbsValue = steppedValue * 2.20462
+                weightValueLabel.text = String(format: "%.0f", lbsValue)
+                minValueLabel.text = String(format: "%.0f", lbsValue - 1)
+                maxValueLabel.text = String(format: "%.0f", lbsValue + 1)
+            }
         }
-    }
     
     @objc private func unitChanged() {
         // Simply update the display based on the current kg value.
