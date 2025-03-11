@@ -34,30 +34,32 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     
     // Fetch saved dietary restrictions either from Firestore (if logged in) or locally.
     private func fetchUserDietaryRestrictions() {
-        if let uid = Auth.auth().currentUser?.uid {
-            // User is logged in, fetch from Firestore
-            let db = Firestore.firestore()
-            let userDocument = db.collection("users").document(uid)
-            
-            userDocument.getDocument { (document, error) in
-                if let error = error {
-                    print("Error fetching dietary restrictions: \(error.localizedDescription)")
-                    self.showAlert(message: "Error fetching dietary restrictions: \(error.localizedDescription)")
-                } else if let document = document, document.exists,
-                          let restrictions = document.get("dietaryRestrictions") as? [String] {
-                    self.selectedDietaryRestrictions = restrictions.compactMap { DietaryRestriction(rawValue: $0) }
-                    self.updateUIWithSelectedDietaryRestrictions()
+            let defaults = UserDefaults.standard
+            if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String], !localRestrictions.isEmpty {
+             
+                selectedDietaryRestrictions = localRestrictions.compactMap { DietaryRestriction(rawValue: $0) }
+                updateUIWithSelectedDietaryRestrictions()
+                collectionView.reloadData()
+            } else if let uid = Auth.auth().currentUser?.uid {
+                // Fallback to Firebase if local data is missing
+                let db = Firestore.firestore()
+                let userDocument = db.collection("users").document(uid)
+                
+                userDocument.getDocument { [weak self] (document, error) in
+                    guard let self = self else { return }
+                    if let error = error {
+                        print("Error fetching dietary restrictions: \(error.localizedDescription)")
+                        self.showAlert(message: "Error fetching dietary restrictions: \(error.localizedDescription)")
+                    } else if let document = document, document.exists,
+                              let restrictionsFromDB = document.get("dietaryRestrictions") as? [String] {
+                        self.selectedDietaryRestrictions = restrictionsFromDB.compactMap { DietaryRestriction(rawValue: $0) }
+                        defaults.set(restrictionsFromDB, forKey: "localDietaryRestrictions") // Cache to UserDefaults
+                        self.updateUIWithSelectedDietaryRestrictions()
+                        self.collectionView.reloadData()
+                    }
                 }
             }
-        } else {
-            // User not logged in, load from local storage
-            let defaults = UserDefaults.standard
-            if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String] {
-                self.selectedDietaryRestrictions = localRestrictions.compactMap { DietaryRestriction(rawValue: $0) }
-                self.updateUIWithSelectedDietaryRestrictions()
-            }
         }
-    }
     
     // Update UI: Set the initial state of each cell based on the saved restrictions.
     private func updateUIWithSelectedDietaryRestrictions() {
@@ -178,47 +180,48 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     }
     
     @IBAction func SaveButtonTapped(_ sender: Any) {
-        let selectedDietaryNames = selectedDietaryRestrictions.map { $0.rawValue }
-        
-        if let uid = Auth.auth().currentUser?.uid {
-            // Firestore update
-            let db = Firestore.firestore()
-            let userDocument = db.collection("users").document(uid)
+            let selectedDietaryNames = selectedDietaryRestrictions.map { $0.rawValue }
+            let defaults = UserDefaults.standard
             
-            userDocument.updateData(["dietaryRestrictions": selectedDietaryNames]) { error in
-                if let error = error {
-                    self.showAlert(message: "Error updating dietary restrictions: \(error.localizedDescription)")
-                } else {
-                    self.progressView.setProgress(1.0, animated: true)
-                    // Navigate back to Profile
-                    if isOnboarding {
-                        isOnboarding = false
-                    self.navigateToTabBarController()
-            } else {
-                    self.navigateBackToProfile()
-                self.showAlert(message: "Health Info updated successfully.")
-                                            }
-                    print(isOnboarding)
-                 
-                }
-            }
-        } else {
-            // Local save
-            UserDefaults.standard.set(selectedDietaryNames, forKey: "localDietaryRestrictions")
-            self.progressView.setProgress(1.0, animated: true)
-            // Navigate back to Profile
-            if isOnboarding {
-                isOnboarding = false
+            // Always save to UserDefaults
+            defaults.set(selectedDietaryNames, forKey: "localDietaryRestrictions")
+            
+            // Save to Firebase if user is authenticated
+            if let uid = Auth.auth().currentUser?.uid {
+                let db = Firestore.firestore()
+                let userDocument = db.collection("users").document(uid)
                 
-            self.navigateToTabBarController()
-    } else {
-            self.navigateBackToProfile()
+                userDocument.updateData(["dietaryRestrictions": selectedDietaryNames]) { [weak self] error in
+                    guard let self = self else { return }
+                    if let error = error {
+                        self.showAlert(message: "Error updating dietary restrictions in Firebase: \(error.localizedDescription)")
+                    } else {
+                        self.progressView.setProgress(1.0, animated: true)
+                        if isOnboarding {
+                            isOnboarding = false
+                            self.navigateToTabBarController()
+                        } else {
+                            self.navigateBackToProfile()
+                            self.showAlert(message: "Health Info updated successfully.")
+                        }
+                        print("Dietary restrictions saved to Firebase successfully")
+                    }
+                }
+            } else {
+                // If no user is authenticated, still update progress and navigate (local save succeeded)
+                progressView.setProgress(1.0, animated: true)
+                if isOnboarding {
+                    isOnboarding = false
+                    navigateToTabBarController()
+                } else {
+                    navigateBackToProfile()
+                    showAlert(message: "Dietary restrictions updated locally.")
+                }
+                print("Dietary restrictions saved locally (no Firebase sync due to no authenticated user)")
+            }
         
-        self.showAlert(message: "Dietary restrictions updated locally.")
-                                    }
-          
+        print(selectedDietaryNames)
         }
-    }
 
     private func navigateBackToProfile() {
         if let navController = self.navigationController {
