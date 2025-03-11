@@ -254,57 +254,61 @@ class HeightViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func sliderChanged() {
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-        
-        let cmValue = round(slider.value)
-        profileData.height = Double(cmValue)
-        
-        if unitSegmentedControl.selectedSegmentIndex == 0 {
-            let (feet, inches) = cmToFeetInches(Double(cmValue))
-            let attributedText = NSMutableAttributedString(
-                string: "\(feet)",
-                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-            )
-            let ftUnit = NSAttributedString(
-                string: " ft ",
-                attributes: [
-                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    .foregroundColor: UIColor.lightGray
-                ]
-            )
-            attributedText.append(ftUnit)
-            let inchesNumber = NSAttributedString(
-                string: "\(inches)",
-                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-            )
-            attributedText.append(inchesNumber)
-            let inUnit = NSAttributedString(
-                string: " in",
-                attributes: [
-                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    .foregroundColor: UIColor.lightGray
-                ]
-            )
-            attributedText.append(inUnit)
-            heightDisplayLabel.attributedText = attributedText
-        } else {
-            let cmValueInt = Int(cmValue)
-            let attributedText = NSMutableAttributedString(
-                string: "\(cmValueInt)",
-                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-            )
-            let cmUnit = NSAttributedString(
-                string: " cm",
-                attributes: [
-                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                    .foregroundColor: UIColor.lightGray
-                ]
-            )
-            attributedText.append(cmUnit)
-            heightDisplayLabel.attributedText = attributedText
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
+            
+            // Define a step value, e.g. 5 cm
+            let step: Float = 1.0
+            // Calculate the stepped value and update the slider accordingly
+            let steppedValue = round(slider.value / step) * step
+            slider.value = steppedValue
+            profileData.height = Double(steppedValue)
+            
+            if unitSegmentedControl.selectedSegmentIndex == 0 {
+                let (feet, inches) = cmToFeetInches(Double(steppedValue))
+                let attributedText = NSMutableAttributedString(
+                    string: "\(feet)",
+                    attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+                )
+                let ftUnit = NSAttributedString(
+                    string: " ft ",
+                    attributes: [
+                        .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                        .foregroundColor: UIColor.lightGray
+                    ]
+                )
+                attributedText.append(ftUnit)
+                let inchesNumber = NSAttributedString(
+                    string: "\(inches)",
+                    attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+                )
+                attributedText.append(inchesNumber)
+                let inUnit = NSAttributedString(
+                    string: " in",
+                    attributes: [
+                        .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                        .foregroundColor: UIColor.lightGray
+                    ]
+                )
+                attributedText.append(inUnit)
+                heightDisplayLabel.attributedText = attributedText
+            } else {
+                let cmValueInt = Int(steppedValue)
+                let attributedText = NSMutableAttributedString(
+                    string: "\(cmValueInt)",
+                    attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+                )
+                let cmUnit = NSAttributedString(
+                    string: " cm",
+                    attributes: [
+                        .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                        .foregroundColor: UIColor.lightGray
+                    ]
+                )
+                attributedText.append(cmUnit)
+                heightDisplayLabel.attributedText = attributedText
+            }
         }
-    }
     
     @objc private func unitChanged() {
         sliderChanged()

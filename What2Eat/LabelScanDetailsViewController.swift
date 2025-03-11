@@ -166,6 +166,7 @@ class LabelScanDetailsViewController: UIViewController {
         if let summaryVC = summaryVC {
             summaryVC.productAnalysis = self.productAnalysis
             summaryVC.ingredients = productModel!.ingredients
+            summaryVC.productdetails = productModel!
         }
         if let ingredientsVC = ingredientsVC {
             ingredientsVC.ingredients = productModel!.ingredients

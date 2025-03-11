@@ -6,8 +6,23 @@ import FirebaseFirestore
 class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     var productAnalysis: ProductAnalysis?
+    var productdetails:ProductResponse?{
+        didSet {
+            if !userDietaryRestrictions.isEmpty{
+                compareDietaryRestrictions()
+            }
+        }
+    }
     var productAllergenAlerts: [Allergen] = []
-    var ingredients: [String]?
+    var ingredients: [String]? {
+            didSet {
+                if !userAllergens.isEmpty { // Only compare if allergens are loaded
+                    compareAllergens()
+                }
+            }
+        }
+    var userDietaryRestrictions: [DietaryRestriction] = []
+        var dietaryRestrictionAlerts: [DietaryRestriction] = []
     var userAllergens: [Allergen] = []
     var expandedIndexPaths: [IndexPath: Bool] = [:] // Tracks expanded state for each cell
     
@@ -30,7 +45,7 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
         SummaryTableView.rowHeight = UITableView.automaticDimension
         AlertTableView.sectionHeaderHeight = 0
         fetchUserAllergensForSummary()
-        
+        fetchUserDietaryRestrictions()
         updateUI() // Initial setup
     }
     
@@ -44,7 +59,7 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
             }
             return sections
         } else if tableView.tag == 2 {
-            return productAllergenAlerts.isEmpty ? 0 : 1
+            return (productAllergenAlerts.isEmpty && dietaryRestrictionAlerts.isEmpty) ? 0 : 1
         }
         return 0
     }
@@ -59,7 +74,7 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
                 }
             }
         } else if tableView.tag == 2 {
-            return productAllergenAlerts.count
+            return productAllergenAlerts.count + dietaryRestrictionAlerts.count
         }
         return 0
     }
@@ -79,39 +94,19 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
                 if !product.pros.isEmpty && indexPath.section == 0 {
                     let pro = product.pros[indexPath.row]
                     cell.HighlightText.text = pro.summaryPoint
+                    cell.DescriptionText.text = "\(pro.value)% of your recommended daily Intake."
+                    cell.ProgressBar.progress = Float(pro.value) / 100.0
+                    cell.ProgressBar.progressTintColor = .systemGreen
                     cell.iconImage.image = UIImage(systemName: "checkmark.square.fill")
                     cell.iconImage.tintColor = .systemGreen
-                    if pro.summaryPoint != "Contains some nutrients" {
-                        cell.DescriptionText.text = "\(pro.value)% of your recommended daily Intake."
-                        cell.ProgressBar.progress = Float(pro.value) / 100.0
-                        cell.ProgressBar.progressTintColor = .systemGreen
-                        cell.ProgressBar.alpha=1
-                       
-                    }
-                    else{
-                        cell.DescriptionText.text = "Check Nutrition tab for more Details"
-                        cell.ProgressBar.progress=0.0
-                        cell.ProgressBar.alpha=0.0
-                      
-                        
-                    }
                 } else if !product.cons.isEmpty && indexPath.section == (product.pros.isEmpty ? 0 : 1) {
-                    // Cons section
                     let con = product.cons[indexPath.row]
                     cell.HighlightText.text = con.summaryPoint
+                    cell.DescriptionText.text = "\(con.value)% of your recommended daily Intake."
+                    cell.ProgressBar.progress = Float(con.value) / 100.0
+                    cell.ProgressBar.progressTintColor = .systemRed
                     cell.iconImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     cell.iconImage.tintColor = .systemRed
-                    if con.summaryPoint != "No major concerns detected"{
-                        cell.DescriptionText.text = "\(con.value)% of your recommended daily Intake."
-                        cell.ProgressBar.progress = Float(con.value) / 100.0
-                        cell.ProgressBar.progressTintColor = .systemRed
-                        cell.ProgressBar.alpha=1
-                    }
-                    else{
-                        cell.DescriptionText.text = "Check Nutrition tab for more Details"
-                        cell.ProgressBar.progress=0.0
-                        cell.ProgressBar.alpha=0.0
-                    }
                 }
             }
             cell.configureExpandButton(isExpanded: isExpanded)
@@ -136,12 +131,17 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
             return cell
         } else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertLabelCell", for: indexPath) as! AlertLabelCell
-            let allergen = productAllergenAlerts[indexPath.row]
-            cell.AlertText.text = "Contains \(allergen.rawValue)"
-            cell.AlertText.numberOfLines = 0
+            let totalAllergens = productAllergenAlerts.count
+            if indexPath.row < totalAllergens {
+                let allergen = productAllergenAlerts[indexPath.row]
+                cell.AlertText.text = "Contains \(allergen.rawValue)"
+            } else {
+                let dietaryIndex = indexPath.row - totalAllergens
+                let restriction = dietaryRestrictionAlerts[dietaryIndex]
+                cell.AlertText.text = "Violates \(restriction.rawValue)"
+            }
             return cell
         }
-        
         return UITableViewCell()
     }
     
@@ -236,11 +236,12 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
     }
     
     func updateAlertView() {
-        if productAllergenAlerts.isEmpty {
+        let totalAlerts = productAllergenAlerts.count + dietaryRestrictionAlerts.count
+        if totalAlerts == 0 {
             AlertView.isHidden = true
         } else {
             AlertView.isHidden = false
-            AlertViewHeight.constant = CGFloat(30 * productAllergenAlerts.count + 35) // Original calculation
+            AlertViewHeight.constant = CGFloat(30 * totalAlerts + 35)
         }
         AlertTableView.reloadData()
     }
@@ -251,7 +252,12 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
             self.updateSummaryTableHeight()
             self.SummaryTableView.reloadData()
             self.updateAlertView()
-            self.compareAllergens()
+            if self.ingredients != nil {
+                            self.compareAllergens()
+                        }
+            if self.productdetails != nil {
+                self.compareDietaryRestrictions()
+            }
         }
     }
     
@@ -293,30 +299,81 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
     }
     
     func fetchUserAllergensForSummary() {
-        if let uid = Auth.auth().currentUser?.uid {
+        let defaults = UserDefaults.standard
+        if let localAllergies = defaults.array(forKey: "localAllergies") as? [String], !localAllergies.isEmpty {
+            userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
+            
+        } else if let uid = Auth.auth().currentUser?.uid {
             let db = Firestore.firestore()
             let userDocument = db.collection("users").document(uid)
             userDocument.getDocument { [weak self] (document, error) in
+                guard let self = self else { return }
                 if let error = error {
                     print("Error fetching user allergens: \(error.localizedDescription)")
-                } else if let document = document, document.exists,
-                          let allergiesFromDB = document.get("allergies") as? [String] {
-                    self?.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
-                    // Once fetched, compare with product ingredients
-                    self?.compareAllergens()
+                    return
                 }
-            }
-        } else {
-            let defaults = UserDefaults.standard
-            if let localAllergies = defaults.array(forKey: "localAllergies") as? [String] {
-                userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
-                compareAllergens()
+                if let document = document, document.exists,
+                   let allergiesFromDB = document.get("allergies") as? [String] {
+                    self.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
+                    defaults.set(allergiesFromDB, forKey: "localAllergies") // Cache to UserDefaults
+                    if self.ingredients != nil {
+                                            self.compareAllergens()
+                                        }
+                }
             }
         }
     }
     
-    
-    
-   
-    
+    func compareDietaryRestrictions() {
+        guard let productdetails = productdetails else {
+            dietaryRestrictionAlerts = []
+            updateAlertView()
+            return
+        }
+        let productData = ProductData(
+                    id: productdetails.id ?? "",
+                    barcode: [],
+                    name: productdetails.name,
+                    imageURL: "",
+                    ingredients: productdetails.ingredients,
+                    artificialIngredients: [],
+                    nutritionInfo: productdetails.nutrition,
+                    userRating: 0,
+                    numberOfRatings: 0,
+                    categoryId: "",
+                    allergens: nil,
+                    pros: [],
+                    cons: [],
+                    healthScore: 0
+                )
+        var alerts: [DietaryRestriction] = []
+        for restriction in userDietaryRestrictions {
+            if let rule = dietaryRestrictionRules[restriction], !rule(productData) {
+                alerts.append(restriction)
+            }
+        }
+        dietaryRestrictionAlerts = alerts
+        updateAlertView()
+    }
+    func fetchUserDietaryRestrictions() {
+        let defaults = UserDefaults.standard
+        if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String], !localRestrictions.isEmpty {
+            userDietaryRestrictions = localRestrictions.compactMap { dietaryRestrictionMapping[$0] }
+            
+        } else if let uid = Auth.auth().currentUser?.uid {
+            let db = Firestore.firestore()
+            let userDocument = db.collection("users").document(uid)
+            userDocument.getDocument { [weak self] (document, error) in
+                if let document = document, document.exists,
+                   let restrictionsFromDB = document.get("dietaryRestrictions") as? [String] {
+                    self?.userDietaryRestrictions = restrictionsFromDB.compactMap { dietaryRestrictionMapping[$0] }
+                    defaults.set(restrictionsFromDB, forKey: "localDietaryRestrictions") // Cache to UserDefaults
+                    if self?.productdetails != nil {
+                        self!.compareDietaryRestrictions()
+                                        }
+                }
+                
+            }
+        }
+    }
 }

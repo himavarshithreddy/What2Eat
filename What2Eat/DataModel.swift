@@ -92,6 +92,7 @@ enum DietaryRestriction: String {
     case lowSodium = "Low-sodium"
     case vegan = "Vegan"
     case vegetarian = "Vegetarian"
+    case eggetarian = "Eggetarian"
     case sugarFree = "Sugar-Free"
     case lowCalorie = "Low-Calorie"
     case ketoDiet = "Keto Diet"
@@ -178,6 +179,7 @@ let dietaryOptions = [
         "Low-sodium",
         "Vegan",
         "Vegetarian",
+        "Eggetarian",
         "Sugar-Free",
         "Low-Calorie",
         "Keto Diet",
@@ -192,16 +194,16 @@ let dietaryOptions = [
         "Low-sodium": .lowSodium,
         "Vegan": .vegan,
         "Vegetarian": .vegetarian,
+        "Eggetarian": .eggetarian,
         "Sugar-Free": .sugarFree,
         "Low-Calorie": .lowCalorie,
         "Keto Diet": .ketoDiet,
         "Paleo Diet": .paleoDiet,
         "Low Sugar": .lowSugar,
         "Lactose Free": .lactoseFree,
-        "Gluten Free": .glutenFree
+        "Gluten Free": .glutenFree,
+        
     ]
-
-
 
 struct ProductResponse: Codable {
     let id:String?

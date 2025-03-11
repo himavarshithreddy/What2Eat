@@ -50,6 +50,7 @@ class LoginViewController: UIViewController {
                 
                 self.verificationID = verificationID
                 self.verificationCodeTextField.isHidden = false
+                self.verificationCodeTextField.becomeFirstResponder()
                 self.sendCodeButton.setTitle("Verify Code", for: .normal)
             }
         } else {
