@@ -96,8 +96,8 @@ enum DietaryRestriction: String {
     case sugarFree = "Sugar-Free"
     case lowCalorie = "Low-Calorie"
     case lowFat = "Low-Fat"
-    case ketoDiet = "Keto Diet"
-    case paleoDiet = "Paleo Diet"
+//    case ketoDiet = "Keto Diet"
+//    case paleoDiet = "Paleo Diet"
     case lowSugar = "Low Sugar"
     case lactoseFree = "Lactose Free"
     case glutenFree = "Gluten Free"
@@ -184,8 +184,8 @@ let dietaryOptions = [
         "Sugar-Free",
         "Low-Calorie",
         "Low-Fat",
-        "Keto Diet",
-        "Paleo Diet",
+//        "Keto Diet",
+//        "Paleo Diet",
         "Low Sugar",
         "Lactose Free",
         "Gluten Free"
@@ -200,8 +200,8 @@ let dietaryOptions = [
         "Sugar-Free": .sugarFree,
         "Low-Calorie": .lowCalorie,
         "Low-Fat": .lowFat,
-        "Keto Diet": .ketoDiet,
-        "Paleo Diet": .paleoDiet,
+//        "Keto Diet": .ketoDiet,
+//        "Paleo Diet": .paleoDiet,
         "Low Sugar": .lowSugar,
         "Lactose Free": .lactoseFree,
         "Gluten Free": .glutenFree,
