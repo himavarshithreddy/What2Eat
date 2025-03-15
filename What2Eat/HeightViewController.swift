@@ -19,6 +19,9 @@ class HeightViewController: UIViewController {
     private let isEditingProfile: Bool
     private let profileData: UserProfileData  // Stores height in cm internally
     
+    // Property to track the last stepped value for haptic feedback
+    private var lastSteppedValue: Float?
+    
     // MARK: - Initializer
     
     init(profileData: UserProfileData, isEditingProfile: Bool = false) {
@@ -45,14 +48,16 @@ class HeightViewController: UIViewController {
         // Default unit selection
         unitSegmentedControl.selectedSegmentIndex = 0
         
-        // If profileData already contains a height (non-zero), use it;
-        // otherwise, default to 153 (cm)
+        // If profileData already contains a height (non-zero), use it; otherwise, default to 153 (cm)
         if profileData.height != 0 {
             slider.value = Float(profileData.height)
         } else {
             slider.value = 153
             profileData.height = 153.0
         }
+        
+        // Initialize the last stepped value with the starting slider value
+        lastSteppedValue = slider.value
         
         // Update the display label based on the slider value
         sliderChanged()
@@ -254,19 +259,18 @@ class HeightViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func sliderChanged() {
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-        
         let rawCmValue = Double(slider.value)
+        var snappedCm: Double = rawCmValue
         
         if unitSegmentedControl.selectedSegmentIndex == 0 {
-            // FT/IN mode: use the snapping conversion for ft/in
-            let (feet, inches) = cmToFeetInches(rawCmValue)
-            let snappedCm = feetInchesToCm(feet: feet, inches: inches)
+            // FT/IN mode: convert cm to ft/in, then snap the value
+            var (feet, inches) = cmToFeetInches(rawCmValue)
+            snappedCm = feetInchesToCm(feet: feet, inches: inches)
             slider.value = Float(snappedCm)  // Optionally snap the slider visually
             
             profileData.height = (snappedCm * 100).rounded() / 100
             
+            // Format display text for FT/IN mode.
             let attributedText = NSMutableAttributedString(
                 string: "\(feet)",
                 attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
@@ -296,7 +300,7 @@ class HeightViewController: UIViewController {
             heightDisplayLabel.attributedText = attributedText
         } else {
             // CM mode: round to the nearest whole number
-            let snappedCm = round(rawCmValue)
+            snappedCm = round(rawCmValue)
             slider.value = Float(snappedCm)  // Snap the slider to an integer value
             
             profileData.height = snappedCm
@@ -315,8 +319,14 @@ class HeightViewController: UIViewController {
             attributedText.append(cmUnit)
             heightDisplayLabel.attributedText = attributedText
         }
+        
+        // Trigger haptic feedback only when the snapped value changes
+        if lastSteppedValue == nil || Float(snappedCm) != lastSteppedValue {
+            let selectionFeedback = UISelectionFeedbackGenerator()
+            selectionFeedback.selectionChanged()
+            lastSteppedValue = Float(snappedCm)
+        }
     }
-
     
     @objc private func unitChanged() {
         sliderChanged()
@@ -326,7 +336,6 @@ class HeightViewController: UIViewController {
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
         updateFirebaseHeight()
-       
     }
     
     // MARK: - Firebase Update
@@ -363,24 +372,29 @@ class HeightViewController: UIViewController {
                     }
                 }
                 
-                if isEditingProfile {
+                if self.isEditingProfile {
                     self.navigationController?.popViewController(animated: true)
                 } else {
-                    let nextVC = ActivityLevelViewController(profileData: profileData)
-                    navigationController?.pushViewController(nextVC, animated: true)
+                    let nextVC = ActivityLevelViewController(profileData: self.profileData)
+                    self.navigationController?.pushViewController(nextVC, animated: true)
                 }
             }
         }
     }
-
-
     
     // MARK: - Unit Conversion Helpers
     
+    // Updated helper to ensure inches never equals 12.
     private func cmToFeetInches(_ cm: Double) -> (Int, Int) {
         let totalInches = cm / 2.54
-        let feet = Int(totalInches / 12)
-        let inches = Int(round(totalInches.truncatingRemainder(dividingBy: 12)))
+        var feet = Int(totalInches / 12)
+        var inches = Int(round(totalInches.truncatingRemainder(dividingBy: 12)))
+        
+        // If rounding causes 12 inches, roll over to the next foot.
+        if inches == 12 {
+            feet += 1
+            inches = 0
+        }
         return (feet, inches)
     }
     

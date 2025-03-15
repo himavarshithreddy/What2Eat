@@ -7,8 +7,8 @@ import SDWebImage
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     // Table view options and icons
-    let options = ["Edit Health Info", "Edit Personal Info", "Scoring Methodology"]
-    let icons = ["square.and.pencil", "person.crop.circle.badge", "questionmark.circle"]
+    let options = ["Edit Health Info", "Edit Personal Info", "Scoring Methodology", "Privacy Policy", "Terms & Conditions"]
+    let icons = ["square.and.pencil", "person.crop.circle.badge", "questionmark.circle", "lock.shield", "doc.text"]
 
     // Outlets for UI elements
     @IBOutlet weak var profileImageView: UIImageView!
@@ -255,11 +255,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-      
         tableView.deselectRow(at: indexPath, animated: true)
-        
+
         if Auth.auth().currentUser == nil && indexPath.row == 0 {
-          
             let alert = UIAlertController(title: "Sign In Required",
                                           message: "You need to be signed in to edit your health info.",
                                           preferredStyle: .alert)
@@ -267,17 +265,18 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             present(alert, animated: true)
             return
         }
-        
+
         switch indexPath.row {
         case 0: // Edit Health Info
-           
             performSegue(withIdentifier: "EditHealthInfo", sender: nil)
         case 1: // Edit Personal Info
-          
             performSegue(withIdentifier: "EditPersonalInfo", sender: nil)
         case 2: // Scoring Methodology
-           
             performSegue(withIdentifier: "ScoringMethodology", sender: nil)
+        case 3: // Privacy Policy
+            openLegalPage(type: "privacy")
+        case 4: // Terms & Conditions
+            openLegalPage(type: "terms")
         default:
             print("ProfileViewController: Unknown row selected: \(indexPath.row)")
             break
@@ -323,4 +322,18 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 50
     }
+    func openLegalPage(type: String) {
+        let legalVC = LegalViewController()
+        
+        if type == "privacy" {
+            legalVC.urlString = "https://what2eat-cb440.web.app/privacy-policy"
+            legalVC.title = "Privacy Policy"
+        } else if type == "terms" {
+            legalVC.urlString = "https://what2eat-cb440.web.app/terms-conditions"
+            legalVC.title = "Terms & Conditions"
+        }
+        
+        navigationController?.pushViewController(legalVC, animated: true)
+    }
+
 }

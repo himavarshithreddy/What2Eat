@@ -2857,6 +2857,21 @@
             </objects>
             <point key="canvasLocation" x="7946.2686567164174" y="-430.43478260869563"/>
         </scene>
+        <!--Legal View Controller-->
+        <scene sceneID="m0T-QR-N8Q">
+            <objects>
+                <viewController id="Dve-Bs-zuA" customClass="LegalViewController" customModule="What2Eat" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="FKE-fd-Xlw">
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="aXb-pO-vHN"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ook-zy-6zi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="8810" y="-430"/>
+        </scene>
         <!--Allergy View Controller-->
         <scene sceneID="mLJ-Kt-Gey">
             <objects>

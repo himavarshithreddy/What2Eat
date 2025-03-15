@@ -15,7 +15,7 @@ class AgeViewController: UIViewController {
     private let rightAgeLabel = UILabel()
     
     private let nextButton = UIButton(type: .system)
-    
+    private var lastAge: Int?
     private let profileData: UserProfileData
     private let isEditingProfile: Bool
     private var currentAge = 20
@@ -202,17 +202,40 @@ class AgeViewController: UIViewController {
     }
     
     private func updateAgeDisplay() {
-        leftAgeLabel.text = "\(max(1, currentAge - 1))"
-        centerAgeLabel.text = "\(currentAge)"
-        rightAgeLabel.text = "\(min(100, currentAge + 1))"
+        // If currentAge is 1, don't show a left label.
+        if currentAge > 1 {
+            leftAgeLabel.text = "\(currentAge - 1)"
+            leftAgeLabel.textColor = softColor
+        } else {
+            leftAgeLabel.text = "" // or " "
+            // Optionally set textColor to .clear if you want it invisible
+            leftAgeLabel.textColor = .clear
+        }
         
-        // Optionally add impact feedback
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
+        // Always show the center label.
+        centerAgeLabel.text = "\(currentAge)"
+        centerAgeLabel.textColor = orangeColor
+        
+        // If currentAge is 100, don't show a right label.
+        if currentAge < 100 {
+            rightAgeLabel.text = "\(currentAge + 1)"
+            rightAgeLabel.textColor = softColor
+        } else {
+            rightAgeLabel.text = ""
+            rightAgeLabel.textColor = .clear
+        }
+        
+        // Haptic feedback only if the age has changed
+        if lastAge == nil || currentAge != lastAge {
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
+            lastAge = currentAge
+        }
         
         // Update profile data
         profileData.age = currentAge
     }
+
     private func updateFirebaseProfile() {
         guard let uid = Auth.auth().currentUser?.uid else {
             showAlert(message: "User not authenticated.")

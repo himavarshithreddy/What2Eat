@@ -5,6 +5,8 @@ import FirebaseFirestore
 
 class WeightViewController: UIViewController {
     
+    // MARK: - UI Components
+    
     private let progressView = UIProgressView(progressViewStyle: .default)
     private let titleLabel = UILabel()
     private let unitSegmentedControl = UISegmentedControl(items: ["kg", "lbs"])
@@ -15,10 +17,16 @@ class WeightViewController: UIViewController {
     private let maxValueLabel = UILabel()
     private let continueButton = UIButton(type: .system)
     
+    // MARK: - Data Properties
+    
     private let profileData: UserProfileData
     private let isEditingProfile: Bool
     
-    // Updated initializer with an editing flag
+    // Property to track the last stepped slider value (for haptic feedback)
+    private var lastSteppedValue: Float?
+    
+    // MARK: - Initializer
+    
     init(profileData: UserProfileData, isEditingProfile: Bool = false) {
         self.profileData = profileData
         self.isEditingProfile = isEditingProfile
@@ -47,17 +55,18 @@ class WeightViewController: UIViewController {
             profileData.weight = 60
         }
         
-        // Hide progress & change button title if editing
+        // Initialize lastSteppedValue with the starting slider value.
+        lastSteppedValue = slider.value
+        
+        // Hide progress and change button title if editing the profile.
         if isEditingProfile {
             progressView.isHidden = true
             continueButton.setTitle("Save", for: .normal)
         }
         
-        // Update display labels based on the slider's current value
+        // Update the display based on the current slider value.
         sliderChanged()
     }
-
-
     
     // MARK: - Setup Methods
     
@@ -71,7 +80,7 @@ class WeightViewController: UIViewController {
     }
     
     private func setupUI() {
-        // Title
+        // Title Label
         titleLabel.text = "What is your weight?"
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
         titleLabel.textColor = .black
@@ -115,7 +124,7 @@ class WeightViewController: UIViewController {
         slider.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(slider)
         
-        // Slider Track
+        // Custom Slider Track
         let sliderTrackView = createCustomSliderTrack()
         sliderTrackView.translatesAutoresizingMaskIntoConstraints = false
         view.insertSubview(sliderTrackView, belowSubview: slider)
@@ -146,7 +155,7 @@ class WeightViewController: UIViewController {
         continueButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(continueButton)
         
-        // Constraints
+        // Auto Layout Constraints
         NSLayoutConstraint.activate([
             // Progress Bar
             progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
@@ -200,7 +209,7 @@ class WeightViewController: UIViewController {
         ])
     }
     
-    // MARK: - Slider Track
+    // MARK: - Custom Slider Track & Thumb
     
     private func createCustomSliderTrack() -> UIView {
         let trackView = UIView()
@@ -265,51 +274,54 @@ class WeightViewController: UIViewController {
     }
     
     @objc private func sliderChanged() {
-            // Define a step value (e.g., 1 kg). Adjust this if you'd like a larger step.
-            let step: Float = 1.0
-            let steppedValue = round(slider.value / step) * step
-            slider.value = steppedValue
-            profileData.weight = Double(steppedValue)
-            
-            // Update labels based on the selected unit.
-            if unitSegmentedControl.selectedSegmentIndex == 0 {
-                // Display in kg.
-                weightValueLabel.text = String(format: "%.0f", steppedValue)
-                minValueLabel.text = String(format: "%.0f", steppedValue - 1)
-                maxValueLabel.text = String(format: "%.0f", steppedValue + 1)
-            } else {
-                // Convert kg to lbs.
-                let lbsValue = steppedValue * 2.20462
-                weightValueLabel.text = String(format: "%.0f", lbsValue)
-                minValueLabel.text = String(format: "%.0f", lbsValue - 1)
-                maxValueLabel.text = String(format: "%.0f", lbsValue + 1)
-            }
+        // Define a step value (e.g., 1 kg).
+        let step: Float = 1.0
+        let steppedValue = round(slider.value / step) * step
+        slider.value = steppedValue
+        
+        // Trigger haptic feedback only if the stepped value has changed.
+        if lastSteppedValue == nil || steppedValue != lastSteppedValue {
+            let selectionFeedback = UISelectionFeedbackGenerator()
+            selectionFeedback.selectionChanged()
+            lastSteppedValue = steppedValue
         }
+        
+        profileData.weight = Double(steppedValue)
+        
+        // Update labels based on the selected unit.
+        if unitSegmentedControl.selectedSegmentIndex == 0 {
+            weightValueLabel.text = String(format: "%.0f", steppedValue)
+            minValueLabel.text = String(format: "%.0f", steppedValue - 1)
+            maxValueLabel.text = String(format: "%.0f", steppedValue + 1)
+        } else {
+            let lbsValue = steppedValue * 2.20462
+            weightValueLabel.text = String(format: "%.0f", lbsValue)
+            minValueLabel.text = String(format: "%.0f", lbsValue - 1)
+            maxValueLabel.text = String(format: "%.0f", lbsValue + 1)
+        }
+    }
     
     @objc private func unitChanged() {
-        // Simply update the display based on the current kg value.
         let kgValue = Double(slider.value)
         weightUnitLabel.text = (unitSegmentedControl.selectedSegmentIndex == 0) ? "kg" : "lbs"
         
         if unitSegmentedControl.selectedSegmentIndex == 0 {
-            // Display in kg.
             weightValueLabel.text = String(format: "%.0f", kgValue)
             minValueLabel.text = String(format: "%.0f", kgValue - 1)
             maxValueLabel.text = String(format: "%.0f", kgValue + 1)
         } else {
-            // Convert kg to lbs.
             let lbsValue = kgValue * 2.20462
             weightValueLabel.text = String(format: "%.0f", lbsValue)
             minValueLabel.text = String(format: "%.0f", lbsValue - 1)
             maxValueLabel.text = String(format: "%.0f", lbsValue + 1)
         }
     }
+    
     @objc private func continueTapped() {
+        // Haptic feedback for the button tap.
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
         updateFirebaseWeight()
-        // If editing, save to Firebase immediately
-        
     }
     
     // MARK: - Firebase Update
@@ -330,7 +342,7 @@ class WeightViewController: UIViewController {
             if let error = error {
                 self.showAlert(message: "Error saving weight: \(error.localizedDescription)")
             } else {
-                // Update UserDefaults with the new weight value
+                // Update local UserDefaults with the new weight.
                 if let savedData = UserDefaults.standard.data(forKey: "currentUser"),
                    var savedUser = try? JSONDecoder().decode(Users.self, from: savedData) {
                     savedUser.weight = self.profileData.weight
@@ -338,24 +350,19 @@ class WeightViewController: UIViewController {
                         let encoder = JSONEncoder()
                         let encodedData = try encoder.encode(savedUser)
                         UserDefaults.standard.set(encodedData, forKey: "currentUser")
-                     
                     } catch {
                         self.showAlert(message: "Error updating local data: \(error.localizedDescription)")
                     }
                 }
-                if isEditingProfile {
-                    
+                if self.isEditingProfile {
                     self.navigationController?.popViewController(animated: true)
                 } else {
-                    // Onboarding flow
-                    
-                    let nextVC = HeightViewController(profileData: profileData)
-                    navigationController?.pushViewController(nextVC, animated: true)
+                    let nextVC = HeightViewController(profileData: self.profileData)
+                    self.navigationController?.pushViewController(nextVC, animated: true)
                 }
             }
         }
     }
-
     
     // MARK: - Alert Helper
     
@@ -366,8 +373,7 @@ class WeightViewController: UIViewController {
     }
 }
 
-
-// Extension to make rounded rectangles easier
+// Extension to add a rounded rectangle path in CGContext.
 extension CGContext {
     func addRoundedRect(in rect: CGRect, cornerWidth: CGFloat, cornerHeight: CGFloat) {
         let minX = rect.minX

@@ -87,10 +87,10 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // Fetch product IDs & names from Firestore for live search (no completion)
     func fetchProductsFromFirebase(query: String) {
         let db = Firestore.firestore()
+        let searchQuery = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
         db.collection("products")
-            .whereField("name", isGreaterThanOrEqualTo: query)
-            .whereField("name", isLessThanOrEqualTo: query + "\u{f8ff}") // Firebase search trick
+            .whereField("searchKeywords", arrayContains: searchQuery)
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching products: \(error.localizedDescription)")
@@ -112,22 +112,21 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // Fetch product IDs only (with completion) for recent search queries
     func fetchProductsFromFirebase(query: String, completion: @escaping ([String]) -> Void) {
         let db = Firestore.firestore()
+        let searchQuery = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
         db.collection("products")
-            .whereField("name", isGreaterThanOrEqualTo: query)
-            .whereField("name", isLessThanOrEqualTo: query + "\u{f8ff}")
+            .whereField("searchKeywords", arrayContains: searchQuery)
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("Error fetching products: \(error.localizedDescription)")
                     completion([])
                     return
                 }
-
+                
                 let productIDs = snapshot?.documents.map { $0.documentID } ?? []
                 completion(productIDs)
             }
     }
-    
     // MARK: - Selecting a Product or Recent Item
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if isSearching {
