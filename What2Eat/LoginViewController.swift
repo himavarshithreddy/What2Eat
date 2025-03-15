@@ -24,15 +24,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(statusLabel)
-                
-                // Set up Auto Layout constraints for statusLabel
-                NSLayoutConstraint.activate([
-                    statusLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                    statusLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
-                    statusLabel.widthAnchor.constraint(equalToConstant: 250),
-                    statusLabel.heightAnchor.constraint(equalToConstant: 35)
-                ])
+
         // Initial UI setup
         verificationCodeTextField.isHidden = true
         ResendCodeLabel.isHidden = true
@@ -432,36 +424,46 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
         return true
     }
-    private let statusLabel: UILabel = {
-            let label = UILabel()
-            label.textAlignment = .center
-        label.textColor = .white
-            label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
-            label.layer.cornerRadius = 10
-            label.clipsToBounds = true
-        label.isHidden = true
-       
-            label.translatesAutoresizingMaskIntoConstraints = false
-            return label
-        }()
-    
+
+
+
     private func showStatusMessage(_ message: String) {
-            statusLabel.text = message
-            statusLabel.alpha = 0
-            statusLabel.isHidden = false
+        let toastView = UIView()
+        toastView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.9)
+        toastView.layer.cornerRadius = 10
+        toastView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let toastLabel = UILabel()
+        toastLabel.text = message
+        toastLabel.textColor = .white
+        toastLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        toastLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        toastView.addSubview(toastLabel)
+        view.addSubview(toastView)
+        
+        NSLayoutConstraint.activate([
+            toastView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            toastView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            toastView.widthAnchor.constraint(greaterThanOrEqualToConstant: 150),
+            toastView.heightAnchor.constraint(equalToConstant: 40),
             
-            // Fade in animation
-            UIView.animate(withDuration: 0.5, animations: {
-                self.statusLabel.alpha = 1
-            }) { _ in
-                // Fade out after 3 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    UIView.animate(withDuration: 0.5, animations: {
-                        self.statusLabel.alpha = 0
-                    }) { _ in
-                        self.statusLabel.isHidden = true
-                    }
-                }
-            }
-        }
+            toastLabel.centerXAnchor.constraint(equalTo: toastView.centerXAnchor),
+            toastLabel.centerYAnchor.constraint(equalTo: toastView.centerYAnchor),
+            toastLabel.leadingAnchor.constraint(equalTo: toastView.leadingAnchor, constant: 15),
+            toastLabel.trailingAnchor.constraint(equalTo: toastView.trailingAnchor, constant: -15)
+        ])
+        
+        // Animate toast appearance and disappearance
+        toastView.alpha = 0
+        UIView.animate(withDuration: 0.3, animations: {
+            toastView.alpha = 1
+        }, completion: { _ in
+            UIView.animate(withDuration: 0.3, delay: 1.5, options: [], animations: {
+                toastView.alpha = 0
+            }, completion: { _ in
+                toastView.removeFromSuperview()
+            })
+        })
+    }
 }

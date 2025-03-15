@@ -90,11 +90,12 @@ let nutrients: [Nutrient] = [
 
 enum DietaryRestriction: String {
     case lowSodium = "Low-sodium"
-    case vegan = "Vegan"
     case vegetarian = "Vegetarian"
     case eggetarian = "Eggetarian"
+    case vegan = "Vegan"
     case sugarFree = "Sugar-Free"
     case lowCalorie = "Low-Calorie"
+    case lowFat = "Low-Fat"
     case ketoDiet = "Keto Diet"
     case paleoDiet = "Paleo Diet"
     case lowSugar = "Low Sugar"
@@ -177,11 +178,12 @@ let allergenMapping: [String: [String]] = [
 
 let dietaryOptions = [
         "Low-sodium",
-        "Vegan",
         "Vegetarian",
         "Eggetarian",
+        "Vegan",
         "Sugar-Free",
         "Low-Calorie",
+        "Low-Fat",
         "Keto Diet",
         "Paleo Diet",
         "Low Sugar",
@@ -192,11 +194,12 @@ let dietaryOptions = [
     // Mapping each option to a DietaryRestriction enum case
     let dietaryRestrictionMapping: [String: DietaryRestriction] = [
         "Low-sodium": .lowSodium,
-        "Vegan": .vegan,
         "Vegetarian": .vegetarian,
         "Eggetarian": .eggetarian,
+        "Vegan": .vegan,
         "Sugar-Free": .sugarFree,
         "Low-Calorie": .lowCalorie,
+        "Low-Fat": .lowFat,
         "Keto Diet": .ketoDiet,
         "Paleo Diet": .paleoDiet,
         "Low Sugar": .lowSugar,

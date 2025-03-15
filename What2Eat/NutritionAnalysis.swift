@@ -994,4 +994,5 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
                     }
                     return !ingredientsViolate && !allergensViolate && !artificialViolate
                 }
+
     ]
