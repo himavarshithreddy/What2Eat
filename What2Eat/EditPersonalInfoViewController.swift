@@ -139,14 +139,23 @@ class EditProfileViewController: UIViewController {
     private func loadUserProfile() {
         print("Attempting to load user profile from UserDefaults with key 'currentUser'")
         if let encodedUser = UserDefaults.standard.data(forKey: "currentUser") {
-            print("Found encoded user data in UserDefaults: \(encodedUser)")
             do {
                 let user = try JSONDecoder().decode(Users.self, from: encodedUser)
                 print("Successfully decoded user: \(user)")
                 
-                let feet = user.height / 30.48
-                let heightString = String(format: "%.1f ft", feet)
+                // Convert from cm to inches and round to the nearest whole number
+                let totalInches = (user.height / 2.54).rounded()
+
+                // Calculate feet and inches
+                let feet = Int(totalInches / 12)
+                let inches = Int(totalInches) % 12
+
+                // Create the display string "5 ft 10 in"
+                let heightString = "\(feet) ft \(inches) in"
                 
+               
+                
+                // Update your table view data
                 profileItems = [
                     ("Name", user.name),
                     ("Gender", user.gender.capitalized),
@@ -156,10 +165,11 @@ class EditProfileViewController: UIViewController {
                     ("Activity Level", user.activityLevel)
                 ]
                 
+                // Also update userProfileData
                 userProfileData.name = user.name
                 userProfileData.gender = user.gender.capitalized
                 userProfileData.age = user.age
-                userProfileData.height = user.height
+                userProfileData.height = user.height  // still in cm internally
                 userProfileData.weight = user.weight
                 userProfileData.activityLevel = user.activityLevel
                 
@@ -172,7 +182,7 @@ class EditProfileViewController: UIViewController {
             print("No saved user data found in UserDefaults with key 'currentUser'.")
         }
     }
-    
+
     private func loadUserProfileImage() {
         guard let userId = Auth.auth().currentUser?.uid else {
             print("No authenticated user found.")

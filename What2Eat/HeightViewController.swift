@@ -254,61 +254,69 @@ class HeightViewController: UIViewController {
     // MARK: - Actions
     
     @objc private func sliderChanged() {
-            let impact = UIImpactFeedbackGenerator(style: .light)
-            impact.impactOccurred()
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+        
+        let rawCmValue = Double(slider.value)
+        
+        if unitSegmentedControl.selectedSegmentIndex == 0 {
+            // FT/IN mode: use the snapping conversion for ft/in
+            let (feet, inches) = cmToFeetInches(rawCmValue)
+            let snappedCm = feetInchesToCm(feet: feet, inches: inches)
+            slider.value = Float(snappedCm)  // Optionally snap the slider visually
             
-            // Define a step value, e.g. 5 cm
-            let step: Float = 1.0
-            // Calculate the stepped value and update the slider accordingly
-            let steppedValue = round(slider.value / step) * step
-            slider.value = steppedValue
-            profileData.height = Double(steppedValue)
+            profileData.height = (snappedCm * 100).rounded() / 100
             
-            if unitSegmentedControl.selectedSegmentIndex == 0 {
-                let (feet, inches) = cmToFeetInches(Double(steppedValue))
-                let attributedText = NSMutableAttributedString(
-                    string: "\(feet)",
-                    attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-                )
-                let ftUnit = NSAttributedString(
-                    string: " ft ",
-                    attributes: [
-                        .font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                        .foregroundColor: UIColor.lightGray
-                    ]
-                )
-                attributedText.append(ftUnit)
-                let inchesNumber = NSAttributedString(
-                    string: "\(inches)",
-                    attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-                )
-                attributedText.append(inchesNumber)
-                let inUnit = NSAttributedString(
-                    string: " in",
-                    attributes: [
-                        .font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                        .foregroundColor: UIColor.lightGray
-                    ]
-                )
-                attributedText.append(inUnit)
-                heightDisplayLabel.attributedText = attributedText
-            } else {
-                let cmValueInt = Int(steppedValue)
-                let attributedText = NSMutableAttributedString(
-                    string: "\(cmValueInt)",
-                    attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
-                )
-                let cmUnit = NSAttributedString(
-                    string: " cm",
-                    attributes: [
-                        .font: UIFont.systemFont(ofSize: 20, weight: .regular),
-                        .foregroundColor: UIColor.lightGray
-                    ]
-                )
-                attributedText.append(cmUnit)
-                heightDisplayLabel.attributedText = attributedText
-            }
+            let attributedText = NSMutableAttributedString(
+                string: "\(feet)",
+                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+            )
+            let ftUnit = NSAttributedString(
+                string: " ft ",
+                attributes: [
+                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                    .foregroundColor: UIColor.lightGray
+                ]
+            )
+            attributedText.append(ftUnit)
+            let inchesNumber = NSAttributedString(
+                string: "\(inches)",
+                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+            )
+            attributedText.append(inchesNumber)
+            let inUnit = NSAttributedString(
+                string: " in",
+                attributes: [
+                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                    .foregroundColor: UIColor.lightGray
+                ]
+            )
+            attributedText.append(inUnit)
+            
+            heightDisplayLabel.attributedText = attributedText
+        } else {
+            // CM mode: round to the nearest whole number
+            let snappedCm = round(rawCmValue)
+            slider.value = Float(snappedCm)  // Snap the slider to an integer value
+            
+            profileData.height = snappedCm
+            
+            let attributedText = NSMutableAttributedString(
+                string: "\(Int(snappedCm))",
+                attributes: [.font: UIFont.systemFont(ofSize: 55, weight: .bold)]
+            )
+            let cmUnit = NSAttributedString(
+                string: " cm",
+                attributes: [
+                    .font: UIFont.systemFont(ofSize: 20, weight: .regular),
+                    .foregroundColor: UIColor.lightGray
+                ]
+            )
+            attributedText.append(cmUnit)
+            heightDisplayLabel.attributedText = attributedText
         }
+    }
+
     
     @objc private func unitChanged() {
         sliderChanged()
@@ -322,7 +330,6 @@ class HeightViewController: UIViewController {
     }
     
     // MARK: - Firebase Update
-    
     private func updateFirebaseHeight() {
         guard let uid = Auth.auth().currentUser?.uid else {
             showAlert(message: "User not authenticated.")
@@ -330,8 +337,12 @@ class HeightViewController: UIViewController {
         }
         
         let db = Firestore.firestore()
+        
+        // Round the height to two decimal places
+        let roundedHeight = (profileData.height * 100).rounded() / 100
+        
         let updatedData: [String: Any] = [
-            "height": profileData.height
+            "height": roundedHeight
         ]
         
         db.collection("users").document(uid).setData(updatedData, merge: true) { [weak self] error in
@@ -339,10 +350,10 @@ class HeightViewController: UIViewController {
             if let error = error {
                 self.showAlert(message: "Error saving height: \(error.localizedDescription)")
             } else {
-                // Update UserDefaults
+                // Update UserDefaults with the rounded height
                 if let savedData = UserDefaults.standard.data(forKey: "currentUser"),
                    var savedUser = try? JSONDecoder().decode(Users.self, from: savedData) {
-                    savedUser.height = self.profileData.height
+                    savedUser.height = roundedHeight
                     do {
                         let encoder = JSONEncoder()
                         let encodedData = try encoder.encode(savedUser)
@@ -351,17 +362,17 @@ class HeightViewController: UIViewController {
                         self.showAlert(message: "Error updating local data: \(error.localizedDescription)")
                     }
                 }
+                
                 if isEditingProfile {
-                   
                     self.navigationController?.popViewController(animated: true)
                 } else {
-                   
                     let nextVC = ActivityLevelViewController(profileData: profileData)
                     navigationController?.pushViewController(nextVC, animated: true)
                 }
             }
         }
     }
+
 
     
     // MARK: - Unit Conversion Helpers

@@ -1837,7 +1837,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="T3i-7h-hzU">
-                                <rect key="frame" x="16" y="123" width="370" height="539"/>
+                                <rect key="frame" x="16" y="123" width="370" height="618"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Login" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Akb-Jt-DXI">
                                         <rect key="frame" x="16" y="0.0" width="338" height="43"/>
@@ -1925,7 +1925,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="OZd-VD-svY">
-                                        <rect key="frame" x="16.666666666666657" y="406" width="337" height="133"/>
+                                        <rect key="frame" x="16.666666666666657" y="406" width="337" height="212"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qlt-4n-Q4U">
                                                 <rect key="frame" x="0.0" y="0.0" width="337" height="54"/>
@@ -1939,14 +1939,25 @@
                                                     <color key="baseBackgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </buttonConfiguration>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="X0b-cX-g2y">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZLj-rB-17h">
                                                 <rect key="frame" x="0.0" y="0.0" width="337" height="54"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="54" id="j2Y-9o-W0b"/>
+                                                </constraints>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="filled" image="Logo - SIWA - Left-aligned - White - Medium" imagePlacement="leading" title="Continue with Apple" imagePadding="0.0" cornerStyle="large">
+                                                    <fontDescription key="titleFontDescription" type="system" weight="semibold" pointSize="17"/>
+                                                    <color key="baseBackgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </buttonConfiguration>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="X0b-cX-g2y">
+                                                <rect key="frame" x="0.0" y="79" width="337" height="54"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="54" id="oWb-Wf-HAc"/>
                                                     <constraint firstAttribute="height" constant="54" id="sio-gq-an9"/>
                                                 </constraints>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="filled" image="icons8-google-48" title=" Continue With Google" cornerStyle="large">
+                                                <buttonConfiguration key="configuration" style="filled" image="icons8-google-48" title=" Continue with Google" cornerStyle="large">
                                                     <fontDescription key="titleFontDescription" type="system" weight="semibold" pointSize="17"/>
                                                     <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <color key="baseBackgroundColor" red="0.94901967050000002" green="0.94901967050000002" blue="0.94901967050000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -1956,7 +1967,7 @@
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="peG-hK-V1G">
-                                                <rect key="frame" x="0.0" y="79" width="337" height="54"/>
+                                                <rect key="frame" x="0.0" y="158" width="337" height="54"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="54" id="NwC-mT-brM"/>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="54" id="fRX-fo-PYF"/>
@@ -3997,6 +4008,7 @@
     </inferredMetricsTieBreakers>
     <color key="tintColor" red="0.89411771299999998" green="0.44313728810000003" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
     <resources>
+        <image name="Logo - SIWA - Left-aligned - White - Medium" width="31" height="44"/>
         <image name="apple.logo" catalog="system" width="105" height="128"/>
         <image name="backpack" catalog="system" width="100" height="128"/>
         <image name="backpack.fill" catalog="system" width="100" height="128"/>
