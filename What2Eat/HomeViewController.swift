@@ -638,4 +638,5 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     @objc func searchBarTapped() {
         performSegue(withIdentifier: "showSearchScreen", sender: self)
     }
+    
 }
