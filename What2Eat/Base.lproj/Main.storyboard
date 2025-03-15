@@ -1837,7 +1837,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="T3i-7h-hzU">
-                                <rect key="frame" x="16" y="123" width="370" height="514"/>
+                                <rect key="frame" x="16" y="123" width="370" height="539"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Login" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Akb-Jt-DXI">
                                         <rect key="frame" x="16" y="0.0" width="338" height="43"/>
@@ -1867,20 +1867,43 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="qPS-ve-TOM">
-                                        <rect key="frame" x="16" y="181.33333333333331" width="338" height="169.66666666666669"/>
+                                        <rect key="frame" x="16" y="181.33333333333331" width="338" height="194.66666666666669"/>
                                         <subviews>
-                                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter OTP" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="4WB-z4-gNU">
-                                                <rect key="frame" x="0.0" y="0.0" width="338" height="54"/>
-                                                <color key="backgroundColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.93333333330000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pBT-KQ-Vcz">
+                                                <rect key="frame" x="0.0" y="0.0" width="338" height="79"/>
+                                                <subviews>
+                                                    <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter OTP" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="4WB-z4-gNU">
+                                                        <rect key="frame" x="0.0" y="0.0" width="338" height="54"/>
+                                                        <color key="backgroundColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.93333333330000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="54" id="STP-dw-0oZ"/>
+                                                        </constraints>
+                                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
+                                                        <textInputTraits key="textInputTraits" keyboardType="numberPad" textContentType="one-time-code"/>
+                                                    </textField>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Resend Code" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="25h-EU-681">
+                                                        <rect key="frame" x="246.33333333333329" y="64" width="91.666666666666657" height="15"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="15" id="lhh-5E-ehz"/>
+                                                        </constraints>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                        <color key="textColor" red="0.89411771299999998" green="0.44705885649999999" blue="0.1764705926" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="54" id="STP-dw-0oZ"/>
+                                                    <constraint firstAttribute="bottom" secondItem="25h-EU-681" secondAttribute="bottom" id="6nP-CZ-NrE"/>
+                                                    <constraint firstItem="4WB-z4-gNU" firstAttribute="top" secondItem="pBT-KQ-Vcz" secondAttribute="top" id="OE9-wc-1mH"/>
+                                                    <constraint firstItem="25h-EU-681" firstAttribute="top" secondItem="4WB-z4-gNU" secondAttribute="bottom" constant="10" id="arW-pB-akb"/>
+                                                    <constraint firstAttribute="trailing" secondItem="25h-EU-681" secondAttribute="trailing" id="fEz-Pa-e8g"/>
+                                                    <constraint firstItem="4WB-z4-gNU" firstAttribute="leading" secondItem="pBT-KQ-Vcz" secondAttribute="leading" id="pD9-1A-9HK"/>
+                                                    <constraint firstAttribute="trailing" secondItem="4WB-z4-gNU" secondAttribute="trailing" id="zfj-i6-kt5"/>
                                                 </constraints>
-                                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
-                                                <textInputTraits key="textInputTraits" keyboardType="numberPad" textContentType="one-time-code"/>
-                                            </textField>
+                                            </view>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WcM-7u-mrr">
-                                                <rect key="frame" x="0.0" y="74" width="338" height="54"/>
+                                                <rect key="frame" x="0.0" y="99" width="338" height="54"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="54" id="CGB-tT-Lfx"/>
                                                 </constraints>
@@ -1894,7 +1917,7 @@
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="or" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GGr-95-vuT">
-                                                <rect key="frame" x="0.0" y="148" width="338" height="21.666666666666657"/>
+                                                <rect key="frame" x="0.0" y="173" width="338" height="21.666666666666657"/>
                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
                                                 <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
@@ -1902,7 +1925,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="25" translatesAutoresizingMaskIntoConstraints="NO" id="OZd-VD-svY">
-                                        <rect key="frame" x="16.666666666666657" y="381" width="337" height="133"/>
+                                        <rect key="frame" x="16.666666666666657" y="406" width="337" height="133"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qlt-4n-Q4U">
                                                 <rect key="frame" x="0.0" y="0.0" width="337" height="54"/>
@@ -1998,6 +2021,8 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="ResendCodeLabel" destination="25h-EU-681" id="LAN-y4-Yqe"/>
+                        <outlet property="VerificationView" destination="pBT-KQ-Vcz" id="9b3-DV-usi"/>
                         <outlet property="phoneTextField" destination="M6V-Al-k0H" id="aoW-aH-ud9"/>
                         <outlet property="sendCodeButton" destination="WcM-7u-mrr" id="IUU-Hs-ezy"/>
                         <outlet property="verificationCodeTextField" destination="4WB-z4-gNU" id="cgU-hs-uQd"/>
