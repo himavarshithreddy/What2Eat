@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "what2eat.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "what2eat 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -23,6 +25,7 @@
           "value" : "tinted"
         }
       ],
+      "filename" : "what2eat 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
