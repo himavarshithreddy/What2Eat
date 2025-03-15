@@ -181,12 +181,16 @@ let dietaryOptions = [
         "Vegetarian",
         "Eggetarian",
         "Vegan",
+        "Low-Fat",
+        "Low Sugar",
+       
+       
         "Sugar-Free",
         "Low-Calorie",
-        "Low-Fat",
+       
 //        "Keto Diet",
 //        "Paleo Diet",
-        "Low Sugar",
+       
         "Lactose Free",
         "Gluten Free"
     ]
