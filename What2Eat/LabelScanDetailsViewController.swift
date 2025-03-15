@@ -419,15 +419,13 @@ class LabelScanDetailsViewController: UIViewController {
             alert.view.tintColor = .systemOrange
             alert.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
                 self.saveButtonTapped(self.navigationItem.rightBarButtonItem!)
-                self.navigationController?.popViewController(animated: true)
             }))
             alert.addAction(UIAlertAction(title: "Don't Save", style: .cancel, handler: { _ in
-                self.navigationController?.popViewController(animated: true)
+                self.navigationController?.popToRootViewController(animated: true)
             }))
             present(alert, animated: true)
         } else {
-            navigationController?.popViewController(animated: true)
+            navigationController?.popToRootViewController(animated: true)
         }
     }
 }
-

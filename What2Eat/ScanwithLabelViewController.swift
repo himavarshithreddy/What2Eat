@@ -167,20 +167,19 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     }
     
     private func hideLoadingIndicator() {
-        guard isProcessing else { return }
-        
-        UIView.animate(withDuration: 0.3, animations: {
-            self.loadingContainerView.alpha = 0
-            self.blurEffectView.alpha = 0
-        }, completion: { _ in
-            self.pulsingAnimationLayer.removeFromSuperlayer()
-            self.loadingContainerView.removeFromSuperview()
-            self.blurEffectView.removeFromSuperview()
-            self.loadingIndicatorView.stopAnimating()
-            self.isProcessing = false
-        })
+        DispatchQueue.main.async {
+            UIView.animate(withDuration: 0.3, animations: {
+                self.loadingContainerView.alpha = 0
+                self.blurEffectView.alpha = 0
+            }, completion: { _ in
+                self.pulsingAnimationLayer.removeFromSuperlayer()
+                self.loadingContainerView.removeFromSuperview()
+                self.blurEffectView.removeFromSuperview()
+                self.loadingIndicatorView.stopAnimating()
+                self.isProcessing = false
+            })
+        }
     }
-    
     private func createPulsingAnimation() {
         // Remove any existing animations
         pulsingAnimationLayer.removeAllAnimations()
@@ -200,6 +199,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     
     @objc private func cancelProcessing() {
         // Create a flag to track cancellation
+        hideLoadingIndicator()
         isProcessing = false
         
         // Stop any ongoing API tasks or processing tasks
@@ -210,7 +210,6 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         }
         
         // Hide the loading indicator
-        hideLoadingIndicator()
         
         // Give haptic feedback
         let generator = UINotificationFeedbackGenerator()

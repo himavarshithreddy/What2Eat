@@ -862,12 +862,21 @@ func getRDAPercentages(product: ProductData, user: Users) -> [String: Double] {
     return percentages
 }
 let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
-        .lowSodium: { product in
-            if let sodium = product.nutritionInfo.first(where: { $0.name.lowercased() == "sodium" }) {
-                return sodium.value <= 140
+    .lowSodium: { product in
+        if let sodium = product.nutritionInfo.first(where: { $0.name.lowercased() == "sodium" }) {
+            let sodiumInMg: Float
+            switch sodium.unit.lowercased() {
+            case "mg":
+                sodiumInMg = sodium.value
+            case "g":
+                sodiumInMg = sodium.value * 1000 // 1 gram = 1000 milligrams
+            default:
+                return false // Unknown unit
             }
-            return false
-        },
+            return sodiumInMg <= 120
+        }
+        return false
+    },
         .vegan: { product in
             let nonVegan = [
                 "milk", "egg", "fish", "meat", "honey", "gelatin", "cheese", "butter", "cream", "whey",
@@ -903,43 +912,72 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
             }
             return !ingredientsViolate && !allergensViolate && !artificialViolate
         },
-        .sugarFree: { product in
-            if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugars" || $0.name.lowercased() == "total sugars" }) {
-                return sugar.value < 0.5
+    .sugarFree: { product in
+        if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugars" || $0.name.lowercased() == "total sugars" }) {
+            let sugarInGrams: Float
+            switch sugar.unit.lowercased() {
+            case "g":
+                sugarInGrams = sugar.value
+            case "mg":
+                sugarInGrams = sugar.value / 1000 // Convert milligrams to grams
+            default:
+                return false // Unknown unit
             }
-            return false
-        },
+            return sugarInGrams <= 0.5
+        }
+        return false
+    },
         .lowCalorie: { product in
-            if let calories = product.nutritionInfo.first(where: { $0.name.lowercased() == "calories" }) {
-                return calories.value <= 40
+            if let energy = product.nutritionInfo.first(where: { $0.name.lowercased() == "energy" || $0.name.lowercased() == "calories" }) {
+                let energyInKcal: Float
+                switch energy.unit.lowercased() {
+                case "kj":
+                    energyInKcal = energy.value / 4.184
+                case "kcal":
+                    energyInKcal = energy.value
+                default:
+                    // Handle other units or assume kcal if unit is unrecognized
+                    energyInKcal = energy.value
+                }
+                return energyInKcal <= 40.0
             }
             return false
         },
-        .ketoDiet: { product in
-            if let carbs = product.nutritionInfo.first(where: { $0.name.lowercased() == "carbohydrates" || $0.name.lowercased() == "total carbohydrates" }),
-               let fat = product.nutritionInfo.first(where: { $0.name.lowercased() == "fat" || $0.name.lowercased() == "total fat" }) {
-                return carbs.value <= 5.0 && fat.value >= 10.0
-            }
-            return false
-        },
-        .paleoDiet: { product in
-            let nonPaleo = [
-                "wheat", "milk", "cheese", "sugar", "rice", "soy", "corn", "barley", "oats", "rye",
-                "peanut", "bean", "lentil", "chickpea", "soybean", "tofu", "tempeh", "lactose", "whey",
-                "casein", "cream", "butter", "syrup", "molasses", "artificial", "preservative", "coloring"
-            ]
-            let ingredientsViolate = product.ingredients.contains { ingredient in
-                nonPaleo.contains { ingredient.lowercased().contains($0.lowercased()) }
-            }
-            let allergensViolate = product.allergens?.contains { allergen in
-                nonPaleo.contains { allergen.lowercased().contains($0.lowercased()) }
-            } ?? false
-            let artificialViolate = !product.artificialIngredients.isEmpty
-            return !ingredientsViolate && !allergensViolate && !artificialViolate
-        },
-        .lowSugar: { product in
+//        .ketoDiet: { product in
+//            if let carbs = product.nutritionInfo.first(where: { $0.name.lowercased() == "carbohydrates" || $0.name.lowercased() == "total carbohydrates" }),
+//               let fat = product.nutritionInfo.first(where: { $0.name.lowercased() == "fat" || $0.name.lowercased() == "total fat" }) {
+//                return carbs.value <= 5.0 && fat.value >= 10.0
+//            }
+//            return false
+//        },
+//        .paleoDiet: { product in
+//            let nonPaleo = [
+//                "wheat", "milk", "cheese", "sugar", "rice", "soy", "corn", "barley", "oats", "rye",
+//                "peanut", "bean", "lentil", "chickpea", "soybean", "tofu", "tempeh", "lactose", "whey",
+//                "casein", "cream", "butter", "syrup", "molasses", "artificial", "preservative", "coloring"
+//            ]
+//            let ingredientsViolate = product.ingredients.contains { ingredient in
+//                nonPaleo.contains { ingredient.lowercased().contains($0.lowercased()) }
+//            }
+//            let allergensViolate = product.allergens?.contains { allergen in
+//                nonPaleo.contains { allergen.lowercased().contains($0.lowercased()) }
+//            } ?? false
+//            let artificialViolate = !product.artificialIngredients.isEmpty
+//            return !ingredientsViolate && !allergensViolate && !artificialViolate
+//        },
+       .lowSugar: { product in
             if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugar" || $0.name.lowercased() == "total sugars" }) {
-                return sugar.value < 5.0
+                let sugarInGrams: Float
+                switch sugar.unit.lowercased() {
+                case "mg":
+                    sugarInGrams = sugar.value / 1000
+                case "g":
+                    sugarInGrams = sugar.value
+                default:
+                    // Handle other units or assume grams if unit is unrecognized
+                    sugarInGrams = sugar.value
+                }
+                return sugarInGrams <= 5.0
             }
             return false
         },
@@ -993,6 +1031,21 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
                         nonEggetarian.contains { artificial.lowercased().contains($0.lowercased()) }
                     }
                     return !ingredientsViolate && !allergensViolate && !artificialViolate
+                },
+        .lowFat: { product in
+                if let fat = product.nutritionInfo.first(where: { $0.name.lowercased() == "fat" || $0.name.lowercased() == "total fat" }) {
+                    let fatInGrams: Float
+                    switch fat.unit.lowercased() {
+                    case "mg":
+                        fatInGrams = fat.value / 1000
+                    case "g":
+                        fatInGrams = fat.value
+                    default:
+                        // Handle other units or assume grams if unit is unrecognized
+                        fatInGrams = fat.value
+                    }
+                    return fatInGrams <= 3.0
                 }
-
+                return false
+            }
     ]
