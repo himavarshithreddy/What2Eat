@@ -54,8 +54,9 @@ extension UIImage {
 }
 
 class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
-    var recommendedProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
+    var recommendedProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
     private var profileListener: ListenerRegistration?
+    @IBOutlet var CategoriesView: UIView!
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet var HomeView: UIView!
@@ -214,10 +215,11 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.picktitle.text = product.name
         cell.pickscoreLabel.text = "\(product.healthScore)"
         cell.pickImage.sd_setImage(with: URL(string: product.imageURL), placeholderImage: UIImage(named: "placeholder_product_nobg"))
-     
-        cell.pickcategory.text = product.categoryName
-        cell.layer.borderColor = UIColor(red: 255/255, green: 234/255, blue: 218/255, alpha: 1).cgColor
-        cell.layer.borderWidth = 3
+        cell.pickview.layer.borderColor = UIColor.white.cgColor
+        cell.pickview.layer.borderWidth = 3
+       
+   
+        cell.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1)
         if product.healthScore < 40 {
             cell.pickview.layer.backgroundColor = UIColor.systemRed.cgColor
         } else if product.healthScore < 75 {
@@ -234,7 +236,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         let layout = UICollectionViewCompositionalLayout { (section, env) -> NSCollectionLayoutSection? in
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.9), heightDimension: .fractionalHeight(1.0))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.6), heightDimension: .absolute(300))
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.4), heightDimension: .absolute(200))
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
             let section = NSCollectionLayoutSection(group: group)
             section.orthogonalScrollingBehavior = .continuous
@@ -391,7 +393,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             return
         }
         let db = Firestore.firestore()
-        var fetchedProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
+        var fetchedProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
         let dispatchGroup = DispatchGroup()
         for productId in recommendations {
             dispatchGroup.enter()
@@ -400,19 +402,13 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                 if let document = document, document.exists, let data = document.data() {
                     if let name = data["name"] as? String,
                        let healthScore = data["healthScore"] as? Int,
-                       let imageURL = data["imageURL"] as? String,
-                       let categoryId = data["categoryId"] as? String {
-                        self.fetchCategoryName(for: categoryId) { categoryName in
-                            fetchedProducts.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL, categoryName: categoryName))
-                            dispatchGroup.leave()
+                       let imageURL = data["imageURL"] as? String{
+                        fetchedProducts.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL))
                         }
-                    } else {
-                        dispatchGroup.leave()
                     }
-                } else {
                     dispatchGroup.leave()
                 }
-            }
+            
         }
         dispatchGroup.notify(queue: .main) {
             let filteredProducts = fetchedProducts.filter { recommended in
@@ -430,13 +426,13 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         }
     }
     
-    func fetchTopHealthScoreProducts(completion: @escaping ([(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)]) -> Void) {
+    func fetchTopHealthScoreProducts(completion: @escaping ([(id: String, name: String, healthScore: Int, imageURL: String)]) -> Void) {
         let db = Firestore.firestore()
         db.collection("products")
             .order(by: "healthScore", descending: true)
             .limit(to: 6)
             .getDocuments { (snapshot, error) in
-                var topProducts: [(id: String, name: String, healthScore: Int, imageURL: String, categoryName: String)] = []
+                var topProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
                 if let error = error {
                     print("Error fetching top products: \(error)")
                 }
@@ -446,34 +442,19 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                         let data = document.data()
                         if let name = data["name"] as? String,
                            let healthScore = data["healthScore"] as? Int,
-                           let imageURL = data["imageURL"] as? String,
-                           let categoryId = data["categoryId"] as? String {
-                            dispatchGroup.enter()
-                            self.fetchCategoryName(for: categoryId) { categoryName in
-                                topProducts.append((id: document.documentID, name: name, healthScore: healthScore, imageURL: imageURL, categoryName: categoryName))
-                                dispatchGroup.leave()
+                           let imageURL = data["imageURL"] as? String{
+                            topProducts.append((id: document.documentID, name: name, healthScore: healthScore, imageURL: imageURL))
                             }
-                        }
+                        
                     }
                 }
-                dispatchGroup.notify(queue: .main) {
+              
                     completion(topProducts)
                 }
-            }
+            
     }
     
-    func fetchCategoryName(for categoryId: String, completion: @escaping (String) -> Void) {
-        let db = Firestore.firestore()
-        db.collection("categories").document(categoryId).getDocument { (document, error) in
-            if let document = document, document.exists,
-               let data = document.data(),
-               let name = data["name"] as? String {
-                completion(name)
-            } else {
-                completion("Unknown Category")
-            }
-        }
-    }
+   
     
     private func setupProfileListener() {
         guard let userId = Auth.auth().currentUser?.uid else {

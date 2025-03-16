@@ -13,7 +13,6 @@ class HomePickForYouCell: UICollectionViewCell {
     
     @IBOutlet weak var picktitle: UILabel!
     
-    @IBOutlet weak var pickcategory: UILabel!
     
     @IBOutlet weak var pickview: UIView!
     
