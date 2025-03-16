@@ -25,36 +25,46 @@ class ExploreProductsViewController: UIViewController, UITableViewDelegate, UITa
             return
         }
         
-        db.collection("products")
-            .whereField("categoryId", isEqualTo: categoryId)
-            .getDocuments(source: .default) { (querySnapshot, error) in
-                if let error = error {
-                    print("Error fetching products: \(error.localizedDescription)")
-                    return
-                }
+        // Define the query based on categoryId
+        var query: Query
+        if categoryId == "All" {
+            // Fetch all products, sorted by healthScore descending
+            query = db.collection("products")
+                .order(by: "healthScore", descending: true)
+        } else {
+            // Fetch products for the specific category
+            query = db.collection("products")
+                .whereField("categoryId", isEqualTo: categoryId)
+                .order(by: "healthScore", descending: true) // Optional: Add sorting for consistency
+        }
+        
+        // Execute the query
+        query.getDocuments(source: .default) { (querySnapshot, error) in
+            if let error = error {
+                print("Error fetching products: \(error.localizedDescription)")
+                return
+            }
+            
+            self.filteredProducts = [] // Clear previous results
+            
+            querySnapshot?.documents.forEach { document in
+                let data = document.data()
                 
-                self.filteredProducts = [] // Clear previous results
-                
-                querySnapshot?.documents.forEach { document in
-                    let data = document.data()
+                if let name = data["name"] as? String,
+                   let imageUrl = data["imageURL"] as? String,
+                   let healthScore = data["healthScore"] as? Int {
+                    let productId = document.documentID
                     
-                    if let name = data["name"] as? String,
-                       let imageUrl = data["imageURL"] as? String,
-                       let healthScore = data["healthScore"] as? Int {
-                        let productId = document.documentID
-                        
-                        let product = ProductList(id: productId,name: name, healthScore: healthScore, imageURL: imageUrl)
-                        self.filteredProducts.append(product)
-                    }
-                }
-                
-              
-                
-                // Refresh UI
-                DispatchQueue.main.async {
-                    self.ExploreProductsTableView.reloadData()
+                    let product = ProductList(id: productId, name: name, healthScore: healthScore, imageURL: imageUrl)
+                    self.filteredProducts.append(product)
                 }
             }
+            
+            // Refresh UI
+            DispatchQueue.main.async {
+                self.ExploreProductsTableView.reloadData()
+            }
+        }
     }
     
     // MARK: - TableView DataSource & Delegate
