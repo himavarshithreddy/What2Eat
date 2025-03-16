@@ -103,13 +103,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         return collectionView
     }()
     
-    private let popularSectionLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 20, weight: .semibold)
-        label.textColor = .black
-        label.text = "Best in All Categories"
-        return label
-    }()
     
     private let productCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -139,14 +132,14 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         noRecentScansLabel.isHidden = true
         setupProfileListener()
         fetchRecentScans {
-            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 1200)
+            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 1050)
         }
         fetchRecommendedProducts {
             self.collectionView.reloadData()
         }
         let statusBarView = UIView()
-        statusBarView.backgroundColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
-        HomeView.backgroundColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
+        statusBarView.backgroundColor = UIColor(red: 254/255, green: 139/255, blue: 54/255, alpha: 1)
+        HomeView.backgroundColor = UIColor(red: 254/255, green: 139/255, blue: 54/255, alpha: 1)
         view.addSubview(statusBarView)
         
         statusBarView.translatesAutoresizingMaskIntoConstraints = false
@@ -184,7 +177,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         super.viewDidAppear(animated)
         setupProfileListener()
         fetchRecentScans {
-            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 1100)
+            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 1050)
         }
         updateUserName()
         self.navigationController?.navigationBar.isHidden = true
@@ -639,7 +632,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         NSLayoutConstraint.activate([
             categoryCollectionView.topAnchor.constraint(equalTo: CategoriesView.topAnchor, constant: 16),
             categoryCollectionView.leadingAnchor.constraint(equalTo: CategoriesView.leadingAnchor, constant: 0),
-            categoryCollectionView.trailingAnchor.constraint(equalTo: CategoriesView.trailingAnchor, constant: -16),
+            categoryCollectionView.trailingAnchor.constraint(equalTo: CategoriesView.trailingAnchor, constant: 0),
             categoryCollectionView.heightAnchor.constraint(equalToConstant: 40)
         ])
         
@@ -648,19 +641,13 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         categoryCollectionView.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
         
         // Add Popular Section Label
-        popularSectionLabel.translatesAutoresizingMaskIntoConstraints = false
-        CategoriesView.addSubview(popularSectionLabel)
-        NSLayoutConstraint.activate([
-            popularSectionLabel.topAnchor.constraint(equalTo: categoryCollectionView.bottomAnchor, constant: 0), // Reduced from 8 to 0
-            popularSectionLabel.leadingAnchor.constraint(equalTo: CategoriesView.leadingAnchor, constant: 0),
-            popularSectionLabel.trailingAnchor.constraint(equalTo: CategoriesView.trailingAnchor, constant: -16)
-        ])
+     
         
         // Add Product Collection View
         productCollectionView.translatesAutoresizingMaskIntoConstraints = false
         CategoriesView.addSubview(productCollectionView)
         NSLayoutConstraint.activate([
-            productCollectionView.topAnchor.constraint(equalTo: popularSectionLabel.bottomAnchor, constant: 0), // Reduced from 4 to 0
+            productCollectionView.topAnchor.constraint(equalTo: categoryCollectionView.bottomAnchor, constant: 20), // Reduced from 4 to 0
             productCollectionView.leadingAnchor.constraint(equalTo: CategoriesView.leadingAnchor, constant: 0),
             productCollectionView.trailingAnchor.constraint(equalTo: CategoriesView.trailingAnchor, constant: 0),
             productCollectionView.heightAnchor.constraint(equalToConstant: 120),
@@ -737,18 +724,13 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         self.categoryCollectionView.reloadData()
         if !self.categories.contains(where: { $0.name == self.selectedCategory }) {
             self.selectedCategory = "All"
-            self.popularSectionLabel.text = "Best in All"
             self.fetchPopularProducts(for: "All")
         }
     }
     
     func fetchPopularProducts(for category: String) {
         // Update label text based on category
-        if category == "All" {
-            popularSectionLabel.text = "Best in All Categories" // Show "Categories" when ALL is selected
-        } else {
-            popularSectionLabel.text = "Best in \(category)" // Default behavior for other categories
-        }
+       
         
         var query: Query
         
@@ -789,7 +771,7 @@ class CategoryCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
         return label
     }()
     
@@ -856,7 +838,7 @@ class ProductCardCell: UICollectionViewCell {
         
         // Setup background with solid color
         contentView.backgroundColor = .clear
-        contentView.layer.cornerRadius = 12
+        contentView.layer.cornerRadius = 10
         contentView.layer.masksToBounds = true
         backgroundLayer.frame = contentView.bounds
         contentView.layer.insertSublayer(backgroundLayer, at: 0)
@@ -886,8 +868,8 @@ class ProductCardCell: UICollectionViewCell {
             productImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             productImageView.widthAnchor.constraint(equalToConstant: 80),
             
-            scoreBadge.topAnchor.constraint(equalTo: productImageView.topAnchor, constant: -4),
-            scoreBadge.trailingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 4),
+            scoreBadge.topAnchor.constraint(equalTo: productImageView.topAnchor, constant: 0),
+            scoreBadge.trailingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 6),
             scoreBadge.widthAnchor.constraint(equalToConstant: 24),
             scoreBadge.heightAnchor.constraint(equalToConstant: 24),
             
