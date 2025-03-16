@@ -1655,6 +1655,7 @@
                         <segue destination="6Wh-5a-MyP" kind="show" id="svc-9P-8Lr"/>
                         <segue destination="6Wh-5a-MyP" kind="show" identifier="showproductdetailsfromhome" id="0rE-kq-IOP"/>
                         <segue destination="pZV-Cy-AF3" kind="show" identifier="showSearchScreen" id="z8S-oe-78q"/>
+                        <segue destination="ez5-Uc-PLR" kind="show" identifier="showExploreProducts" id="2Um-Bc-ZwR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SaK-Oa-zWH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -3990,6 +3991,7 @@
         <segue reference="ZNK-Ra-eGc"/>
         <segue reference="2yP-TM-2AJ"/>
         <segue reference="dJy-AL-WJk"/>
+        <segue reference="2Um-Bc-ZwR"/>
         <segue reference="z8S-oe-78q"/>
         <segue reference="2T7-wx-xBf"/>
         <segue reference="0rE-kq-IOP"/>

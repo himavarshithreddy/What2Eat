@@ -132,7 +132,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         noRecentScansLabel.isHidden = true
         setupProfileListener()
         fetchRecentScans {
-            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 1050)
+            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 950)
         }
         fetchRecommendedProducts {
             self.collectionView.reloadData()
@@ -177,7 +177,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         super.viewDidAppear(animated)
         setupProfileListener()
         fetchRecentScans {
-            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 1050)
+            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 950)
         }
         updateUserName()
         self.navigationController?.navigationBar.isHidden = true
@@ -249,7 +249,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         } else if collectionView == categoryCollectionView {
             return categories.count
         } else if collectionView == productCollectionView {
-            return popularProducts.count
+            return popularProducts.count+1
         }
         return 0
     }
@@ -279,10 +279,17 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             cell.configure(with: category, isSelected: category == selectedCategory)
             return cell
         } else if collectionView == productCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCardCell", for: indexPath) as! ProductCardCell
-            let product = popularProducts[indexPath.item]
-            cell.configure(with: product)
-            return cell
+            if indexPath.item == popularProducts.count {
+                // Render "See All" cell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SeeAllCell", for: indexPath) as! SeeAllCell
+                return cell
+            } else {
+                // Render ProductCardCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCardCell", for: indexPath) as! ProductCardCell
+                let product = popularProducts[indexPath.item]
+                cell.configure(with: product)
+                return cell
+            }
         }
         return UICollectionViewCell()
     }
@@ -298,7 +305,12 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             categoryCollectionView.reloadData()
             fetchPopularProducts(for: selectedCategory)
         } else if collectionView == productCollectionView {
-            if !popularProducts.isEmpty {
+            if indexPath.item == popularProducts.count {
+                // "See All" cell tapped
+                if let selectedCategoryTuple = categories.first(where: { $0.name == selectedCategory }) {
+                    performSegue(withIdentifier: "showExploreProducts", sender: selectedCategoryTuple)
+                }
+            } else if !popularProducts.isEmpty {
                 let selectedProduct = popularProducts[indexPath.row]
                 performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct.id)
             }
@@ -325,13 +337,19 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             let width = category.uppercased().width(withConstrainedHeight: 40, font: .systemFont(ofSize: 14, weight: .bold)) + 24
             return CGSize(width: width, height: 40)
         } else if collectionView == productCollectionView {
-            let width = 220
-            let height = 100 // Minimum height; label will wrap within this if needed
-            return CGSize(width: width, height: height)
+            if indexPath.item == popularProducts.count {
+                // Size for "See All" cell
+                let width = "See All".width(withConstrainedHeight: 40, font: .systemFont(ofSize: 14, weight: .semibold)) + 24
+                return CGSize(width: width, height: 100) // Match ProductCardCell height
+            } else {
+                // Size for ProductCardCell
+                let width = 220
+                let height = 100
+                return CGSize(width: width, height: height)
+            }
         }
         return .zero
     }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return min(recentScansProducts.count, 4)
     }
@@ -383,6 +401,10 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
            let destinationVC = segue.destination as? ProductDetailsViewController,
            let productId = sender as? String {
             destinationVC.productId = productId
+        } else if segue.identifier == "showExploreProducts",
+                  let destination = segue.destination as? ExploreProductsViewController,
+                  let selectedCategory = sender as? (id: String, name: String) {
+            destination.categoryId = selectedCategory.id // Pass the category ID
         }
     }
     
@@ -640,23 +662,21 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         categoryCollectionView.dataSource = self
         categoryCollectionView.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
         
-        // Add Popular Section Label
-     
-        
         // Add Product Collection View
         productCollectionView.translatesAutoresizingMaskIntoConstraints = false
         CategoriesView.addSubview(productCollectionView)
         NSLayoutConstraint.activate([
-            productCollectionView.topAnchor.constraint(equalTo: categoryCollectionView.bottomAnchor, constant: 20), // Reduced from 4 to 0
+            productCollectionView.topAnchor.constraint(equalTo: categoryCollectionView.bottomAnchor, constant: 20),
             productCollectionView.leadingAnchor.constraint(equalTo: CategoriesView.leadingAnchor, constant: 0),
             productCollectionView.trailingAnchor.constraint(equalTo: CategoriesView.trailingAnchor, constant: 0),
             productCollectionView.heightAnchor.constraint(equalToConstant: 120),
-            productCollectionView.bottomAnchor.constraint(equalTo: CategoriesView.bottomAnchor, constant: 0) // Removed -8 to eliminate bottom padding
+            productCollectionView.bottomAnchor.constraint(equalTo: CategoriesView.bottomAnchor, constant: 0)
         ])
         
         productCollectionView.delegate = self
         productCollectionView.dataSource = self
         productCollectionView.register(ProductCardCell.self, forCellWithReuseIdentifier: "ProductCardCell")
+        productCollectionView.register(SeeAllCell.self, forCellWithReuseIdentifier: "SeeAllCell") // Register SeeAllCell
     }
     func fetchCategoriesFromFirebase() {
         db.collection("categories")
@@ -905,5 +925,37 @@ class ProductCardCell: UICollectionViewCell {
         } else {
             scoreBadge.backgroundColor = .systemGreen
         }
+    }
+}
+class SeeAllCell: UICollectionViewCell {
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "See All"
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.textColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(titleLabel)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+        ])
+        contentView.layer.cornerRadius = 10
+        contentView.layer.masksToBounds = true
+        contentView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1) // Match ProductCardCell background
+        // Add shadow to match ProductCardCell
+        contentView.layer.shadowColor = UIColor.black.cgColor
+        contentView.layer.shadowOpacity = 0.2
+        contentView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        contentView.layer.shadowRadius = 4
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
