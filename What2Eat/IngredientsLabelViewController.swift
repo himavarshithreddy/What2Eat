@@ -44,7 +44,7 @@ class IngredientsLabelViewController:UIViewController, UITableViewDelegate, UITa
             
             let ingredient = ingredients[indexPath.row]
             cell.ingredientLabel.text = ingredient
-            
+            cell.minHeight = 60
 
             cell.accessoryType = .detailButton
             
@@ -176,9 +176,9 @@ class IngredientsLabelViewController:UIViewController, UITableViewDelegate, UITa
                self.ingredientsLabelTableView.reloadData()
            }
        }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        60
-    }
+//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        60
+//    }
     
     func fetchIngredientDetailsUsingVertex(for ingredientName: String, completion: @escaping (IngredientDetail?) -> Void) {
         // Define the JSON schema for the expected Vertex response.

@@ -232,7 +232,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
     private func navigateToTabBarController() {
         // First, create a brief animation to provide visual feedback
         let fadeView = UIView(frame: self.view.bounds)
-        fadeView.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.1)
+        fadeView.backgroundColor = UIColor.white.withAlphaComponent(0.2)
         fadeView.alpha = 0
         self.view.addSubview(fadeView)
         

@@ -5,7 +5,7 @@ import Lottie
 import FirebaseVertexAI
 
 class IngredientsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate {
-    
+   
     var product: ProductData? {
         didSet {
             DispatchQueue.main.async {
@@ -17,10 +17,10 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
     
     // Removed ingredientRiskLevels and ingredientDetailsCache since caching and risk display are not needed
     @IBOutlet weak var ingredientsTableView: UITableView!
-
+ 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        ingredientsTableView.estimatedRowHeight = 60
         ingredientsTableView.delegate = self
         ingredientsTableView.dataSource = self
         ingredientsTableView.reloadData()
@@ -44,6 +44,7 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         
         if let ingredient = product?.ingredients[indexPath.row] {
             cell.ingredientLabel.text = ingredient.description
+            cell.minHeight = 60
             // Removed risk level display in the cell
             cell.accessoryType = .detailButton // Always show detail button, as in IngredientsLabelViewController
         }
@@ -236,9 +237,10 @@ class IngredientsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        60
-    }
+//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        60
+//    }
+    
     private var loadingView: UIView?
         
         // MARK: - Loading Animation
