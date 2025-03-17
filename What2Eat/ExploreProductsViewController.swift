@@ -92,7 +92,7 @@ class ExploreProductsViewController: UIViewController, UITableViewDelegate, UITa
         
         // Load image using SDWebImage
         if let imageUrl = URL(string: product.imageURL) {
-            cell.ExploreProductsImage.sd_setImage(with: imageUrl, placeholderImage: UIImage(named: "placeholder_product"))
+            cell.ExploreProductsImage.sd_setImage(with: imageUrl, placeholderImage: UIImage(named: "placeholder_product_nobg"))
         }
         
         return cell

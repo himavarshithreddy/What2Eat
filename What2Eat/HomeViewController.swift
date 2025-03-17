@@ -358,9 +358,9 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         let cell = tableView.dequeueReusableCell(withIdentifier: "RecentScansCell", for: indexPath) as! RecentScansCell
         let product = recentScansProducts[indexPath.row]
         if let url = URL(string: product.imageURL) {
-            cell.ProductImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product"))
+            cell.ProductImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product_nobg"))
         } else {
-            cell.ProductImage.image = UIImage(named: "placeholder_product")
+            cell.ProductImage.image = UIImage(named: "placeholder_product_nobg")
         }
         
         cell.ProductName.text = product.name
@@ -912,9 +912,9 @@ class ProductCardCell: UICollectionViewCell {
         productNameLabel.text = product.name
         scoreBadge.text = "\(product.healthScore)"
         if let url = URL(string: product.imageURL) {
-            productImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product"))
+            productImageView.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product_nobg"))
         } else {
-            productImageView.image = UIImage(named: "placeholder_product")
+            productImageView.image = UIImage(named: "placeholder_product_nobg")
         }
         
         // Update score badge color based on health score

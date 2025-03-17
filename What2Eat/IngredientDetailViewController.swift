@@ -30,9 +30,6 @@ class IngredientDetailViewController: UIViewController {
         descriptionLabel.text = descriptionText
     }
    
-    @IBAction func CancelButtonTapped(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
-
-    }
+   
 }
 
