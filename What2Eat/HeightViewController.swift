@@ -87,9 +87,9 @@ class HeightViewController: UIViewController {
         
         // Title
         titleLabel.text = "How tall are you?"
-        titleLabel.font = .systemFont(ofSize: 26, weight: .bold)
-        titleLabel.textColor = .black
-        titleLabel.textAlignment = .left
+        titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        titleLabel.textColor = orangeColor
+        titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
         
@@ -157,8 +157,8 @@ class HeightViewController: UIViewController {
             
             // Title
             titleLabel.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 30),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             // Subtitle
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
