@@ -14,10 +14,10 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var isUserRatingPresent: Bool = false
     var productAnalysis: ProductAnalysis?
     var userAllergens: [Allergen] = []
-        var productAllergenAlerts: [Allergen] = []
-    var expandedIndexPaths: [IndexPath: Bool] = [:] 
+    var productAllergenAlerts: [Allergen] = []
+    var expandedIndexPaths: [IndexPath: Bool] = [:]
     var userDietaryRestrictions: [DietaryRestriction] = []
-        var dietaryRestrictionAlerts: [DietaryRestriction] = []
+    var dietaryRestrictionAlerts: [DietaryRestriction] = []
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
     @IBOutlet weak var AlertTableView: UITableView!
@@ -41,7 +41,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         SummaryTableView.estimatedRowHeight = 30
         SummaryTableView.rowHeight = UITableView.automaticDimension
 
-                // Setup stars for user rating
+        // Setup stars for user rating
         setStarRating(Float(product?.userRating ?? 0))
         setupEmptyStars()
         setupStarTapGestures()
@@ -49,13 +49,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         fetchUserDietaryRestrictions()
         AlertTableView.sectionHeaderHeight = 0  // Explicit header height
         updateUI()
-       
     }
-    
-    
-    // MARK: - TableView DataSource & Delegate Methods
-    
-
     
     // MARK: - TableView DataSource & Delegate Methods
 
@@ -84,14 +78,11 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
         } else if tableView.tag == 2 {
-         
             return productAllergenAlerts.count + dietaryRestrictionAlerts.count
             // Allergen section
         }
         return 0
     }
-
-
 
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return nil
@@ -109,17 +100,14 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     cell.iconImage.image = UIImage(systemName: "checkmark.square.fill")
                     cell.iconImage.tintColor = .systemGreen
                     if pro.summaryPoint != "Contains some nutrients" {
-                        cell.DescriptionText.text = "\(pro.value)% of your recommended daily Intake."
+                        cell.DescriptionText.text = pro.value >= 85 ? ">85% of your RDA, check serving size, may exceed your needs" : "\(pro.value)% of your recommended daily Intake."
                         cell.ProgressBar.progress = Float(pro.value) / 100.0
                         cell.ProgressBar.progressTintColor = .systemGreen
-                        cell.ProgressBar.alpha=1
-                       
-                    }
-                    else{
+                        cell.ProgressBar.alpha = 1
+                    } else {
                         cell.DescriptionText.text = "Check Nutrition tab for more Details"
-                        cell.ProgressBar.progress=0.0
-                        cell.ProgressBar.alpha=0.0
-                      
+                        cell.ProgressBar.progress = 0.0
+                        cell.ProgressBar.alpha = 0.0
                     }
                     
                 } else if !product.cons.isEmpty && indexPath.section == (product.pros.isEmpty ? 0 : 1) {
@@ -128,33 +116,30 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     cell.HighlightText.text = con.summaryPoint
                     cell.iconImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     cell.iconImage.tintColor = .systemRed
-                    if con.summaryPoint != "No major concerns detected"{
-                        cell.DescriptionText.text = "\(con.value)% of your recommended daily Intake."
+                    if con.summaryPoint != "No major concerns detected" {
+                        cell.DescriptionText.text = con.value >= 100 ? "check serving size, may exceed your needs" : "\(con.value)% of your recommended daily Intake."
                         cell.ProgressBar.progress = Float(con.value) / 100.0
                         cell.ProgressBar.progressTintColor = .systemRed
-                        cell.ProgressBar.alpha=1
-                    }
-                    else{
+                        cell.ProgressBar.alpha = 1
+                    } else {
                         cell.DescriptionText.text = "Check Nutrition tab for more Details"
-                        cell.ProgressBar.progress=0.0
-                        cell.ProgressBar.alpha=0.0
+                        cell.ProgressBar.progress = 0.0
+                        cell.ProgressBar.alpha = 0.0
                     }
-                   
-                    
                 }
             }
             cell.configureExpandButton(isExpanded: isExpanded)
-                    cell.onExpandButtonTapped = { [weak self] in
-                        guard let self = self else { return }
-                        // Toggle the expanded state
-                        self.expandedIndexPaths[indexPath] = !isExpanded
-                        // Reload the row to reflect the new state
-                        tableView.beginUpdates()
-                        tableView.reloadRows(at: [indexPath], with: .automatic)
-                        tableView.endUpdates()
-                        // Update the table height
-                        self.updateSummaryTableHeight()
-                    }
+            cell.onExpandButtonTapped = { [weak self] in
+                guard let self = self else { return }
+                // Toggle the expanded state
+                self.expandedIndexPaths[indexPath] = !isExpanded
+                // Reload the row to reflect the new state
+                tableView.beginUpdates()
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+                tableView.endUpdates()
+                // Update the table height
+                self.updateSummaryTableHeight()
+            }
             // Show/Hide elements based on expanded state
             cell.DescriptionText.isHidden = !isExpanded
             cell.ProgressBar.isHidden = !isExpanded
@@ -179,15 +164,15 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         return UITableViewCell()
     }
 
-
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if tableView.tag == 1 {
-               return 30
-           } else if tableView.tag == 2 {
-               return 0
-           }
-           return 0
+            return 30
+        } else if tableView.tag == 2 {
+            return 0
+        }
+        return 0
     }
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard tableView.tag == 1 else { return nil }
         let headerView = UIView()
@@ -196,7 +181,6 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         // Customize the appearance of the header
         titleLabel.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
-
         titleLabel.textColor = .black // Text color
         titleLabel.textAlignment = .left // Align text to the left
         
@@ -214,7 +198,6 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         return headerView
     }
-
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if tableView.tag == 1 {
@@ -225,6 +208,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         return 0
     }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView.tag == 1 {
             // Toggle the expanded state
@@ -247,7 +231,6 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         var totalHeight: CGFloat = 0
         var headerHeight: CGFloat = 0
         
-
         if !product.pros.isEmpty {
             headerHeight += 50 // Header height for "What’s Good"
             for row in 0..<product.pros.count {
@@ -269,8 +252,6 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         SummaryTableHeight.constant = newHeight
         self.view.layoutIfNeeded()
     }
-
-    
     
     // MARK: - View Appearance
     
@@ -282,7 +263,6 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         fetchUserRatingFromFirestore()
     }
     
-    
     // MARK: - Star Rating Setup
     private func updateUI() {
         updateSummaryTableHeight()
@@ -290,6 +270,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         SummaryTableView.reloadData()
         AlertTableView.reloadData()
     }
+
     func setStarRating(_ rating: Float) {
         let starViews = UserRatingStarStack.arrangedSubviews.compactMap { $0 as? UIImageView }
         RatingText.text = String(format: "%.1f", rating)
@@ -353,12 +334,10 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
       
         let cancelAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         
-     
         alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
     }
-
     
     func updateUserRatingStars(_ rating: Int) {
         let starViews = RateStarStackView.arrangedSubviews.compactMap { $0 as? UIImageView }
@@ -466,6 +445,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
     }
+
     func fetchUserRatingFromFirestore() {
         // Ensure productId and userId are available
         guard let productId = product?.id else {
@@ -521,10 +501,6 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
     }
-
-    
-    
-    
     
     // MARK: - Public Update Method
     
@@ -553,27 +529,27 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             self.SummaryTableView.reloadData()
             self.compareAllergens()
             self.compareDietaryRestrictions()
-            
         }
     }
+
     func fetchUserAllergensForSummary() {
-            let defaults = UserDefaults.standard
-            if let localAllergies = defaults.array(forKey: "localAllergies") as? [String], !localAllergies.isEmpty {
-                userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
-                compareAllergens()
-            } else if let uid = Auth.auth().currentUser?.uid {
-                let db = Firestore.firestore()
-                let userDocument = db.collection("users").document(uid)
-                userDocument.getDocument { [weak self] (document, error) in
-                    if let document = document, document.exists,
-                       let allergiesFromDB = document.get("allergies") as? [String] {
-                        self?.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
-                        defaults.set(allergiesFromDB, forKey: "localAllergies") // Cache to UserDefaults
-                        self?.compareAllergens()
-                    }
+        let defaults = UserDefaults.standard
+        if let localAllergies = defaults.array(forKey: "localAllergies") as? [String], !localAllergies.isEmpty {
+            userAllergens = localAllergies.compactMap { Allergen(rawValue: $0) }
+            compareAllergens()
+        } else if let uid = Auth.auth().currentUser?.uid {
+            let db = Firestore.firestore()
+            let userDocument = db.collection("users").document(uid)
+            userDocument.getDocument { [weak self] (document, error) in
+                if let document = document, document.exists,
+                   let allergiesFromDB = document.get("allergies") as? [String] {
+                    self?.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
+                    defaults.set(allergiesFromDB, forKey: "localAllergies") // Cache to UserDefaults
+                    self?.compareAllergens()
                 }
             }
         }
+    }
     
     func compareAllergens() {
         guard let product = product else {
@@ -620,6 +596,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         productAllergenAlerts = alerts
         updateAlertView()
     }
+
     func updateAlertView() {
         let totalAlerts = productAllergenAlerts.count + dietaryRestrictionAlerts.count
         if totalAlerts == 0 {
@@ -630,6 +607,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         AlertTableView.reloadData()
     }
+
     func fetchUserDietaryRestrictions() {
         let defaults = UserDefaults.standard
         if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String], !localRestrictions.isEmpty {
@@ -648,6 +626,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
     }
+
     func compareDietaryRestrictions() {
         guard let product = product else {
             dietaryRestrictionAlerts = []

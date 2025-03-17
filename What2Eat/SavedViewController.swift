@@ -46,11 +46,12 @@ class SavedViewController: UIViewController, UITableViewDataSource, UITableViewD
             guard let data = snapshot?.data(), let lists = data["savedLists"] as? [[String: Any]] else { return }
             
             self.savedLists = lists.compactMap { dict in
-                guard let listId = dict["listId"] as? String,
-                      let name = dict["name"] as? String,
-                      let iconName = dict["iconName"] as? String else { return nil }
-                        return SavedList(listId: listId, name: name, iconName: iconName, products: [])
-            }
+                            guard let listId = dict["listId"] as? String,
+                                  let name = dict["name"] as? String,
+                                  let iconName = dict["iconName"] as? String,
+                                  let products = dict["products"] as? [String] else { return nil }
+                            return SavedList(listId: listId, name: name, iconName: iconName, products: products)
+                        }
 
             DispatchQueue.main.async {
                 self.SavedTableView.reloadData()
@@ -60,20 +61,27 @@ class SavedViewController: UIViewController, UITableViewDataSource, UITableViewD
 
     // Delete a saved list from Firestore
     func confirmDelete(at indexPath: IndexPath) {
-        guard let userId = userId else { return }
-        
-        let listToDelete = savedLists[indexPath.row]
+            guard let userId = userId else { return }
+            
+            let listToDelete = savedLists[indexPath.row]
 
-        db.collection("users").document(userId).updateData([
-            "savedLists": FieldValue.arrayRemove([["listId": listToDelete.listId, "name": listToDelete.name, "iconName": listToDelete.iconName]])
-        ]) { error in
-            if let error = error {
-                print("Error deleting list: \(error)")
-            } else {
-                self.fetchSavedLists()
+            let listDict: [String: Any] = [
+                    "listId": listToDelete.listId,
+                    "name": listToDelete.name,
+                    "iconName": listToDelete.iconName,
+                    "products": listToDelete.products  // Ensure this matches what’s stored in Firestore
+                ]
+                
+                db.collection("users").document(userId).updateData([
+                    "savedLists": FieldValue.arrayRemove([listDict])
+                ]) { error in
+                    if let error = error {
+                        print("Error deleting list: \(error)")
+                    } else {
+                        self.fetchSavedLists()
+                    }
+                }
             }
-        }
-    }
 
     // TableView: Number of sections
     func numberOfSections(in tableView: UITableView) -> Int {

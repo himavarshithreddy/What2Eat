@@ -248,7 +248,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
                 // If no product ID is found for the scanned barcode, show an alert.
                 DispatchQueue.main.async {
                     let alert = UIAlertController(title: "Product Not Found",
-                                                  message: "The scanned barcode does not match any products in the database.",
+                                                  message: "Try Scanning with Label for the product analysis",
                                                   preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
                         DispatchQueue.global(qos: .background).async {
