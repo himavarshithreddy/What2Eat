@@ -4,6 +4,8 @@ import FirebaseAuth
 import GoogleSignIn
 import FirebaseStorage
 import FirebaseFirestore
+import AuthenticationServices
+import CryptoKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
     
@@ -34,6 +36,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         activityIndicator = UIActivityIndicatorView(style: .large)
         activityIndicator.center = view.center
         view.addSubview(activityIndicator)
+        activityIndicator.color = UIColor(red: 254/255, green: 139/255, blue: 54/255, alpha: 1)
         
         // Set text field delegates
         phoneTextField.delegate = self
@@ -135,10 +138,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    @IBAction func continueAsGuest(_ sender: Any) {
-        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-        navigateToTabBarController()
-    }
+//    @IBAction func continueAsGuest(_ sender: Any) {
+//        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+//        navigateToTabBarController()
+//    }
     
     @objc func resendCodeTapped() {
         guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
@@ -426,7 +429,55 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
 
 
+    @IBAction func SigninwithAppleButtonTapped(_ sender: Any) {
+        
+        activityIndicator.startAnimating()
+            view.isUserInteractionEnabled = false
+            startSignInWithAppleFlow()
+        
+        
+    }
+    private var currentNonce: String?
 
+    // Add these methods before your existing actions
+    private func startSignInWithAppleFlow() {
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        
+        let appleIDProvider = ASAuthorizationAppleIDProvider()
+        let request = appleIDProvider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(nonce)
+        
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = self
+        authorizationController.presentationContextProvider = self
+        authorizationController.performRequests()
+    }
+
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        var randomBytes = [UInt8](repeating: 0, count: length)
+        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+        if errorCode != errSecSuccess {
+            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+        }
+        
+        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        let nonce = randomBytes.map { byte in
+            charset[Int(byte) % charset.count]
+        }
+        return String(nonce)
+    }
+
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        let hashString = hashedData.compactMap {
+            String(format: "%02x", $0)
+        }.joined()
+        return hashString
+    }
     private func showStatusMessage(_ message: String) {
         let toastView = UIView()
         toastView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.9)
@@ -465,5 +516,61 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 toastView.removeFromSuperview()
             })
         })
+    }
+}
+// Add these extensions at the bottom of your file
+extension LoginViewController: ASAuthorizationControllerDelegate {
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
+            guard let nonce = currentNonce else {
+                activityIndicator.stopAnimating()
+                view.isUserInteractionEnabled = true
+                showAlert(message: "Invalid state: No login request was sent.")
+                return
+            }
+            guard let appleIDToken = appleIDCredential.identityToken else {
+                activityIndicator.stopAnimating()
+                view.isUserInteractionEnabled = true
+                showAlert(message: "Unable to fetch identity token.")
+                return
+            }
+            guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+                activityIndicator.stopAnimating()
+                view.isUserInteractionEnabled = true
+                showAlert(message: "Unable to serialize token string.")
+                return
+            }
+            
+            let credential = OAuthProvider.credential(withProviderID: "apple.com",
+                                                    idToken: idTokenString,
+                                                    rawNonce: nonce)
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
+                self.activityIndicator.stopAnimating()
+                self.view.isUserInteractionEnabled = true
+                
+                if let error = error {
+                    self.showAlert(message: "Error signing in with Apple: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let user = authResult?.user {
+                    let fullName = appleIDCredential.fullName?.givenName ?? ""
+                    self.handleUserAuthentication(uid: user.uid, googleName: fullName)
+                }
+            }
+        }
+    }
+    
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        activityIndicator.stopAnimating()
+        view.isUserInteractionEnabled = true
+        showAlert(message: "Sign in with Apple failed: \(error.localizedDescription)")
+    }
+}
+
+extension LoginViewController: ASAuthorizationControllerPresentationContextProviding {
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        return view.window!
     }
 }

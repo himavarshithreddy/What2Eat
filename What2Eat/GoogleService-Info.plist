@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>745594998609-qmtc5m89t4u9m8s8o3umrekh2muktgii.apps.googleusercontent.com</string>
+	<string>745594998609-vfkcgucojpakodu8if4avftp3p47p47o.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.745594998609-qmtc5m89t4u9m8s8o3umrekh2muktgii</string>
+	<string>com.googleusercontent.apps.745594998609-vfkcgucojpakodu8if4avftp3p47p47o</string>
 	<key>API_KEY</key>
 	<string>AIzaSyD6sCrDVvj-iMwgiuvjPtKO16mrqxGW6NE</string>
 	<key>GCM_SENDER_ID</key>
@@ -19,16 +19,16 @@
 	<key>STORAGE_BUCKET</key>
 	<string>what2eat-cb440.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
-	<false/>
+	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false/>
+	<false></false>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>IS_GCM_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true/>
+	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:745594998609:ios:1ec67274415d05d3770d70</string>
+	<string>1:745594998609:ios:6692f5b756ffb4a1770d70</string>
 </dict>
 </plist>
