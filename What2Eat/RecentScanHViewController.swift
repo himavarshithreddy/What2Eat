@@ -47,9 +47,9 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
         
         // Load product image from URL
         if let url = URL(string: product.imageURL) {
-            cell.recentScanImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product"))
+            cell.recentScanImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product_nobg"))
         } else {
-            cell.recentScanImage.image = UIImage(named: "placeholder_product")
+            cell.recentScanImage.image = UIImage(named: "placeholder_product_nobg")
         }
         
         cell.layer.cornerRadius = 8

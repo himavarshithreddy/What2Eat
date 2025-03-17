@@ -218,9 +218,9 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
         if let imageData = product.imageData, !imageData.isEmpty {
             cell.SavedProductsImage.image = UIImage(data: imageData)
         } else if let urlString = product.imageURL, let url = URL(string: urlString) {
-            cell.SavedProductsImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product"))
+            cell.SavedProductsImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product_nobg"))
         } else {
-            cell.SavedProductsImage.image = UIImage(named: "placeholder_product")
+            cell.SavedProductsImage.image = UIImage(named: "placeholder_product_nobg")
         }
         
         return cell
