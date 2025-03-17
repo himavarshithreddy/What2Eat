@@ -69,9 +69,9 @@ class WeightViewController: UIViewController {
     }
     
     // MARK: - Setup Methods
-    
+    let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
     private func setupProgressBar() {
-        let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
+      
         progressView.progressTintColor = orangeColor
         progressView.trackTintColor = .systemGray5
         progressView.progress = 0.6  // e.g., step 3 of 5 complete
@@ -83,8 +83,8 @@ class WeightViewController: UIViewController {
         // Title Label
         titleLabel.text = "What is your weight?"
         titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
-        titleLabel.textColor = .black
-        titleLabel.textAlignment = .left
+        titleLabel.textColor = orangeColor
+        titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
         
@@ -164,9 +164,9 @@ class WeightViewController: UIViewController {
             progressView.heightAnchor.constraint(equalToConstant: 6),
             
             // Title Label
-            titleLabel.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 40),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            titleLabel.topAnchor.constraint(equalTo: progressView.bottomAnchor, constant: 30),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             
             // Unit Segmented Control
             unitSegmentedControl.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 50),
