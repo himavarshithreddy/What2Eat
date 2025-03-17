@@ -106,7 +106,7 @@ enum DietaryRestriction: String {
 
 let savedlistImages = [
     "leaf", "carrot", "fork.knife", "cart", "cup.and.saucer",
-               "takeoutbag.and.cup.and.straw", "popcorn", "flame", "applelogo",
+               "takeoutbag.and.cup.and.straw", "popcorn", "flame",
                "fork.knife.circle", "heart", "heart.circle", "staroflife",
                "cross.case", "pills", "figure.walk", "figure.walk.circle",
                "figure.run", "figure.strengthtraining.traditional", "bandage"
