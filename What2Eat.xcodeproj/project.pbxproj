@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F5139F342D67CEA0003BAD3F /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F5139F332D67CEA0003BAD3F /* Lottie */; };
+		F574584B2D89F2DB00761B7A /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F574584A2D89F2DB00761B7A /* FirebaseMessaging */; };
 		F57BA42E2D2BAE8E007988D3 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F57BA42D2D2BAE8E007988D3 /* FirebaseAuth */; };
 		F57BA4302D2BAE8E007988D3 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = F57BA42F2D2BAE8E007988D3 /* FirebaseAuthCombine-Community */; };
 		F57BA4382D2BDE8B007988D3 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F57BA4372D2BDE8B007988D3 /* FirebaseCore */; };
@@ -65,6 +66,7 @@
 				F585E82B2D4FEF7E00D041E9 /* SDWebImage in Frameworks */,
 				F57BA4302D2BAE8E007988D3 /* FirebaseAuthCombine-Community in Frameworks */,
 				F585E82D2D4FEF7E00D041E9 /* SDWebImageMapKit in Frameworks */,
+				F574584B2D89F2DB00761B7A /* FirebaseMessaging in Frameworks */,
 				F598F4142D512E16008E6C80 /* FirebaseVertexAI in Frameworks */,
 				F5B6E1C22D2C30F70050E24A /* FirebaseFirestore in Frameworks */,
 			);
@@ -123,6 +125,7 @@
 				F585E82C2D4FEF7E00D041E9 /* SDWebImageMapKit */,
 				F598F4132D512E16008E6C80 /* FirebaseVertexAI */,
 				F5139F332D67CEA0003BAD3F /* Lottie */,
+				F574584A2D89F2DB00761B7A /* FirebaseMessaging */,
 			);
 			productName = What2Eat;
 			productReference = F5D14C602CC8A58E00CDB0EB /* What2Eat.app */;
@@ -447,6 +450,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F5139F322D67CEA0003BAD3F /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		F574584A2D89F2DB00761B7A /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F57BA42C2D2BAE8E007988D3 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 		F57BA42D2D2BAE8E007988D3 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

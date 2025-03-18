@@ -12,6 +12,7 @@ import FirebaseFirestore
 import QuartzCore
 import FirebaseAuth
 import SDWebImage
+import UserNotifications
 
 // MARK: - UIImage Extension for Circular Cropping
 extension UIImage {
@@ -118,6 +119,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        requestNotificationPermission()
         markOnboardingComplete()
         HomeImage.transform = CGAffineTransform(rotationAngle: .pi * 1.845)
         collectionView.delegate = self
@@ -162,7 +164,21 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .default
     }
-    
+    func requestNotificationPermission() {
+            UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge]) { [weak self] granted, error in
+                if granted {
+                    print("Permission granted")
+                    // Register for remote notifications on the main thread
+                    DispatchQueue.main.async {
+                        UIApplication.shared.registerForRemoteNotifications()
+                    }
+                } else {
+                    print("Permission denied: \(error?.localizedDescription ?? "Unknown error")")
+                    // Optional: Show an alert to inform the user
+                   
+                }
+            }
+        }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         profileListener?.remove()
