@@ -415,7 +415,7 @@ class LabelScanDetailsViewController: UIViewController {
 
     @objc func customBackButtonPressed() {
         if savedProductId == nil {
-            let alert = UIAlertController(title: "Save Scan?", message: "Do you want to save this scan for future reference?", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Save Scan?", message: "Do you want to save this scan?", preferredStyle: .alert)
             alert.view.tintColor = .systemOrange
             alert.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
                 self.saveButtonTapped(self.navigationItem.rightBarButtonItem!)
