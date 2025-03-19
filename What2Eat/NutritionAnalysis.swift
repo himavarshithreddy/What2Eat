@@ -6,7 +6,7 @@ import FirebaseFirestore
 // Struct to hold split components of pros and cons
 struct NutrientFeedback:Codable {
     let summaryPoint: String
-    let value: Int
+    let value: Float
     let message: String
 }
 
@@ -144,243 +144,243 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
         "energy": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "provides a boost"
-                return ([NutrientFeedback(summaryPoint: "High in energy", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "High in energy", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Has a low amount of calories", value: Int(percentage), message: "light option but may not sustain you")])
+                return ([], [NutrientFeedback(summaryPoint: "Has a low amount of calories", value: Float(percentage), message: "light option but may not sustain you")])
             }
             return ([], [])
         },
         "protein": { percentage in
             if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a low amount of protein", value: Int(percentage), message: "may not sustain energy")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a low amount of protein", value: Float(percentage), message: "may not sustain energy")])
             } else if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports muscle health"
-                return ([NutrientFeedback(summaryPoint: "Rich in protein", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in protein", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "total fat": { percentage in
             if percentage >= 25 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of fat", value: Int(percentage), message: "consider moderation")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of fat", value: Float(percentage), message: "consider moderation")])
             } else if percentage < 5 && percentage > 0 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "heart-healthy but may lack richness"
-                return ([NutrientFeedback(summaryPoint: "Has a low amount of fat", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Has a low amount of fat", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "saturated fat": { percentage in
             if percentage > 20 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of saturated fat", value: Int(percentage), message: "limit intake")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of saturated fat", value: Float(percentage), message: "limit intake")])
             } else if percentage < 5 && percentage > 0 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "heart-friendly"
-                return ([NutrientFeedback(summaryPoint: "Low in saturated fat", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Low in saturated fat", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "carbohydrates": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "provides energy"
-                return ([NutrientFeedback(summaryPoint: "Rich in carbohydrates", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in carbohydrates", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Has a low amount of carbs", value: Int(percentage), message: "may lack energy")])
+                return ([], [NutrientFeedback(summaryPoint: "Has a low amount of carbs", value: Float(percentage), message: "may lack energy")])
             }
             return ([], [])
         },
         "fiber": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids digestion"
-                return ([NutrientFeedback(summaryPoint: "Rich in fiber", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in fiber", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in fiber", value: Int(percentage), message: "may not support digestion")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in fiber", value: Float(percentage), message: "may not support digestion")])
             }
             return ([], [])
         },
         "sugars": { percentage in
             if percentage > 20 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of sugar", value: Int(percentage), message: "limit consumption")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of sugar", value: Float(percentage), message: "limit consumption")])
             } else if percentage < 5 && percentage > 0 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "suits your goals"
-                return ([NutrientFeedback(summaryPoint: "Low in sugar", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Low in sugar", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "sodium": { percentage in
             if percentage > 20 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of sodium", value: Int(percentage), message: "watch intake")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of sodium", value: Float(percentage), message: "watch intake")])
             } else if percentage < 5 && percentage > 0 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "heart-friendly"
-                return ([NutrientFeedback(summaryPoint: "Low in sodium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Low in sodium", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "calcium": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports bones"
-                return ([NutrientFeedback(summaryPoint: "Rich in calcium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in calcium", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in calcium", value: Int(percentage), message: "may affect bone strength")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in calcium", value: Float(percentage), message: "may affect bone strength")])
             }
             return ([], [])
         },
         "magnesium": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids muscle function"
-                return ([NutrientFeedback(summaryPoint: "Rich in magnesium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in magnesium", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in magnesium", value: Int(percentage), message: "may impact energy")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in magnesium", value: Float(percentage), message: "may impact energy")])
             }
             return ([], [])
         },
         "iron": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports blood health"
-                return ([NutrientFeedback(summaryPoint: "Rich in iron", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in iron", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in iron", value: Int(percentage), message: "may impact oxygen transport")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in iron", value: Float(percentage), message: "may impact oxygen transport")])
             }
             return ([], [])
         },
         "zinc": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "boosts immunity"
-                return ([NutrientFeedback(summaryPoint: "Rich in zinc", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in zinc", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in zinc", value: Int(percentage), message: "may weaken immune function")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in zinc", value: Float(percentage), message: "may weaken immune function")])
             }
             return ([], [])
         },
         "iodine": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports thyroid function"
-                return ([NutrientFeedback(summaryPoint: "Rich in iodine", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in iodine", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in iodine", value: Int(percentage), message: "may affect thyroid function")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in iodine", value: Float(percentage), message: "may affect thyroid function")])
             }
             return ([], [])
         },
         "potassium": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports blood pressure"
-                return ([NutrientFeedback(summaryPoint: "Rich in potassium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in potassium", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in potassium", value: Int(percentage), message: "may affect muscle function")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in potassium", value: Float(percentage), message: "may affect muscle function")])
             }
             return ([], [])
         },
         "phosphorus": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports bone health"
-                return ([NutrientFeedback(summaryPoint: "Rich in phosphorus", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in phosphorus", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in phosphorus", value: Int(percentage), message: "may affect bone strength")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in phosphorus", value: Float(percentage), message: "may affect bone strength")])
             }
             return ([], [])
         },
         "copper": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports metabolism"
-                return ([NutrientFeedback(summaryPoint: "Rich in copper", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in copper", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in copper", value: Int(percentage), message: "may affect energy levels")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in copper", value: Float(percentage), message: "may affect energy levels")])
             }
             return ([], [])
         },
         "selenium": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "offers antioxidant benefits"
-                return ([NutrientFeedback(summaryPoint: "Rich in selenium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in selenium", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in selenium", value: Int(percentage), message: "limited antioxidant support")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in selenium", value: Float(percentage), message: "limited antioxidant support")])
             }
             return ([], [])
         },
         "vitamin a": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids vision"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin A", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin A", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin A", value: Int(percentage), message: "may affect vision")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin A", value: Float(percentage), message: "may affect vision")])
             }
             return ([], [])
         },
         "vitamin c": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "boosts immunity"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin C", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin C", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin C", value: Int(percentage), message: "limited immune support")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin C", value: Float(percentage), message: "limited immune support")])
             }
             return ([], [])
         },
         "vitamin d": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports bones"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin D", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin D", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin D", value: Int(percentage), message: "may affect bone strength")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin D", value: Float(percentage), message: "may affect bone strength")])
             }
             return ([], [])
         },
         "vitamin e": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "offers antioxidant benefits"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin E", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin E", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin E", value: Int(percentage), message: "limited antioxidant support")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin E", value: Float(percentage), message: "limited antioxidant support")])
             }
             return ([], [])
         },
         "thiamine": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports energy metabolism"
-                return ([NutrientFeedback(summaryPoint: "Rich in thiamine", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in thiamine", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in thiamine", value: Int(percentage), message: "may affect energy levels")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in thiamine", value: Float(percentage), message: "may affect energy levels")])
             }
             return ([], [])
         },
         "riboflavin": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids metabolism"
-                return ([NutrientFeedback(summaryPoint: "Rich in riboflavin", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in riboflavin", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in riboflavin", value: Int(percentage), message: "may impact energy")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in riboflavin", value: Float(percentage), message: "may impact energy")])
             }
             return ([], [])
         },
         "niacin": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports digestion"
-                return ([NutrientFeedback(summaryPoint: "Rich in niacin", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in niacin", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in niacin", value: Int(percentage), message: "may affect digestion")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in niacin", value: Float(percentage), message: "may affect digestion")])
             }
             return ([], [])
         },
         "vitamin b6": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids brain health"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin B6", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin B6", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B6", value: Int(percentage), message: "may impact mood")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B6", value: Float(percentage), message: "may impact mood")])
             }
             return ([], [])
         },
         "folate": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports cell growth"
-                return ([NutrientFeedback(summaryPoint: "Rich in folate", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in folate", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in folate", value: Int(percentage), message: "may affect cell function")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in folate", value: Float(percentage), message: "may affect cell function")])
             }
             return ([], [])
         },
         "vitamin b12": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports nerve health"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin B12", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin B12", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B12", value: Int(percentage), message: "may affect nerve health")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B12", value: Float(percentage), message: "may affect nerve health")])
             }
             return ([], [])
         }
@@ -407,7 +407,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
             let percentage = calculatePercentage(nutrient: energy, rdaValue: energyRDA)
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "great for a boost"
-                pros.append(NutrientFeedback(summaryPoint: "Provides a high amount of energy", value: Int(percentage), message: message))
+                pros.append(NutrientFeedback(summaryPoint: "Provides a high amount of energy", value: Float(percentage), message: message))
             }
         }
     }
@@ -417,7 +417,7 @@ func generateProsAndCons(product: ProductResponse, user: Users) -> ProductAnalys
            let sodiumRDA = rda["sodium"] {
             let percentage = calculatePercentage(nutrient: sodium, rdaValue: sodiumRDA)
             if percentage > 20 {
-                cons.append(NutrientFeedback(summaryPoint: "Contains a high amount of sodium", value: Int(percentage), message: "use with caution if frequent"))
+                cons.append(NutrientFeedback(summaryPoint: "Contains a high amount of sodium", value: Float(percentage), message: "use with caution if frequent"))
             }
         }
     }
@@ -464,243 +464,243 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
         "energy": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "provides a boost"
-                return ([NutrientFeedback(summaryPoint: "High in energy", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "High in energy", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Has a low amount of calories", value: Int(percentage), message: "light option but may not sustain you")])
+                return ([], [NutrientFeedback(summaryPoint: "Has a low amount of calories", value: Float(percentage), message: "light option but may not sustain you")])
             }
             return ([], [])
         },
         "protein": { percentage in
             if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a low amount of protein", value: Int(percentage), message: "may not sustain energy")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a low amount of protein", value: Float(percentage), message: "may not sustain energy")])
             } else if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports muscle health"
-                return ([NutrientFeedback(summaryPoint: "Rich in protein", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in protein", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "total fat": { percentage in
             if percentage >= 25 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of fat", value: Int(percentage), message: "consider moderation")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of fat", value: Float(percentage), message: "consider moderation")])
             } else if percentage < 5 && percentage > 0 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "heart-healthy but may lack richness"
-                return ([NutrientFeedback(summaryPoint: "Has a low amount of fat", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Has a low amount of fat", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "saturated fat": { percentage in
             if percentage > 20 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of saturated fat", value: Int(percentage), message: "limit intake")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of saturated fat", value: Float(percentage), message: "limit intake")])
             } else if percentage < 5 && percentage > 0 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "heart-friendly"
-                return ([NutrientFeedback(summaryPoint: "Low in saturated fat", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Low in saturated fat", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "carbohydrates": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "provides energy"
-                return ([NutrientFeedback(summaryPoint: "Rich in carbohydrates", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in carbohydrates", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Has a low amount of carbs", value: Int(percentage), message: "may lack energy")])
+                return ([], [NutrientFeedback(summaryPoint: "Has a low amount of carbs", value: Float(percentage), message: "may lack energy")])
             }
             return ([], [])
         },
         "fiber": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids digestion"
-                return ([NutrientFeedback(summaryPoint: "Rich in fiber", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in fiber", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in fiber", value: Int(percentage), message: "may not support digestion")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in fiber", value: Float(percentage), message: "may not support digestion")])
             }
             return ([], [])
         },
         "sugars": { percentage in
             if percentage > 20 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of sugar", value: Int(percentage), message: "limit consumption")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of sugar", value: Float(percentage), message: "limit consumption")])
             } else if percentage < 5 && percentage > 0 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "suits your goals"
-                return ([NutrientFeedback(summaryPoint: "Low in sugar", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Low in sugar", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "sodium": { percentage in
             if percentage > 20 {
-                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of sodium", value: Int(percentage), message: "watch intake")])
+                return ([], [NutrientFeedback(summaryPoint: "Contains a high amount of sodium", value: Float(percentage), message: "watch intake")])
             } else if percentage < 5 && percentage > 0 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "heart-friendly"
-                return ([NutrientFeedback(summaryPoint: "Low in sodium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Low in sodium", value: Float(percentage), message: message)], [])
             }
             return ([], [])
         },
         "calcium": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports bones"
-                return ([NutrientFeedback(summaryPoint: "Rich in calcium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in calcium", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in calcium", value: Int(percentage), message: "may affect bone strength")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in calcium", value: Float(percentage), message: "may affect bone strength")])
             }
             return ([], [])
         },
         "magnesium": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids muscle function"
-                return ([NutrientFeedback(summaryPoint: "Rich in magnesium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in magnesium", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in magnesium", value: Int(percentage), message: "may impact energy")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in magnesium", value: Float(percentage), message: "may impact energy")])
             }
             return ([], [])
         },
         "iron": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports blood health"
-                return ([NutrientFeedback(summaryPoint: "Rich in iron", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in iron", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in iron", value: Int(percentage), message: "may impact oxygen transport")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in iron", value: Float(percentage), message: "may impact oxygen transport")])
             }
             return ([], [])
         },
         "zinc": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "boosts immunity"
-                return ([NutrientFeedback(summaryPoint: "Rich in zinc", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in zinc", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in zinc", value: Int(percentage), message: "may weaken immune function")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in zinc", value: Float(percentage), message: "may weaken immune function")])
             }
             return ([], [])
         },
         "iodine": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports thyroid function"
-                return ([NutrientFeedback(summaryPoint: "Rich in iodine", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in iodine", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in iodine", value: Int(percentage), message: "may affect thyroid function")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in iodine", value: Float(percentage), message: "may affect thyroid function")])
             }
             return ([], [])
         },
         "potassium": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports blood pressure"
-                return ([NutrientFeedback(summaryPoint: "Rich in potassium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in potassium", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in potassium", value: Int(percentage), message: "may affect muscle function")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in potassium", value: Float(percentage), message: "may affect muscle function")])
             }
             return ([], [])
         },
         "phosphorus": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports bone health"
-                return ([NutrientFeedback(summaryPoint: "Rich in phosphorus", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in phosphorus", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in phosphorus", value: Int(percentage), message: "may affect bone strength")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in phosphorus", value: Float(percentage), message: "may affect bone strength")])
             }
             return ([], [])
         },
         "copper": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports metabolism"
-                return ([NutrientFeedback(summaryPoint: "Rich in copper", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in copper", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in copper", value: Int(percentage), message: "may affect energy levels")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in copper", value: Float(percentage), message: "may affect energy levels")])
             }
             return ([], [])
         },
         "selenium": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "offers antioxidant benefits"
-                return ([NutrientFeedback(summaryPoint: "Rich in selenium", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in selenium", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in selenium", value: Int(percentage), message: "limited antioxidant support")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in selenium", value: Float(percentage), message: "limited antioxidant support")])
             }
             return ([], [])
         },
         "vitamin a": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids vision"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin A", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin A", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin A", value: Int(percentage), message: "may affect vision")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin A", value: Float(percentage), message: "may affect vision")])
             }
             return ([], [])
         },
         "vitamin c": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "boosts immunity"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin C", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin C", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin C", value: Int(percentage), message: "limited immune support")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin C", value: Float(percentage), message: "limited immune support")])
             }
             return ([], [])
         },
         "vitamin d": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports bones"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin D", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin D", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin D", value: Int(percentage), message: "may affect bone strength")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin D", value: Float(percentage), message: "may affect bone strength")])
             }
             return ([], [])
         },
         "vitamin e": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "offers antioxidant benefits"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin E", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin E", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin E", value: Int(percentage), message: "limited antioxidant support")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin E", value: Float(percentage), message: "limited antioxidant support")])
             }
             return ([], [])
         },
         "thiamine": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports energy metabolism"
-                return ([NutrientFeedback(summaryPoint: "Rich in thiamine", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in thiamine", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in thiamine", value: Int(percentage), message: "may affect energy levels")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in thiamine", value: Float(percentage), message: "may affect energy levels")])
             }
             return ([], [])
         },
         "riboflavin": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids metabolism"
-                return ([NutrientFeedback(summaryPoint: "Rich in riboflavin", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in riboflavin", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in riboflavin", value: Int(percentage), message: "may impact energy")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in riboflavin", value: Float(percentage), message: "may impact energy")])
             }
             return ([], [])
         },
         "niacin": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports digestion"
-                return ([NutrientFeedback(summaryPoint: "Rich in niacin", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in niacin", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in niacin", value: Int(percentage), message: "may affect digestion")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in niacin", value: Float(percentage), message: "may affect digestion")])
             }
             return ([], [])
         },
         "vitamin b6": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "aids brain health"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin B6", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin B6", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B6", value: Int(percentage), message: "may impact mood")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B6", value: Float(percentage), message: "may impact mood")])
             }
             return ([], [])
         },
         "folate": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports cell growth"
-                return ([NutrientFeedback(summaryPoint: "Rich in folate", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in folate", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in folate", value: Int(percentage), message: "may affect cell function")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in folate", value: Float(percentage), message: "may affect cell function")])
             }
             return ([], [])
         },
         "vitamin b12": { percentage in
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "supports nerve health"
-                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin B12", value: Int(percentage), message: message)], [])
+                return ([NutrientFeedback(summaryPoint: "Rich in Vitamin B12", value: Float(percentage), message: message)], [])
             } else if percentage < 5 && percentage > 0 {
-                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B12", value: Int(percentage), message: "may affect nerve health")])
+                return ([], [NutrientFeedback(summaryPoint: "Low in Vitamin B12", value: Float(percentage), message: "may affect nerve health")])
             }
             return ([], [])
         }
@@ -727,7 +727,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
             let percentage = calculatePercentage(nutrient: energy, rdaValue: energyRDA)
             if percentage >= 20 {
                 let message = percentage > 85 ? "check serving size, may exceed your needs" : "great for a boost"
-                pros.append(NutrientFeedback(summaryPoint: "Provides a high amount of energy", value: Int(percentage), message: message))
+                pros.append(NutrientFeedback(summaryPoint: "Provides a high amount of energy", value: Float(percentage), message: message))
             }
         }
     }
@@ -737,7 +737,7 @@ func generateProsAndCons(product: ProductData, user: Users) -> ProductAnalysis {
            let sodiumRDA = rda["sodium"] {
             let percentage = calculatePercentage(nutrient: sodium, rdaValue: sodiumRDA)
             if percentage > 20 {
-                cons.append(NutrientFeedback(summaryPoint: "Contains a high amount of sodium", value: Int(percentage), message: "use with caution if frequent"))
+                cons.append(NutrientFeedback(summaryPoint: "Contains a high amount of sodium", value: Float(percentage), message: "use with caution if frequent"))
             }
         }
     }

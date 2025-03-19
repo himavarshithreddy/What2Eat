@@ -51,6 +51,11 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         SwitchScanButton.layer.cornerRadius=8
         SwitchScanButton.layer.masksToBounds = true
         SwitchScanButton.layer.borderWidth = 1.5
+        SwitchScanButton.setTitleColor(.white, for: .normal)
+        SwitchScanButton.setTitleColor(.white, for: .highlighted)
+        SwitchScanButton.setTitleColor(.white, for: .selected)
+        SwitchScanButton.setTitleColor(.white, for: .disabled)
+        SwitchScanButton.tintAdjustmentMode = .normal
         SwitchScanButton.clipsToBounds = true
         SwitchScanButton.layer.borderColor = UIColor.white.cgColor
     }
@@ -247,13 +252,19 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
                 print("No Product ID found for the given barcode in Firebase")
                 // If no product ID is found for the scanned barcode, show an alert.
                 DispatchQueue.main.async {
+                    self.continuouslyHighlightSwitchScanButton(true)
+
                     let alert = UIAlertController(title: "Product Not Found",
-                                                  message: "Try Scanning with Label for the product analysis",
+                                                  message: "Please try capturing the product label by tapping the 'Scan with Label' button below.",
                                                   preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [self] _ in
+                        self.continuouslyHighlightSwitchScanButton(false)
                         DispatchQueue.global(qos: .background).async {
+                           
+
                             self.captureSession?.startRunning()
                         }
+                        
                     }))
                     self.present(alert, animated: true)
                 }
@@ -336,7 +347,37 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
                 completion(productId)
             }
     }
-    
+    private func continuouslyHighlightSwitchScanButton(_ shouldAnimate: Bool) {
+        if shouldAnimate {
+            // Ensure text color stays white
+            SwitchScanButton.setTitleColor(.white, for: .normal)
+            
+            // Background color pulse animation
+            let bgAnimation = CABasicAnimation(keyPath: "backgroundColor")
+            bgAnimation.fromValue = UIColor.clear.cgColor
+            bgAnimation.toValue = UIColor.systemOrange.withAlphaComponent(0.5).cgColor
+            bgAnimation.duration = 0.5
+            bgAnimation.autoreverses = true
+            bgAnimation.repeatCount = .infinity
+            SwitchScanButton.layer.add(bgAnimation, forKey: "backgroundColorPulse")
+
+            // Border color pulse animation
+            let borderAnimation = CABasicAnimation(keyPath: "borderColor")
+            borderAnimation.fromValue = UIColor.white.cgColor
+            borderAnimation.toValue = UIColor.systemOrange.cgColor
+            borderAnimation.duration = 0.5
+            borderAnimation.autoreverses = true
+            borderAnimation.repeatCount = .infinity
+            SwitchScanButton.layer.add(borderAnimation, forKey: "borderColorPulse")
+        } else {
+            // Stop animations
+            SwitchScanButton.layer.removeAllAnimations()
+            // Reset to default appearance if needed
+            SwitchScanButton.backgroundColor = .clear
+            SwitchScanButton.layer.borderColor = UIColor.white.cgColor
+        }
+    }
+
     @IBAction func switchToLabelScan(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let labelScanVC = storyboard.instantiateViewController(withIdentifier: "ScanwithLabel") as? ScanWithLabelViewController {

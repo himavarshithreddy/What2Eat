@@ -208,7 +208,7 @@ class NameGenderViewController: UIViewController, UITextFieldDelegate {
                // 2 buttons * 55 height each + 20 spacing
                genderStackView.heightAnchor.constraint(equalToConstant: 388),
             
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
             nextButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             nextButton.widthAnchor.constraint(equalToConstant: 337),
             nextButton.heightAnchor.constraint(equalToConstant: 54)
