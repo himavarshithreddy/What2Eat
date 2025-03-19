@@ -156,7 +156,7 @@ let allergies: [String] = [
 
 
 let allergenMapping: [String: [String]] = [
-    "Milk": ["Milk", "Casein", "Lactose", "Whey", "Butter", "Cheese", "Curds", "Ghee", "Cream"],
+    "Milk": ["Milk", "Casein", "Lactose", "Whey", "Butter", "Cheese", "Curds", "Ghee", "Cream","Dairy"],
     "Eggs": ["Egg", "Albumin", "Mayonnaise", "Ovalbumin", "Lysozyme"],
     "Fish": ["Fish", "Cod", "Salmon", "Tuna", "Anchovy", "Haddock", "Fish Sauce"],
     "Shellfish": ["Crab", "Lobster", "Shrimp", "Prawn", "Scallop", "Oyster", "Clam"],

@@ -189,7 +189,7 @@ class HeightViewController: UIViewController {
             heightDisplayLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
             // Next Button
-            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            nextButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -25),
             nextButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             nextButton.widthAnchor.constraint(equalToConstant: 337),
             nextButton.heightAnchor.constraint(equalToConstant: 54)

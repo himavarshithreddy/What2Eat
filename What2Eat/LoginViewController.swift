@@ -14,14 +14,21 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet var verificationCodeTextField: UITextField!
     @IBOutlet var sendCodeButton: UIButton!
     @IBOutlet var ResendCodeLabel: UILabel!
-    @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    
     @IBOutlet var VerificationView: UIView!
+    @IBOutlet var googleSignInButton: UIButton!
+    @IBOutlet var appleSignInButton: UIButton!
+    
     // MARK: - Properties
     var verificationID: String?
     var currentUserUID: String?
     private var resendTimer: Timer?
     private var resendCooldown: Int = 0
+
+    
+    // Activity Indicators
+    private let phoneAuthIndicator = UIActivityIndicatorView(style: .medium)
+    private let googleAuthIndicator = UIActivityIndicatorView(style: .medium)
+    private let appleAuthIndicator = UIActivityIndicatorView(style: .medium)
     
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
@@ -32,12 +39,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         ResendCodeLabel.isHidden = true
         VerificationView.isHidden = true
         
-        // Configure activity indicator
-        activityIndicator = UIActivityIndicatorView(style: .large)
-        activityIndicator.center = view.center
-        view.addSubview(activityIndicator)
-        activityIndicator.color = UIColor(red: 254/255, green: 139/255, blue: 54/255, alpha: 1)
-        
         // Set text field delegates
         phoneTextField.delegate = self
         verificationCodeTextField.delegate = self
@@ -45,8 +46,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         // Configure resend code label with tap gesture
         ResendCodeLabel.isUserInteractionEnabled = true
         ResendCodeLabel.text = "Resend Code"
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(resendCodeTapped))
-        ResendCodeLabel.addGestureRecognizer(tapGesture)
+        let tapGesture1 = UITapGestureRecognizer(target: self, action: #selector(resendCodeTapped))
+        ResendCodeLabel.addGestureRecognizer(tapGesture1)
+        
+        // Configure activity indicators
+        setupActivityIndicators()
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+                // Ensure that tap gestures in subviews (like buttons) aren’t canceled
+                tapGesture.cancelsTouchesInView = false
+                view.addGestureRecognizer(tapGesture)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -54,10 +62,67 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         resendTimer?.invalidate()
     }
     
+    // MARK: - Helper Methods
+    private func setupActivityIndicators() {
+        // Phone Auth Indicator
+        phoneAuthIndicator.color = .white
+        phoneAuthIndicator.hidesWhenStopped = true
+        sendCodeButton.addSubview(phoneAuthIndicator)
+        phoneAuthIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            phoneAuthIndicator.centerXAnchor.constraint(equalTo: sendCodeButton.centerXAnchor),
+            phoneAuthIndicator.centerYAnchor.constraint(equalTo: sendCodeButton.centerYAnchor)
+        ])
+        
+        // Google Auth Indicator
+        googleAuthIndicator.color = .black
+        googleAuthIndicator.hidesWhenStopped = true
+        googleSignInButton.addSubview(googleAuthIndicator)
+        googleAuthIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            googleAuthIndicator.centerXAnchor.constraint(equalTo: googleSignInButton.centerXAnchor),
+            googleAuthIndicator.centerYAnchor.constraint(equalTo: googleSignInButton.centerYAnchor)
+        ])
+        
+        // Apple Auth Indicator
+        appleAuthIndicator.color = .white
+        appleAuthIndicator.hidesWhenStopped = true
+        appleSignInButton.addSubview(appleAuthIndicator)
+        appleAuthIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            appleAuthIndicator.centerXAnchor.constraint(equalTo: appleSignInButton.centerXAnchor),
+            appleAuthIndicator.centerYAnchor.constraint(equalTo: appleSignInButton.centerYAnchor)
+        ])
+    }
+    
+    private func showLoading(for button: UIButton, indicator: UIActivityIndicatorView, originalTitle: String) {
+        button.setTitle("", for: .normal)
+        button.titleLabel!.font = .systemFont(ofSize: 17, weight: .semibold)
+        button.setImage(nil, for: .normal)
+        button.imageView!.isHidden = true
+        indicator.startAnimating()
+       
+    }
+    
+    private func hideLoading(for button: UIButton, indicator: UIActivityIndicatorView, originalTitle: String) {
+        indicator.stopAnimating()
+        button.setTitle(originalTitle, for: .normal)
+        button.titleLabel!.font = .systemFont(ofSize: 17, weight: .semibold)
+      
+        button.imageView!.isHidden = false
+        if button == googleSignInButton {
+                    button.setImage(UIImage(named: "icons8-google-48"), for: .normal) // Replace with your actual Google icon name
+                } else if button == appleSignInButton {
+                    button.setImage(UIImage(named: "Logo - SIWA - Left-aligned - White - Medium"), for: .normal) // Replace with your actual Apple icon name
+                }
+        button.isEnabled = true
+    }
+    
     // MARK: - Actions
     @IBAction func sendCodeButtonTapped(_ sender: Any) {
+        let originalTitle = verificationCodeTextField.isHidden ? "Continue" : "Verify Code"
+        
         if verificationCodeTextField.isHidden {
-            // Send verification code
             guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
                 showAlert(message: "Please enter a phone number.")
                 return
@@ -68,11 +133,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 return
             }
             
-            activityIndicator.startAnimating()
-            view.isUserInteractionEnabled = false
+            showLoading(for: sendCodeButton, indicator: phoneAuthIndicator, originalTitle: originalTitle)
             sendVerificationCode(phoneNumber: phoneNumber)
         } else {
-            // Verify code
             guard let verificationCode = verificationCodeTextField.text, !verificationCode.isEmpty else {
                 showAlert(message: "Please enter the verification code.")
                 return
@@ -85,12 +148,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             
             let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
             
-            activityIndicator.startAnimating()
-            view.isUserInteractionEnabled = false
-            
-            Auth.auth().signIn(with: credential) { authResult, error in
-                self.activityIndicator.stopAnimating()
-                self.view.isUserInteractionEnabled = true
+            showLoading(for: sendCodeButton, indicator: phoneAuthIndicator, originalTitle: originalTitle)
+            Auth.auth().signIn(with: credential) { [weak self] authResult, error in
+                guard let self = self else { return }
+                
+                self.hideLoading(for: self.sendCodeButton, indicator: self.phoneAuthIndicator, originalTitle: originalTitle)
                 
                 if let error = error {
                     self.showAlert(message: "Error verifying code: \(error.localizedDescription)")
@@ -106,12 +168,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func GoogleSignInButtonTapped(_ sender: Any) {
-        activityIndicator.startAnimating()
-        view.isUserInteractionEnabled = false
+        showLoading(for: googleSignInButton, indicator: googleAuthIndicator, originalTitle: "Continue with Google")
         
-        GIDSignIn.sharedInstance.signIn(withPresenting: self) { signInResult, error in
-            self.activityIndicator.stopAnimating()
-            self.view.isUserInteractionEnabled = true
+        GIDSignIn.sharedInstance.signIn(withPresenting: self) { [weak self] signInResult, error in
+            guard let self = self else { return }
+            
+            self.hideLoading(for: self.googleSignInButton, indicator: self.googleAuthIndicator, originalTitle: "Continue with Google")
             
             if let error = error {
                 self.showAlert(message: "Error Signing In: \(error.localizedDescription)")
@@ -125,7 +187,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
             
+            showLoading(for: self.googleSignInButton, indicator: self.googleAuthIndicator, originalTitle: "Continue with Google")
             Auth.auth().signIn(with: credential) { authResult, error in
+                self.hideLoading(for: self.googleSignInButton, indicator: self.googleAuthIndicator, originalTitle: "Continue with Google")
+                
                 if let error = error {
                     self.showAlert(message: "Error Signing In: \(error.localizedDescription)")
                     return
@@ -138,10 +203,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-//    @IBAction func continueAsGuest(_ sender: Any) {
-//        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-//        navigateToTabBarController()
-//    }
+    @IBAction func SigninwithAppleButtonTapped(_ sender: Any) {
+        showLoading(for: appleSignInButton, indicator: appleAuthIndicator, originalTitle: "Continue with Apple")
+        startSignInWithAppleFlow()
+    }
     
     @objc func resendCodeTapped() {
         guard let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
@@ -150,10 +215,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
         
         if resendCooldown == 0 {
+            showLoading(for: sendCodeButton, indicator: phoneAuthIndicator, originalTitle: "Verify Code")
             sendVerificationCode(phoneNumber: phoneNumber, isResend: true)
         }
     }
-    
+    @objc func dismissKeyboard() {
+           view.endEditing(true)
+       }
     // MARK: - Firestore Methods
     private func fetchUserData(uid: String, completion: @escaping (Users?) -> Void) {
         let db = Firestore.firestore()
@@ -345,9 +413,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Helper Methods
     private func sendVerificationCode(phoneNumber: String, isResend: Bool = false) {
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { verificationID, error in
-            self.activityIndicator.stopAnimating()
-            self.view.isUserInteractionEnabled = true
+        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
+            guard let self = self else { return }
+            
+            self.hideLoading(for: self.sendCodeButton, indicator: self.phoneAuthIndicator, originalTitle: isResend ? "Verify Code" : "Continue")
             
             if let error = error {
                 self.showAlert(message: "Error sending verification code: \(error.localizedDescription)")
@@ -365,8 +434,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             self.startResendCooldown()
             
             if isResend {
-                            self.showStatusMessage("Code Successfully Resent")
-                        }
+                self.showStatusMessage("Code Successfully Resent")
+            }
         }
     }
     
@@ -401,83 +470,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         self.present(alertController, animated: true, completion: nil)
     }
     
-    // MARK: - UITextFieldDelegate
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let currentText = textField.text ?? ""
-        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
-        
-        if textField == phoneTextField {
-            // Must start with "+"
-            if newText.hasPrefix("+") {
-                let remaining = String(newText.dropFirst())
-                let pattern1 = "^\\d*$"
-                let pattern2 = "^\\d{2} \\d*$"
-                // Check if the remaining text matches either pattern
-                if remaining.range(of: pattern1, options: .regularExpression) != nil ||
-                   remaining.range(of: pattern2, options: .regularExpression) != nil {
-                    return newText.count <= 14      // Enforce max length
-                }
-            }
-            return false // Disallow if it doesn’t start with "+"
-        } else if textField == verificationCodeTextField {
-            // For verification code: only digits, max 6
-            let allowedCharacters = CharacterSet.decimalDigits
-            let characterSet = CharacterSet(charactersIn: string)
-            return allowedCharacters.isSuperset(of: characterSet) && newText.count <= 6
-        }
-        return true
-    }
-
-
-    @IBAction func SigninwithAppleButtonTapped(_ sender: Any) {
-        
-        activityIndicator.startAnimating()
-            view.isUserInteractionEnabled = false
-            startSignInWithAppleFlow()
-        
-        
-    }
-    private var currentNonce: String?
-
-    // Add these methods before your existing actions
-    private func startSignInWithAppleFlow() {
-        let nonce = randomNonceString()
-        currentNonce = nonce
-        
-        let appleIDProvider = ASAuthorizationAppleIDProvider()
-        let request = appleIDProvider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        request.nonce = sha256(nonce)
-        
-        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-        authorizationController.delegate = self
-        authorizationController.presentationContextProvider = self
-        authorizationController.performRequests()
-    }
-
-    private func randomNonceString(length: Int = 32) -> String {
-        precondition(length > 0)
-        var randomBytes = [UInt8](repeating: 0, count: length)
-        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
-        if errorCode != errSecSuccess {
-            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
-        }
-        
-        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-        let nonce = randomBytes.map { byte in
-            charset[Int(byte) % charset.count]
-        }
-        return String(nonce)
-    }
-
-    private func sha256(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashedData = SHA256.hash(data: inputData)
-        let hashString = hashedData.compactMap {
-            String(format: "%02x", $0)
-        }.joined()
-        return hashString
-    }
     private func showStatusMessage(_ message: String) {
         let toastView = UIView()
         toastView.backgroundColor = UIColor.darkGray.withAlphaComponent(0.9)
@@ -505,7 +497,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             toastLabel.trailingAnchor.constraint(equalTo: toastView.trailingAnchor, constant: -15)
         ])
         
-        // Animate toast appearance and disappearance
         toastView.alpha = 0
         UIView.animate(withDuration: 0.3, animations: {
             toastView.alpha = 1
@@ -517,26 +508,90 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             })
         })
     }
+    
+    // MARK: - Apple Sign In
+    private var currentNonce: String?
+    
+    private func startSignInWithAppleFlow() {
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        
+        let appleIDProvider = ASAuthorizationAppleIDProvider()
+        let request = appleIDProvider.createRequest()
+        request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(nonce)
+        
+        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+        authorizationController.delegate = self
+        authorizationController.presentationContextProvider = self
+        authorizationController.performRequests()
+    }
+    
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        var randomBytes = [UInt8](repeating: 0, count: length)
+        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+        if errorCode != errSecSuccess {
+            fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+        }
+        
+        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        let nonce = randomBytes.map { byte in
+            charset[Int(byte) % charset.count]
+        }
+        return String(nonce)
+    }
+    
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        let hashString = hashedData.compactMap {
+            String(format: "%02x", $0)
+        }.joined()
+        return hashString
+    }
+    
+    // MARK: - UITextFieldDelegate
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
+        
+        if textField == phoneTextField {
+            if newText.hasPrefix("+") {
+                let remaining = String(newText.dropFirst())
+                let pattern1 = "^\\d*$"
+                let pattern2 = "^\\d{2} \\d*$"
+                if remaining.range(of: pattern1, options: .regularExpression) != nil ||
+                   remaining.range(of: pattern2, options: .regularExpression) != nil {
+                    return newText.count <= 14
+                }
+            }
+            return false
+        } else if textField == verificationCodeTextField {
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet) && newText.count <= 6
+        }
+        return true
+    }
 }
-// Add these extensions at the bottom of your file
+
+// MARK: - Extensions
 extension LoginViewController: ASAuthorizationControllerDelegate {
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             guard let nonce = currentNonce else {
-                activityIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
+                hideLoading(for: appleSignInButton, indicator: appleAuthIndicator, originalTitle: "Continue with Apple")
                 showAlert(message: "Invalid state: No login request was sent.")
                 return
             }
             guard let appleIDToken = appleIDCredential.identityToken else {
-                activityIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
+                hideLoading(for: appleSignInButton, indicator: appleAuthIndicator, originalTitle: "Continue with Apple")
                 showAlert(message: "Unable to fetch identity token.")
                 return
             }
             guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
-                activityIndicator.stopAnimating()
-                view.isUserInteractionEnabled = true
+                hideLoading(for: appleSignInButton, indicator: appleAuthIndicator, originalTitle: "Continue with Apple")
                 showAlert(message: "Unable to serialize token string.")
                 return
             }
@@ -545,9 +600,10 @@ extension LoginViewController: ASAuthorizationControllerDelegate {
                                                     idToken: idTokenString,
                                                     rawNonce: nonce)
             
-            Auth.auth().signIn(with: credential) { authResult, error in
-                self.activityIndicator.stopAnimating()
-                self.view.isUserInteractionEnabled = true
+            Auth.auth().signIn(with: credential) { [weak self] authResult, error in
+                guard let self = self else { return }
+                
+                self.hideLoading(for: self.appleSignInButton, indicator: self.appleAuthIndicator, originalTitle: "Continue with Apple")
                 
                 if let error = error {
                     self.showAlert(message: "Error signing in with Apple: \(error.localizedDescription)")
@@ -563,9 +619,8 @@ extension LoginViewController: ASAuthorizationControllerDelegate {
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        activityIndicator.stopAnimating()
-        view.isUserInteractionEnabled = true
-        showAlert(message: "Sign in with Apple failed: \(error.localizedDescription)")
+        hideLoading(for: appleSignInButton, indicator: appleAuthIndicator, originalTitle: "Continue with Apple")
+        showAlert(message: "Continue with Apple failed: \(error.localizedDescription)")
     }
 }
 

@@ -143,11 +143,12 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
                                                   message: "Are you sure you want to delete all recent scans?",
                                                   preferredStyle: .actionSheet)
         
-        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
+        let deleteAction = UIAlertAction(title: "Delete All", style: .destructive) { _ in
             // Remove the local storage entry and clear the current array.
             UserDefaults.standard.removeObject(forKey: "localRecentScans")
             self.recentScansProducts.removeAll()
             self.recentScanTableView.reloadData()
+            self.navigationController?.popViewController(animated: true)
         }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)

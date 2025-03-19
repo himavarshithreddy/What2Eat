@@ -94,13 +94,14 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             let isExpanded = expandedIndexPaths[indexPath] ?? false
             if let product = productAnalysis {
                 if !product.pros.isEmpty && indexPath.section == 0 {
-                    // Pros section
                     let pro = product.pros[indexPath.row]
                     cell.HighlightText.text = pro.summaryPoint
                     cell.iconImage.image = UIImage(systemName: "checkmark.square.fill")
                     cell.iconImage.tintColor = .systemGreen
+                    
                     if pro.summaryPoint != "Contains some nutrients" {
-                        cell.DescriptionText.text = pro.value >= 85 ? ">85% of your RDA, check serving size, may exceed your needs" : "\(pro.value)% of your recommended daily Intake."
+                        let proValueText = pro.value < 0.1 ? "<0.1" : String(format: "%.1f", pro.value)
+                        cell.DescriptionText.text = pro.value >= 85 ? ">85% of your RDA, check serving size, may exceed your needs" : "\(proValueText)% of your recommended daily Intake."
                         cell.ProgressBar.progress = Float(pro.value) / 100.0
                         cell.ProgressBar.progressTintColor = .systemGreen
                         cell.ProgressBar.alpha = 1
@@ -111,13 +112,13 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     }
                     
                 } else if !product.cons.isEmpty && indexPath.section == (product.pros.isEmpty ? 0 : 1) {
-                    // Cons section
                     let con = product.cons[indexPath.row]
                     cell.HighlightText.text = con.summaryPoint
                     cell.iconImage.image = UIImage(systemName: "exclamationmark.triangle.fill")
                     cell.iconImage.tintColor = .systemRed
                     if con.summaryPoint != "No major concerns detected" {
-                        cell.DescriptionText.text = con.value >= 100 ? "check serving size, may exceed your needs" : "\(con.value)% of your recommended daily Intake."
+                        let conValueText = con.value < 0.1 ? "<0.1" : String(format: "%.1f", con.value)
+                        cell.DescriptionText.text = con.value >= 100 ? ">100% of your RDA, check serving size" : "\(conValueText)% of your recommended daily Intake."
                         cell.ProgressBar.progress = Float(con.value) / 100.0
                         cell.ProgressBar.progressTintColor = .systemRed
                         cell.ProgressBar.alpha = 1
@@ -128,6 +129,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     }
                 }
             }
+
             cell.configureExpandButton(isExpanded: isExpanded)
             cell.onExpandButtonTapped = { [weak self] in
                 guard let self = self else { return }
