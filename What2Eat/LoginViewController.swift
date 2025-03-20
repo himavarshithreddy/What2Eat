@@ -56,7 +56,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 tapGesture.cancelsTouchesInView = false
                 view.addGestureRecognizer(tapGesture)
     }
-    
+    @objc func dismissKeyboard() {
+           view.endEditing(true)
+       }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         resendTimer?.invalidate()
@@ -219,9 +221,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             sendVerificationCode(phoneNumber: phoneNumber, isResend: true)
         }
     }
-    @objc func dismissKeyboard() {
-           view.endEditing(true)
-       }
+   
     // MARK: - Firestore Methods
     private func fetchUserData(uid: String, completion: @escaping (Users?) -> Void) {
         let db = Firestore.firestore()

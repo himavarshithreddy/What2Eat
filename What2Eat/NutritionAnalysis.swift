@@ -919,19 +919,21 @@ func getRDAPercentages(product: ProductData, user: Users) -> [String: Double] {
 }
 let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
     .lowSodium: { product in
-        if let sodium = product.nutritionInfo.first(where: { $0.name.lowercased() == "sodium" }) {
+        if let sodium = product.nutritionInfo.first(where: { $0.name.lowercased() == "sodium" || $0.name.lowercased() == "salt" }) {
             let sodiumInMg: Float
             switch sodium.unit.lowercased() {
             case "mg":
                 sodiumInMg = sodium.value
             case "g":
-                sodiumInMg = sodium.value * 1000 // 1 gram = 1000 milligrams
+                sodiumInMg = sodium.value * 1000
+            case "mcg":
+                        sodiumInMg = sodium.value / 1000// 1 gram = 1000 milligrams
             default:
-                return false // Unknown unit
+                sodiumInMg = sodium.value
             }
             return sodiumInMg <= 120
         }
-        return false
+        return true
     },
         .vegan: { product in
             let nonVegan = [
@@ -969,7 +971,7 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
             return !ingredientsViolate && !allergensViolate && !artificialViolate
         },
     .sugarFree: { product in
-        if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugars" || $0.name.lowercased() == "total sugars" }) {
+        if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugars" || $0.name.lowercased() == "total sugars" || $0.name.lowercased() == "total sugar" || $0.name.lowercased() == "sugar" }) {
             let sugarInGrams: Float
             switch sugar.unit.lowercased() {
             case "g":
@@ -977,11 +979,11 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
             case "mg":
                 sugarInGrams = sugar.value / 1000 // Convert milligrams to grams
             default:
-                return false // Unknown unit
+                sugarInGrams = sugar.value
             }
             return sugarInGrams <= 0.5
         }
-        return false
+        return true
     },
         .lowCalorie: { product in
             if let energy = product.nutritionInfo.first(where: { $0.name.lowercased() == "energy" || $0.name.lowercased() == "calories" }) {
@@ -997,7 +999,7 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
                 }
                 return energyInKcal <= 40.0
             }
-            return false
+            return true
         },
 //        .ketoDiet: { product in
 //            if let carbs = product.nutritionInfo.first(where: { $0.name.lowercased() == "carbohydrates" || $0.name.lowercased() == "total carbohydrates" }),
@@ -1022,7 +1024,7 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
 //            return !ingredientsViolate && !allergensViolate && !artificialViolate
 //        },
        .lowSugar: { product in
-            if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugar" || $0.name.lowercased() == "total sugars" }) {
+            if let sugar = product.nutritionInfo.first(where: { $0.name.lowercased() == "sugar" || $0.name.lowercased() == "total sugars" || $0.name.lowercased() == "total sugar" || $0.name.lowercased() == "sugar" }) {
                 let sugarInGrams: Float
                 switch sugar.unit.lowercased() {
                 case "mg":
@@ -1035,7 +1037,7 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
                 }
                 return sugarInGrams <= 5.0
             }
-            return false
+            return true
         },
         .lactoseFree: { product in
             let dairy = [
@@ -1089,7 +1091,7 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
                     return !ingredientsViolate && !allergensViolate && !artificialViolate
                 },
         .lowFat: { product in
-                if let fat = product.nutritionInfo.first(where: { $0.name.lowercased() == "fat" || $0.name.lowercased() == "total fat" }) {
+                if let fat = product.nutritionInfo.first(where: { $0.name.lowercased() == "fat" || $0.name.lowercased() == "total fat" || $0.name.lowercased() == "fats" || $0.name.lowercased() == "total fats" }) {
                     let fatInGrams: Float
                     switch fat.unit.lowercased() {
                     case "mg":
@@ -1102,6 +1104,8 @@ let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
                     }
                     return fatInGrams <= 3.0
                 }
-                return false
+                return true
             }
+    
+
     ]
