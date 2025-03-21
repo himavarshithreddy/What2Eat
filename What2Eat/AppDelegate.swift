@@ -20,7 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UNUserNotificationCenter.current().delegate = self
                 Messaging.messaging().delegate = self
         let _ = RecommendationManager.shared
-
+        CoreDataManager.shared.cleanupIfNeeded()
+        
         // Override point for customization after application launch.
         return true
     }

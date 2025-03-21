@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D70" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D81" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="ScanWithLabelProduct" representedClassName="ScanWithLabelProduct" syncable="YES" codeGenerationType="class">
         <attribute name="analysis" optional="YES" attributeType="Binary"/>
         <attribute name="healthScore" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="imageData" optional="YES" attributeType="Binary"/>
         <attribute name="ingredients" optional="YES" attributeType="Binary"/>
+        <attribute name="isRecent" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isSaved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="nutrition" optional="YES" attributeType="Binary"/>
     </entity>
