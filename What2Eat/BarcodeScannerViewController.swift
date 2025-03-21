@@ -86,20 +86,17 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
             
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
             metadataOutput.metadataObjectTypes = [
-                    .aztec,
-                    .code39,
-                    .code39Mod43,
-                    .code93,
-                    .code128,
-                    .dataMatrix,
-                    .ean8,
-                    .ean13,
-                    .interleaved2of5,
-                    .itf14,
-                    .pdf417,
-                    .qr,
-                    .upce
-                ] // Set barcode types
+                .code39,
+                .code39Mod43,
+                .code93,
+                .code128,
+                .ean8,
+                .ean13,
+                .interleaved2of5,
+                .itf14,
+                .upce
+            ]
+ 
         }
         
      
@@ -298,8 +295,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
                 present(imagePicker, animated: true)
     }
     private func saveToRecentScans(productId: String, completion: @escaping (Bool) -> Void) {
-        // Store scans locally using UserDefaults
-        saveScanLocally(productId: productId)
+        ScanManager.saveToRecentScans(type: "barcode", id: productId)
         completion(true)
     }
 

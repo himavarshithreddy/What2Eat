@@ -1662,6 +1662,7 @@
                         <segue destination="6Wh-5a-MyP" kind="show" identifier="showproductdetailsfromhome" id="0rE-kq-IOP"/>
                         <segue destination="pZV-Cy-AF3" kind="show" identifier="showSearchScreen" id="z8S-oe-78q"/>
                         <segue destination="ez5-Uc-PLR" kind="show" identifier="showExploreProducts" id="2Um-Bc-ZwR"/>
+                        <segue destination="4JE-cA-5hm" kind="show" identifier="showLabelScanDetails" id="gA0-VY-SWR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SaK-Oa-zWH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2748,8 +2749,8 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="QWX-e1-1PX">
-                                <rect key="frame" x="16" y="294.66666666666669" width="370" height="145.33333333333331"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="QWX-e1-1PX">
+                                <rect key="frame" x="16" y="294.66666666666674" width="370" height="373.33333333333326"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ProfileCell" id="kgI-DT-tcC" customClass="ProfileTableViewCell" customModule="What2Eat" customModuleProvider="target">
@@ -2818,7 +2819,7 @@
                             <constraint firstItem="3UZ-3L-0pj" firstAttribute="top" secondItem="Wpb-Kd-vRz" secondAttribute="top" id="9uG-ga-lij"/>
                             <constraint firstItem="p8n-35-Byc" firstAttribute="leading" secondItem="Wpb-Kd-vRz" secondAttribute="leading" constant="33" id="Hwf-cx-dlw"/>
                             <constraint firstItem="QWX-e1-1PX" firstAttribute="centerX" secondItem="hA2-xi-krP" secondAttribute="centerX" id="KsT-LI-a8k"/>
-                            <constraint firstItem="Wpb-Kd-vRz" firstAttribute="bottom" secondItem="QWX-e1-1PX" secondAttribute="bottom" constant="302" id="PcU-cM-FJ2"/>
+                            <constraint firstItem="p8n-35-Byc" firstAttribute="top" secondItem="QWX-e1-1PX" secondAttribute="bottom" constant="10" id="PcU-cM-FJ2"/>
                             <constraint firstItem="TZe-GF-uck" firstAttribute="centerX" secondItem="hA2-xi-krP" secondAttribute="centerX" id="XbC-Lj-ACI"/>
                             <constraint firstItem="p8n-35-Byc" firstAttribute="bottom" secondItem="Wpb-Kd-vRz" secondAttribute="bottom" constant="-10" id="Xub-av-eWg"/>
                             <constraint firstItem="TZe-GF-uck" firstAttribute="top" secondItem="3UZ-3L-0pj" secondAttribute="bottom" constant="15" id="fl0-lO-VLR"/>
@@ -3354,6 +3355,7 @@
                     <connections>
                         <outlet property="recentScanTableView" destination="bh3-2t-8cT" id="AYc-Rm-uUC"/>
                         <segue destination="6Wh-5a-MyP" kind="show" identifier="showproductdetailsfromrecentscans" id="8P1-Ln-L6j"/>
+                        <segue destination="4JE-cA-5hm" kind="show" identifier="showLabelScanDetailsFromRecent" id="yD9-bf-CEl"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="A5c-Ie-pmr" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -3549,10 +3551,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="362" height="281"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JkO-BO-Nqd">
-                                        <rect key="frame" x="0.0" y="0.0" width="362" height="752"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="362" height="352"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="rtK-Qv-X37">
-                                                <rect key="frame" x="0.0" y="0.0" width="362" height="752"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="362" height="352"/>
                                                 <subviews>
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="F0M-8g-ObU">
                                                         <rect key="frame" x="0.0" y="0.0" width="362" height="142"/>
@@ -3621,10 +3623,10 @@
                                                         </userDefinedRuntimeAttributes>
                                                     </view>
                                                     <tableView clipsSubviews="YES" tag="1" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="60" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="EZ8-0T-oGw">
-                                                        <rect key="frame" x="0.0" y="152" width="362" height="600"/>
+                                                        <rect key="frame" x="0.0" y="152" width="362" height="200"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="height" constant="600" id="oTm-Fg-GpH"/>
+                                                            <constraint firstAttribute="height" constant="200" id="oTm-Fg-GpH"/>
                                                         </constraints>
                                                         <color key="separatorColor" systemColor="systemGray5Color"/>
                                                         <prototypes>
@@ -3997,8 +3999,8 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="qQh-Ev-wLd"/>
-        <segue reference="ZNK-Ra-eGc"/>
+        <segue reference="yD9-bf-CEl"/>
+        <segue reference="bXz-V1-0Tq"/>
         <segue reference="2yP-TM-2AJ"/>
         <segue reference="dJy-AL-WJk"/>
         <segue reference="2Um-Bc-ZwR"/>

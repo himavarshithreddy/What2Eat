@@ -614,6 +614,9 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         Nutritional Information Extraction:
                 - Identify the section labeled "Nutrition Information" or "Nutritional Facts".
                 - Extract key nutrient names, values, and units (e.g., "Protein: 9.1 g").
+                - Only extract values per 100g of the product.
+                - If multiple columns exist (**e.g., "Per Serving" and "Per 100g"**), always choose the **Per 100g** values.
+                - If only "Per Serving" is provided but serving size is mentioned, **convert values proportionally to 100g**.
                 - Standardize nutrient names to match the following expected format (case-insensitive):
                   • "Energy" (instead of "Calories", "kcal", etc.)
                   • "Protein"
@@ -738,7 +741,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         present(alert, animated: true)
     }
     
-    private func navigateToDetailsViewController(analysis: ProductAnalysis) {
+    private func navigateToDetailsViewController(analysis: ProductAnalysis, labelScanId: String) {
             guard let detailsVC = storyboard?.instantiateViewController(withIdentifier: "LabelScanDetailsVC") as? LabelScanDetailsViewController else {
                 print("LabelScanDetailsViewController not found")
                 return
@@ -748,6 +751,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
             detailsVC.productModel = self.productModel
             detailsVC.healthScore = self.computedHealthScore
             detailsVC.productAnalysis = analysis
+        detailsVC.productId = labelScanId
             
             DispatchQueue.main.async {
                 self.navigationController?.pushViewController(detailsVC, animated: true)
@@ -781,9 +785,28 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
                             print(user)
                             
                             self.fetchHealthScore(from: decodedProduct.healthscore) { [weak self] score in
+                                guard let self = self else { return }
+                                                    
+                                                    // Generate a unique ID for the label scan
+                                                    let labelScanId = UUID().uuidString
+                                                    
+                                                    // Save to Core Data immediately
+                                                    CoreDataManager.shared.saveScanWithLabelProduct(
+                                                        decodedProduct,
+                                                        image: self.capturedImage,
+                                                        healthScore: score,
+                                                        analysis: analysis,
+                                                        id: labelScanId,
+                                                        isRecent: true,
+                                                                isSaved: false
+                                                    )
+                                                    
+                                                    // Save to recentScans immediately after Core Data save
+                                                    ScanManager.saveToRecentScans(type: "label", id: labelScanId)
+                                
                                 DispatchQueue.main.async {
-                                    self?.computedHealthScore = score
-                                    self?.navigateToDetailsViewController(analysis: analysis)
+                                    self.computedHealthScore = score
+                                    self.navigateToDetailsViewController(analysis: analysis, labelScanId: labelScanId)
                                 }
                             }
                         }

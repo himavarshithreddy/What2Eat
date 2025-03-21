@@ -7,9 +7,11 @@ class LabelScanDetailsViewController: UIViewController {
     var productModel: ProductResponse?
     var healthScore: Int?
     var productAnalysis: ProductAnalysis?
+    
     private var user: Users?
     var cachedSavedProductIDs = Set<String>()
     private var db = Firestore.firestore()
+    var productId: String? // Changed from savedProductId to match ProductDetailsViewController
     
     @IBOutlet weak var progressView: UIView!
     @IBOutlet weak var progressLabel: UILabel!
@@ -24,29 +26,25 @@ class LabelScanDetailsViewController: UIViewController {
     weak var summaryVC: SummaryLabelViewController?
     weak var ingredientsVC: IngredientsLabelViewController?
     weak var nutritionVC: NutritionLabelViewController?
-    var savedProductId: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCircularProgressBar()
         fetchUserData { user in
-                    guard let user = user else {
-                        print("[DEBUG] Failed to fetch user data")
-                        return
-                    }
-                    self.user = user
-                    print("[DEBUG] User data fetched: \(user)")
-                    
-                    // Trigger extraction once user data is available
-                    
-                }
+            guard let user = user else {
+                print("[DEBUG] Failed to fetch user data")
+                return
+            }
+            self.user = user
+            print("[DEBUG] User data fetched: \(user)")
+        }
         setupProductDetails()
         
         let bookmarkButton = UIBarButtonItem(
             image: UIImage(systemName: "bookmark"),
             style: .plain,
             target: self,
-            action: #selector(saveButtonTapped(_:))
+            action: #selector(savedButtonTapped(_:))
         )
         bookmarkButton.tintColor = .systemOrange
         navigationItem.rightBarButtonItem = bookmarkButton
@@ -60,11 +58,26 @@ class LabelScanDetailsViewController: UIViewController {
         self.navigationItem.leftBarButtonItem = customBackButton
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleNewListCreated(_:)), name: Notification.Name("NewListCreated"), object: nil)
+        
+        // Generate ID and save to Core Data if not already set
+        if productId == nil {
+            productId = UUID().uuidString
+            saveToCoreData()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        updateBookmarkIcon()
+        fetchUserSavedLists { savedLists in
+            var newCache = Set<String>()
+            for list in savedLists {
+                for prodId in list.products {
+                    newCache.insert(prodId)
+                }
+            }
+            self.cachedSavedProductIDs = newCache
+            self.updateBookmarkIcon()
+        }
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -80,7 +93,7 @@ class LabelScanDetailsViewController: UIViewController {
         } else if segue.identifier == "Createnewlist",
                   let navigationController = segue.destination as? UINavigationController,
                   let newListVC = navigationController.topViewController as? NewListViewController {
-            newListVC.productId = savedProductId // Use the generated ID
+            newListVC.productId = productId
         }
     }
 
@@ -146,23 +159,22 @@ class LabelScanDetailsViewController: UIViewController {
         ProductImage.image = capturedImage
         
         if let nutritionVC = nutritionVC, let user = user {
-                    // Parse nutrition data with RDA percentages
             let rdaPercentages = getRDAPercentages(product: productModel!, user: user)
             let nutritionDetails = productModel!.nutrition.map {
-                        NutritionDetail(
-                            name: $0.name,
-                            value: "\($0.value) \($0.unit)",
-                            rdaPercentage: Int(rdaPercentages[$0.name.lowercased()] ?? 0.0)
-                        )
-                    }
-                    nutritionVC.updateNutrition(with: nutritionDetails)
-                } else {
-                    // Fallback if no user data or nutritionVC isn't ready
-                    let parsedNutrition = productModel!.nutrition.map {
-                        NutritionDetail(name: $0.name, value: "\($0.value) \($0.unit)", rdaPercentage: 0)
-                    }
-                    nutritionVC?.updateNutrition(with: parsedNutrition)
-                }
+                NutritionDetail(
+                    name: $0.name,
+                    value: "\($0.value) \($0.unit)",
+                    rdaPercentage: Int(rdaPercentages[$0.name.lowercased()] ?? 0.0)
+                )
+            }
+            nutritionVC.updateNutrition(with: nutritionDetails)
+        } else {
+            let parsedNutrition = productModel!.nutrition.map {
+                NutritionDetail(name: $0.name, value: "\($0.value) \($0.unit)", rdaPercentage: 0)
+            }
+            nutritionVC?.updateNutrition(with: parsedNutrition)
+        }
+        
         if let summaryVC = summaryVC {
             summaryVC.productAnalysis = self.productAnalysis
             summaryVC.ingredients = productModel!.ingredients
@@ -179,43 +191,24 @@ class LabelScanDetailsViewController: UIViewController {
         }
     }
 
-    @objc func saveButtonTapped(_ sender: UIBarButtonItem) {
+    // MARK: - Saving Logic (Adapted from ProductDetailsViewController)
+    @objc func savedButtonTapped(_ sender: UIBarButtonItem) {
         guard let user = Auth.auth().currentUser else {
             showSignInAlert()
             return
         }
 
-        guard let product = productModel else {
-            print("No product to save or unsave")
+        guard let productId = productId else {
+            print("No product ID to save or unsave")
             return
         }
-
-        if let savedId = savedProductId {
-            let alert = UIAlertController(
-                title: "Remove from Saved?",
-                message: "Are you sure you want to remove this product from your saved scans?",
-                preferredStyle: .actionSheet
-            )
-            alert.view.tintColor = .systemOrange
-            alert.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in
-                CoreDataManager.shared.deleteScanWithLabelProduct(withId: savedId)
-                self.savedProductId = nil
-                self.removeProductFromAllLists(productId: savedId)
-                self.updateBookmarkIcon()
-            }))
-            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-            present(alert, animated: true)
-        } else {
-            // Generate a new UUID
-            let newId = UUID().uuidString
-            self.savedProductId = newId
-            
-            // Save to Core Data with the generated ID
-            CoreDataManager.shared.saveScanWithLabelProduct(productModel!, image: capturedImage, healthScore: healthScore,analysis: productAnalysis, id: newId)
-            
-            // Fetch lists and show action sheet
-            fetchUserSavedLists { savedLists in
-                self.showAddProductActionSheet(for: product, savedLists: savedLists, productId: newId)
+        
+        fetchUserSavedLists { savedLists in
+            if savedLists.contains(where: { $0.products.contains(productId) }) {
+                self.removeProductFromAllLists(productId: productId)
+                CoreDataManager.shared.updateScanStatus(id: productId, isSaved: false)
+            } else {
+                self.showAddProductActionSheet(productId: productId, savedLists: savedLists)
             }
         }
     }
@@ -277,12 +270,13 @@ class LabelScanDetailsViewController: UIViewController {
         }
     }
 
-    private func showAddProductActionSheet(for product: ProductResponse, savedLists: [SavedList], productId: String) {
+    private func showAddProductActionSheet(productId: String, savedLists: [SavedList]) {
         let actionSheet = UIAlertController(title: "Select a List to add to", message: nil, preferredStyle: .actionSheet)
         
         for list in savedLists {
             let action = UIAlertAction(title: list.name, style: .default) { _ in
                 self.addProductToList(savedList: list, productId: productId)
+                CoreDataManager.shared.updateScanStatus(id: productId, isSaved: true)
             }
             action.setValue(UIColor.systemOrange, forKey: "titleTextColor")
             actionSheet.addAction(action)
@@ -294,14 +288,7 @@ class LabelScanDetailsViewController: UIViewController {
         newListAction.setValue(UIColor.systemOrange, forKey: "titleTextColor")
         actionSheet.addAction(newListAction)
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            // If user cancels, remove from Core Data since it was just added
-            if let id = self.savedProductId {
-                CoreDataManager.shared.deleteScanWithLabelProduct(withId: id)
-                self.savedProductId = nil
-                self.updateBookmarkIcon()
-            }
-        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         cancelAction.setValue(UIColor.systemOrange, forKey: "titleTextColor")
         actionSheet.addAction(cancelAction)
         
@@ -323,6 +310,7 @@ class LabelScanDetailsViewController: UIViewController {
                   document.exists,
                   var data = document.data(),
                   var lists = data["savedLists"] as? [[String: Any]] else {
+                print("Could not fetch saved lists")
                 return
             }
             
@@ -338,6 +326,7 @@ class LabelScanDetailsViewController: UIViewController {
                         if let error = error {
                             print("Error updating saved list: \(error)")
                         } else {
+                            print("Product \(productId) added to \(savedList.name)")
                             self.cachedSavedProductIDs.insert(productId)
                             self.updateBookmarkIcon()
                         }
@@ -360,6 +349,7 @@ class LabelScanDetailsViewController: UIViewController {
                   document.exists,
                   var data = document.data(),
                   var lists = data["savedLists"] as? [[String: Any]] else {
+                print("Could not fetch saved lists")
                 return
             }
             
@@ -377,6 +367,7 @@ class LabelScanDetailsViewController: UIViewController {
                     if let error = error {
                         print("Error updating saved lists: \(error)")
                     } else {
+                        print("Product \(productId) removed from all lists")
                         self.cachedSavedProductIDs.remove(productId)
                         self.updateBookmarkIcon()
                     }
@@ -385,17 +376,46 @@ class LabelScanDetailsViewController: UIViewController {
         }
     }
 
-    private func updateBookmarkIcon() {
-        DispatchQueue.main.async {
-            self.navigationItem.rightBarButtonItem?.image = UIImage(systemName: self.savedProductId != nil ? "bookmark.fill" : "bookmark")
+    private func saveToCoreData() {
+        guard let product = productModel,
+              let image = capturedImage,
+              let id = productId,
+              let healthScore = healthScore,
+              let analysis = productAnalysis else {
+            print("Missing data to save to Core Data")
+            return
         }
         
-        if let productId = savedProductId {
-            fetchUserSavedLists { _ in
-                let isProductSavedInCloud = self.cachedSavedProductIDs.contains(productId)
-                if self.savedProductId != nil && !isProductSavedInCloud {
-                    // Local save exists but not in cloud - could prompt to sync if needed
+        CoreDataManager.shared.saveScanWithLabelProduct(
+            product,
+            image: image,
+            healthScore: healthScore,
+            analysis: analysis,
+            id: id
+        )
+    }
+
+    private func updateBookmarkIcon() {
+        guard let productId = productId else { return }
+        
+        if cachedSavedProductIDs.isEmpty {
+            fetchUserSavedLists { savedLists in
+                var newCache = Set<String>()
+                for list in savedLists {
+                    for prodId in list.products {
+                        newCache.insert(prodId)
+                    }
                 }
+                self.cachedSavedProductIDs = newCache
+                let isProductSaved = newCache.contains(productId)
+                DispatchQueue.main.async {
+                    self.navigationItem.rightBarButtonItem?.image = UIImage(systemName: isProductSaved ? "bookmark.fill" : "bookmark")
+                }
+            }
+        } else {
+            let isProductSaved = cachedSavedProductIDs.contains(productId)
+            DispatchQueue.main.async {
+                self.navigationItem.rightBarButtonItem?.image = UIImage(systemName: isProductSaved ? "bookmark.fill" : "bookmark")
             }
         }
     }
@@ -414,18 +434,6 @@ class LabelScanDetailsViewController: UIViewController {
     }
 
     @objc func customBackButtonPressed() {
-        if savedProductId == nil {
-            let alert = UIAlertController(title: "Save Scan?", message: "Do you want to save this scan?", preferredStyle: .alert)
-            alert.view.tintColor = .systemOrange
-            alert.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
-                self.saveButtonTapped(self.navigationItem.rightBarButtonItem!)
-            }))
-            alert.addAction(UIAlertAction(title: "Don't Save", style: .cancel, handler: { _ in
-                self.navigationController?.popToRootViewController(animated: true)
-            }))
-            present(alert, animated: true)
-        } else {
-            navigationController?.popToRootViewController(animated: true)
-        }
+        navigationController?.popToRootViewController(animated: true)
     }
 }

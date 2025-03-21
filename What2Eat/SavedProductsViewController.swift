@@ -276,7 +276,7 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
                         destinationVC.healthScore = Int(coreDataProduct.healthScore)
                         
                         destinationVC.capturedImage = coreDataProduct.imageData != nil ? UIImage(data: coreDataProduct.imageData!) : nil
-                        destinationVC.savedProductId = selectedProduct.id // Set after saving, unlike initial scan
+                        destinationVC.productId = selectedProduct.id // Set after saving, unlike initial scan
                         if let analysisData = coreDataProduct.analysis,
                                          let analysis = try? JSONDecoder().decode(ProductAnalysis.self, from: analysisData) {
                                           destinationVC.productAnalysis = analysis

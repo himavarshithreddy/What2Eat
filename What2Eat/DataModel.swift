@@ -122,7 +122,7 @@ struct RecentItem: Codable {
     let type: ItemType  // Indicates whether this item is a query or a product
 }
 
-var recentScansProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
+var recentScansProducts: [(id: String, name: String, healthScore: Int, imageURL: String, type: String)] = []
 
 
 enum Allergen: String {

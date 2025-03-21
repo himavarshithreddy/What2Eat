@@ -3,7 +3,7 @@
 //  What2Eat
 //
 //  Created by admin68 on 19/11/24.
-//  Updated for caching to avoid repeated fetching
+//  Updated for caching and new recentScans structure
 //
 
 import UIKit
@@ -13,6 +13,7 @@ import QuartzCore
 import FirebaseAuth
 import SDWebImage
 import UserNotifications
+import CoreData
 
 // MARK: - UIImage Extension for Circular Cropping
 extension UIImage {
@@ -64,7 +65,9 @@ extension String {
 
 class HomeViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
     var recommendedProducts: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
+    var recentScansProducts: [(id: String, name: String, healthScore: Int, imageURL: String, type: String)] = []
     private var profileListener: ListenerRegistration?
+    
     @IBOutlet var CategoriesView: UIView!
     @IBOutlet var HomeHeight: NSLayoutConstraint!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -76,15 +79,14 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     @IBOutlet var UserName: UILabel!
     @IBOutlet var RecentScansTableView: UITableView!
     @IBOutlet var HomeImage: UIImageView!
+    @IBOutlet var rightbarButton: UIButton!
+    
     var statusBarHeight: CGFloat {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
             return windowScene.statusBarManager?.statusBarFrame.height ?? 0
         }
         return 0
     }
-    
-    // Outlet for the right bar button (profile picture)
-    @IBOutlet var rightbarButton: UIButton!
     
     // Properties for CategoriesView
     private var categories: [(id: String, name: String)] = []
@@ -104,13 +106,12 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         return collectionView
     }()
     
-    
     private let productCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumInteritemSpacing = 8
         layout.minimumLineSpacing = 8
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 16) // Removed top and bottom insets
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 16)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.showsHorizontalScrollIndicator = false
@@ -134,7 +135,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         noRecentScansLabel.isHidden = true
         setupProfileListener()
         fetchRecentScans {
-            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 950)
+            self.HomeHeight.constant = CGFloat(min(self.recentScansProducts.count, 4) * 75 + 950)
         }
         fetchRecommendedProducts {
             self.collectionView.reloadData()
@@ -164,21 +165,20 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .default
     }
+    
     func requestNotificationPermission() {
-            UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge]) { [weak self] granted, error in
-                if granted {
-                    print("Permission granted")
-                    // Register for remote notifications on the main thread
-                    DispatchQueue.main.async {
-                        UIApplication.shared.registerForRemoteNotifications()
-                    }
-                } else {
-                    print("Permission denied: \(error?.localizedDescription ?? "Unknown error")")
-                    // Optional: Show an alert to inform the user
-                   
+        UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge]) { [weak self] granted, error in
+            if granted {
+                print("Permission granted")
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
                 }
+            } else {
+                print("Permission denied: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         profileListener?.remove()
@@ -193,7 +193,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         super.viewDidAppear(animated)
         setupProfileListener()
         fetchRecentScans {
-            self.HomeHeight.constant = CGFloat(min(recentScansProducts.count, 4) * 75 + 950)
+            self.HomeHeight.constant = CGFloat(min(self.recentScansProducts.count, 4) * 75 + 950)
         }
         updateUserName()
         self.navigationController?.navigationBar.isHidden = true
@@ -265,7 +265,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         } else if collectionView == categoryCollectionView {
             return categories.count
         } else if collectionView == productCollectionView {
-            return popularProducts.count+1
+            return popularProducts.count + 1
         }
         return 0
     }
@@ -296,11 +296,9 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             return cell
         } else if collectionView == productCollectionView {
             if indexPath.item == popularProducts.count {
-                // Render "See All" cell
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SeeAllCell", for: indexPath) as! SeeAllCell
                 return cell
             } else {
-                // Render ProductCardCell
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProductCardCell", for: indexPath) as! ProductCardCell
                 let product = popularProducts[indexPath.item]
                 cell.configure(with: product)
@@ -322,7 +320,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             fetchPopularProducts(for: selectedCategory)
         } else if collectionView == productCollectionView {
             if indexPath.item == popularProducts.count {
-                // "See All" cell tapped
                 if let selectedCategoryTuple = categories.first(where: { $0.name == selectedCategory }) {
                     performSegue(withIdentifier: "showExploreProducts", sender: selectedCategoryTuple)
                 }
@@ -332,6 +329,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             }
         }
     }
+    
     func generateLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { (section, env) -> NSCollectionLayoutSection? in
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.9), heightDimension: .fractionalHeight(1.0))
@@ -354,11 +352,9 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             return CGSize(width: width, height: 40)
         } else if collectionView == productCollectionView {
             if indexPath.item == popularProducts.count {
-                // Size for "See All" cell
                 let width = "See All".width(withConstrainedHeight: 40, font: .systemFont(ofSize: 14, weight: .semibold)) + 24
-                return CGSize(width: width, height: 100) // Match ProductCardCell height
+                return CGSize(width: width, height: 100)
             } else {
-                // Size for ProductCardCell
                 let width = 220
                 let height = 100
                 return CGSize(width: width, height: height)
@@ -366,6 +362,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         }
         return .zero
     }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return min(recentScansProducts.count, 4)
     }
@@ -373,8 +370,16 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "RecentScansCell", for: indexPath) as! RecentScansCell
         let product = recentScansProducts[indexPath.row]
-        if let url = URL(string: product.imageURL) {
+        
+        if product.type == "barcode", let url = URL(string: product.imageURL) {
             cell.ProductImage.sd_setImage(with: url, placeholderImage: UIImage(named: "placeholder_product_nobg"))
+        } else if product.type == "label" {
+            if let imageData = CoreDataManager.shared.fetchLabelProduct(by: product.id)?.imageData,
+               let image = UIImage(data: imageData) {
+                cell.ProductImage.image = image
+            } else {
+                cell.ProductImage.image = UIImage(named: "placeholder_product_nobg")
+            }
         } else {
             cell.ProductImage.image = UIImage(named: "placeholder_product_nobg")
         }
@@ -399,8 +404,12 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedProductDetails = recentScansProducts[indexPath.row]
-        performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProductDetails.id)
+        let selectedProduct = recentScansProducts[indexPath.row]
+        if selectedProduct.type == "barcode" {
+            performSegue(withIdentifier: "showproductdetailsfromhome", sender: selectedProduct.id)
+        } else if selectedProduct.type == "label" {
+            performSegue(withIdentifier: "showLabelScanDetails", sender: selectedProduct.id)
+        }
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -417,27 +426,43 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
            let destinationVC = segue.destination as? ProductDetailsViewController,
            let productId = sender as? String {
             destinationVC.productId = productId
+        } else if segue.identifier == "showLabelScanDetails",
+                  let destinationVC = segue.destination as? LabelScanDetailsViewController,
+                  let labelScanId = sender as? String {
+            if let labelProduct = CoreDataManager.shared.fetchLabelProduct(by: labelScanId) {
+                destinationVC.productId = labelScanId
+                destinationVC.productModel = ProductResponse(
+                    id: labelScanId,
+                    name: labelProduct.name ?? "",
+                    ingredients: (try? JSONDecoder().decode([String].self, from: labelProduct.ingredients ?? Data())) ?? [],
+                    nutrition: (try? JSONDecoder().decode([Nutrition].self, from: labelProduct.nutrition ?? Data())) ?? [],
+                    healthscore: HealthScore(Energy: "0", Sugars: "0", Sodium: "0", Protein: "0", Fiber: "0", FruitsVegetablesNuts: "0", SaturatedFat: "0") // Placeholder
+                )
+                destinationVC.healthScore = Int(labelProduct.healthScore)
+                destinationVC.capturedImage = labelProduct.imageData.flatMap { UIImage(data: $0) }
+                destinationVC.productAnalysis = try? JSONDecoder().decode(ProductAnalysis.self, from: labelProduct.analysis ?? Data())
+            }
         } else if segue.identifier == "showExploreProducts",
                   let destination = segue.destination as? ExploreProductsViewController,
                   let selectedCategory = sender as? (id: String, name: String) {
-            destination.categoryId = selectedCategory.id // Pass the category ID
+            destination.categoryId = selectedCategory.id
         }
     }
     
-    func fetchRecentScans(completion: @escaping () -> Void) {
+    private func fetchRecentScans(completion: @escaping () -> Void) {
         let recentScans = getRecentScans()
         if !recentScans.isEmpty {
             print("Fetching recent scans from local storage.")
-            self.fetchProductsDetails(from: recentScans, completion: completion)
-            self.toggleTableViewVisibility(isEmpty: false)
+            fetchProductsDetails(from: recentScans, completion: completion)
+            toggleTableViewVisibility(isEmpty: false)
         } else {
             print("No recent scans found in local storage.")
-            self.toggleTableViewVisibility(isEmpty: true)
+            toggleTableViewVisibility(isEmpty: true)
             completion()
         }
     }
     
-    private func getRecentScans() -> [String] {
+    private func getRecentScans() -> [(type: String, id: String)] {
         let defaults = UserDefaults.standard
         guard var localScans = defaults.array(forKey: "localRecentScans") as? [[String: Any]] else {
             return []
@@ -447,10 +472,50 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             let timestamp2 = scan2["index"] as? TimeInterval ?? 0
             return timestamp1 > timestamp2
         }
-        let productIds = localScans.compactMap { $0["productId"] as? String }
-        return productIds
+        return localScans.compactMap {
+            guard let type = $0["type"] as? String,
+                  let id = $0["id"] as? String else { return nil }
+            return (type: type, id: id)
+        }
     }
-   
+    
+    private func fetchProductsDetails(from scans: [(type: String, id: String)], completion: @escaping () -> Void) {
+        var productsDetails: [(id: String, name: String, healthScore: Int, imageURL: String, type: String)] = []
+        let dispatchGroup = DispatchGroup()
+        let db = Firestore.firestore()
+
+        for scan in scans {
+            dispatchGroup.enter()
+            if scan.type == "barcode" {
+                let productRef = db.collection("products").document(scan.id)
+                productRef.getDocument { (document, error) in
+                    if let error = error {
+                        print("Error fetching barcode product document: \(error)")
+                    } else if let document = document, document.exists,
+                              let name = document.data()?["name"] as? String,
+                              let healthScore = document.data()?["healthScore"] as? Int,
+                              let imageURL = document.data()?["imageURL"] as? String {
+                        productsDetails.append((id: scan.id, name: name, healthScore: healthScore, imageURL: imageURL, type: "barcode"))
+                    }
+                    dispatchGroup.leave()
+                }
+            } else if scan.type == "label" {
+                if let labelProduct = CoreDataManager.shared.fetchLabelProduct(by: scan.id) {
+                    let name = labelProduct.name ?? "Unnamed Product"
+                    let healthScore = Int(labelProduct.healthScore)
+                    let imageURL = "" // No Firebase URL; image is in Core Data
+                    productsDetails.append((id: scan.id, name: name, healthScore: healthScore, imageURL: imageURL, type: "label"))
+                }
+                dispatchGroup.leave()
+            }
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            self.recentScansProducts = productsDetails
+            self.RecentScansTableView.reloadData()
+            completion()
+        }
+    }
     
     func toggleTableViewVisibility(isEmpty: Bool) {
         if isEmpty {
@@ -461,38 +526,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
             RecentScansTableView.isHidden = false
             noRecentScansLabel.isHidden = true
             recentScansSeeAll.isHidden = false
-        }
-    }
-    
-    func fetchProductsDetails(from productIDs: [String], completion: @escaping () -> Void) {
-        let db = Firestore.firestore()
-        var productsDetails: [(id: String, name: String, healthScore: Int, imageURL: String)] = []
-        let dispatchGroup = DispatchGroup()
-        for productId in productIDs {
-            dispatchGroup.enter()
-            let productRef = db.collection("products").document(productId)
-            productRef.getDocument { (document, error) in
-                if let error = error {
-                    print("Error fetching product document: \(error)")
-                } else {
-                    guard let document = document, document.exists else {
-                        print("Product document does not exist for ID: \(productId)")
-                        dispatchGroup.leave()
-                        return
-                    }
-                    if let name = document.data()?["name"] as? String,
-                       let healthScore = document.data()?["healthScore"] as? Int,
-                       let imageURL = document.data()?["imageURL"] as? String {
-                        productsDetails.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL))
-                    }
-                }
-                dispatchGroup.leave()
-            }
-        }
-        dispatchGroup.notify(queue: .main) {
-            recentScansProducts = productsDetails
-            self.RecentScansTableView.reloadData()
-            completion()
         }
     }
     
@@ -516,7 +549,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                 if let document = document, document.exists, let data = document.data() {
                     if let name = data["name"] as? String,
                        let healthScore = data["healthScore"] as? Int,
-                       let imageURL = data["imageURL"] as? String{
+                       let imageURL = data["imageURL"] as? String {
                         fetchedProducts.append((id: productId, name: name, healthScore: healthScore, imageURL: imageURL))
                     }
                 }
@@ -525,7 +558,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         }
         dispatchGroup.notify(queue: .main) {
             let filteredProducts = fetchedProducts.filter { recommended in
-                !recentScansProducts.contains(where: { $0.id == recommended.id })
+                !self.recentScansProducts.contains(where: { $0.id == recommended.id })
             }
             if filteredProducts.isEmpty {
                 self.fetchTopHealthScoreProducts { topProducts in
@@ -554,7 +587,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                         let data = document.data()
                         if let name = data["name"] as? String,
                            let healthScore = data["healthScore"] as? Int,
-                           let imageURL = data["imageURL"] as? String{
+                           let imageURL = data["imageURL"] as? String {
                             topProducts.append((id: document.documentID, name: name, healthScore: healthScore, imageURL: imageURL))
                         }
                     }
@@ -664,7 +697,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     private func setupCategoriesView() {
         CategoriesView.backgroundColor = .white
         
-        // Add Category Collection View
         categoryCollectionView.translatesAutoresizingMaskIntoConstraints = false
         CategoriesView.addSubview(categoryCollectionView)
         NSLayoutConstraint.activate([
@@ -678,7 +710,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         categoryCollectionView.dataSource = self
         categoryCollectionView.register(CategoryCell.self, forCellWithReuseIdentifier: "CategoryCell")
         
-        // Add Product Collection View
         productCollectionView.translatesAutoresizingMaskIntoConstraints = false
         CategoriesView.addSubview(productCollectionView)
         NSLayoutConstraint.activate([
@@ -692,8 +723,9 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         productCollectionView.delegate = self
         productCollectionView.dataSource = self
         productCollectionView.register(ProductCardCell.self, forCellWithReuseIdentifier: "ProductCardCell")
-        productCollectionView.register(SeeAllCell.self, forCellWithReuseIdentifier: "SeeAllCell") // Register SeeAllCell
+        productCollectionView.register(SeeAllCell.self, forCellWithReuseIdentifier: "SeeAllCell")
     }
+    
     func fetchCategoriesFromFirebase() {
         db.collection("categories")
             .getDocuments(source: .cache) { (querySnapshot, error) in
@@ -747,15 +779,13 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         var allCategory: (id: String, name: String) = (id: "All", name: "All")
         var otherCategories = fetchedCategories
         
-        // Sort categories (excluding ALL) by numeric value of id
         otherCategories.sort { (cat1, cat2) -> Bool in
             if let num1 = Int(cat1.id), let num2 = Int(cat2.id) {
-                return num1 < num2 // Numeric sort
+                return num1 < num2
             }
-            return cat1.id < cat2.id // Fallback to lexicographical sort if conversion fails
+            return cat1.id < cat2.id
         }
         
-        // Ensure "ALL" is at the beginning
         self.categories = [allCategory] + otherCategories
         self.categoryCollectionView.reloadData()
         if !self.categories.contains(where: { $0.name == self.selectedCategory }) {
@@ -765,9 +795,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     }
     
     func fetchPopularProducts(for category: String) {
-        // Update label text based on category
-       
-        
         var query: Query
         
         if category == "All" {
@@ -803,6 +830,8 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         }
     }
 }
+
+// MARK: - Supporting Classes
 class CategoryCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -829,7 +858,7 @@ class CategoryCell: UICollectionViewCell {
     
     func configure(with category: String, isSelected: Bool) {
         titleLabel.text = category
-        contentView.backgroundColor = isSelected ? UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1) : UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1) // Updated colors
+        contentView.backgroundColor = isSelected ? UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1) : UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1)
         titleLabel.textColor = isSelected ? .white : .black
     }
 }
@@ -845,10 +874,10 @@ class ProductCardCell: UICollectionViewCell {
     
     private let productNameLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .medium) // Changed from .bold to .medium
+        label.font = .systemFont(ofSize: 14, weight: .medium)
         label.textColor = .black
-        label.numberOfLines = 0 // Changed from 2 to 0 to allow unlimited lines for word wrap
-        label.lineBreakMode = .byWordWrapping // Ensure word wrapping
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
         return label
     }()
     
@@ -872,32 +901,26 @@ class ProductCardCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        // Setup background with solid color
         contentView.backgroundColor = .clear
         contentView.layer.cornerRadius = 10
         contentView.layer.masksToBounds = true
         backgroundLayer.frame = contentView.bounds
         contentView.layer.insertSublayer(backgroundLayer, at: 0)
         
-        // Add shadow
         contentView.layer.shadowColor = UIColor.black.cgColor
         contentView.layer.shadowOpacity = 0.2
         contentView.layer.shadowOffset = CGSize(width: 0, height: 2)
         contentView.layer.shadowRadius = 4
         
-        // Setup image view
         productImageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(productImageView)
         
-        // Setup score badge
         scoreBadge.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(scoreBadge)
         
-        // Setup name label
         productNameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(productNameLabel)
         
-        // Constraints
         NSLayoutConstraint.activate([
             productImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
             productImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
@@ -911,13 +934,13 @@ class ProductCardCell: UICollectionViewCell {
             
             productNameLabel.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 8),
             productNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-            productNameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor) // Keeps it centered vertically
+            productNameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        backgroundLayer.frame = contentView.bounds // Ensure background fills the cell
+        backgroundLayer.frame = contentView.bounds
     }
     
     required init?(coder: NSCoder) {
@@ -933,7 +956,6 @@ class ProductCardCell: UICollectionViewCell {
             productImageView.image = UIImage(named: "placeholder_product_nobg")
         }
         
-        // Update score badge color based on health score
         if product.healthScore < 40 {
             scoreBadge.backgroundColor = .systemRed
         } else if product.healthScore < 75 {
@@ -943,6 +965,7 @@ class ProductCardCell: UICollectionViewCell {
         }
     }
 }
+
 class SeeAllCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -963,8 +986,7 @@ class SeeAllCell: UICollectionViewCell {
         ])
         contentView.layer.cornerRadius = 10
         contentView.layer.masksToBounds = true
-        contentView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1) // Match ProductCardCell background
-        // Add shadow to match ProductCardCell
+        contentView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 239/255, alpha: 1)
         contentView.layer.shadowColor = UIColor.black.cgColor
         contentView.layer.shadowOpacity = 0.2
         contentView.layer.shadowOffset = CGSize(width: 0, height: 2)
@@ -973,5 +995,18 @@ class SeeAllCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+extension CoreDataManager {
+    func fetchLabelProduct(by id: String) -> ScanWithLabelProduct? {
+        let fetchRequest: NSFetchRequest<ScanWithLabelProduct> = ScanWithLabelProduct.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id)
+        fetchRequest.fetchLimit = 1
+        do {
+            return try context.fetch(fetchRequest).first
+        } catch {
+            print("Error fetching label product: \(error)")
+            return nil
+        }
     }
 }
