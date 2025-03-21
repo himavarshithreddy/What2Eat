@@ -18,6 +18,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var expandedIndexPaths: [IndexPath: Bool] = [:]
     var userDietaryRestrictions: [DietaryRestriction] = []
     var dietaryRestrictionAlerts: [DietaryRestriction] = []
+    
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
     @IBOutlet weak var AlertTableView: UITableView!
@@ -27,32 +28,42 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var RatingText: UILabel!
     @IBOutlet weak var NumberOfRatings: UILabel!
     @IBOutlet weak var RateStarStackView: UIStackView!
+    
     var userRating: Int = 0
 
+    // MARK: - View LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Set up table view delegates & data sources
         SummaryTableView.dataSource = self
         SummaryTableView.delegate = self
         AlertTableView.dataSource = self
         AlertTableView.delegate = self
+        
         AlertView.isHidden = true
         SummaryTableView.estimatedRowHeight = 30
         SummaryTableView.rowHeight = UITableView.automaticDimension
-
-        // Setup stars for user rating
+        
+        // Setup rating UI
         setStarRating(Float(product?.userRating ?? 0))
         setupEmptyStars()
         setupStarTapGestures()
+        
         fetchUserAllergensForSummary()
         fetchUserDietaryRestrictions()
-        AlertTableView.sectionHeaderHeight = 0  // Explicit header height
+        AlertTableView.sectionHeaderHeight = 0
         updateUI()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let product = product {
+            setStarRating(product.userRating)
+        }
+        fetchUserRatingFromFirestore()
+    }
+    
     // MARK: - TableView DataSource & Delegate Methods
-
     func numberOfSections(in tableView: UITableView) -> Int {
         if tableView.tag == 1 {
             var sections = 0
@@ -66,32 +77,31 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         return 0
     }
-
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView.tag == 1 {
             if let product = productAnalysis {
-                // Adjust section index based on the available pros and cons
                 if !product.pros.isEmpty && section == 0 {
-                    return product.pros.count // Pros section
+                    return product.pros.count
                 } else if !product.cons.isEmpty && section == (product.pros.isEmpty ? 0 : 1) {
-                    return product.cons.count // Cons section
+                    return product.cons.count
                 }
             }
         } else if tableView.tag == 2 {
             return productAllergenAlerts.count + dietaryRestrictionAlerts.count
-            // Allergen section
         }
         return 0
     }
-
+    
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return nil
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView.tag == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "HighlightsCell", for: indexPath) as! HighlightsCell
             let isExpanded = expandedIndexPaths[indexPath] ?? false
+            
             if let product = productAnalysis {
                 if !product.pros.isEmpty && indexPath.section == 0 {
                     let pro = product.pros[indexPath.row]
@@ -129,27 +139,23 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     }
                 }
             }
-
+            
             cell.configureExpandButton(isExpanded: isExpanded)
             cell.onExpandButtonTapped = { [weak self] in
                 guard let self = self else { return }
-                // Toggle the expanded state
                 self.expandedIndexPaths[indexPath] = !isExpanded
-                // Reload the row to reflect the new state
                 tableView.beginUpdates()
                 tableView.reloadRows(at: [indexPath], with: .automatic)
                 tableView.endUpdates()
-                // Update the table height
                 self.updateSummaryTableHeight()
             }
-            // Show/Hide elements based on expanded state
+            
             cell.DescriptionText.isHidden = !isExpanded
             cell.ProgressBar.isHidden = !isExpanded
-            
-            // Enable wrapping for longer text
             cell.HighlightText.numberOfLines = 0
             cell.DescriptionText.numberOfLines = 0
             return cell
+            
         } else if tableView.tag == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "AlertCell", for: indexPath) as! AlertCell
             let totalAllergens = productAllergenAlerts.count
@@ -165,7 +171,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         return UITableViewCell()
     }
-
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if tableView.tag == 1 {
             return 30
@@ -174,55 +180,45 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         return 0
     }
-
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard tableView.tag == 1 else { return nil }
         let headerView = UIView()
         let titleLabel = UILabel()
         titleLabel.frame = CGRect(x: 0, y: -10, width: tableView.frame.size.width, height: 25)
-        
-        // Customize the appearance of the header
         titleLabel.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
-        titleLabel.textColor = .black // Text color
-        titleLabel.textAlignment = .left // Align text to the left
+        titleLabel.textColor = .black
+        titleLabel.textAlignment = .left
         
         if let product = productAnalysis {
-            // Determine section titles based on pros and cons availability
             if !product.pros.isEmpty && section == 0 {
-                titleLabel.text = "What’s Good 🙂" // For pros
+                titleLabel.text = "What’s Good 🙂"
             } else if !product.cons.isEmpty && section == (product.pros.isEmpty ? 0 : 1) {
-                titleLabel.text = "What’s Concerning ❗" // For cons
+                titleLabel.text = "What’s Concerning ❗"
             }
         }
-
-        // Add the label to the header view
-        headerView.addSubview(titleLabel)
         
+        headerView.addSubview(titleLabel)
         return headerView
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if tableView.tag == 1 {
             let isExpanded = expandedIndexPaths[indexPath] ?? false
-            return isExpanded ? 100 : 50 // Collapsed height: 60, Expanded height: 120
+            return isExpanded ? 100 : 50
         } else if tableView.tag == 2 {
-            return 25 // Original height for AlertTableView
+            return 25
         }
         return 0
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView.tag == 1 {
-            // Toggle the expanded state
             let isExpanded = expandedIndexPaths[indexPath] ?? false
             expandedIndexPaths[indexPath] = !isExpanded
-            
-            // Reload the row to reflect the new state
             tableView.beginUpdates()
             tableView.reloadRows(at: [indexPath], with: .automatic)
             tableView.endUpdates()
-            
-            // Update the table height
             updateSummaryTableHeight()
         }
         tableView.deselectRow(at: indexPath, animated: true)
@@ -234,7 +230,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         var headerHeight: CGFloat = 0
         
         if !product.pros.isEmpty {
-            headerHeight += 50 // Header height for "What’s Good"
+            headerHeight += 50
             for row in 0..<product.pros.count {
                 let indexPath = IndexPath(row: row, section: 0)
                 let isExpanded = expandedIndexPaths[indexPath] ?? false
@@ -242,7 +238,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
         if !product.cons.isEmpty {
-            headerHeight += 50 // Header height for "What’s Concerning"
+            headerHeight += 50
             let section = product.pros.isEmpty ? 0 : 1
             for row in 0..<product.cons.count {
                 let indexPath = IndexPath(row: row, section: section)
@@ -255,24 +251,14 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.view.layoutIfNeeded()
     }
     
-    // MARK: - View Appearance
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if let product = product {
-            setStarRating(product.userRating)
-        }
-        fetchUserRatingFromFirestore()
-    }
-    
-    // MARK: - Star Rating Setup
     private func updateUI() {
         updateSummaryTableHeight()
         updateAlertView()
         SummaryTableView.reloadData()
         AlertTableView.reloadData()
     }
-
+    
+    // MARK: - Rating Star Methods
     func setStarRating(_ rating: Float) {
         let starViews = UserRatingStarStack.arrangedSubviews.compactMap { $0 as? UIImageView }
         RatingText.text = String(format: "%.1f", rating)
@@ -293,6 +279,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let starViews = RateStarStackView.arrangedSubviews.compactMap { $0 as? UIImageView }
         for star in starViews {
             star.image = UIImage(systemName: "star")
+            star.tintColor = .gray
         }
     }
     
@@ -308,36 +295,23 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     @objc func starTapped(_ sender: UITapGestureRecognizer) {
         guard let tappedStar = sender.view as? UIImageView else { return }
-        
-        // Check if user is authenticated
         guard Auth.auth().currentUser != nil else {
-            // Show an alert if user is not authenticated
             showAuthenticationAlert()
             return
         }
-        
         let rating = tappedStar.tag
-        
-        // Update the product rating logic
         updateProductRating(newRating: rating)
-        
-        // Update the UI stars
         updateUserRatingStars(rating)
-        
-        // Update the user's local rating
         userRating = rating
     }
-
+    
     func showAuthenticationAlert() {
         let alertController = UIAlertController(title: "Sign In Required",
                                                 message: "You need to be signed in to rate this product. Please sign in first.",
                                                 preferredStyle: .alert)
         alertController.view.tintColor = .systemOrange
-      
         let cancelAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        
         alertController.addAction(cancelAction)
-        
         self.present(alertController, animated: true, completion: nil)
     }
     
@@ -354,190 +328,110 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
+    // MARK: - Updated Rating Mechanism with Firestore Transaction
     func updateProductRating(newRating: Int) {
-            guard var product = product else { return }
-            
-            var totalScore = product.userRating * Float(product.numberOfRatings)
-            
-            if userRating > 0 {
-                // User is updating an existing rating; subtract old rating
-                totalScore -= Float(userRating)
-            } else {
-                // User is rating for the first time; increase rating count
-                product.numberOfRatings += 1
-            }
-            
-            totalScore += Float(newRating)
-            let newAverage = totalScore / Float(product.numberOfRatings)
-            product.userRating = round(newAverage * 10) / 10.0
-            
-            self.product = product
-            setStarRating(product.userRating)
-            NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
+        guard let product = product, let userId = Auth.auth().currentUser?.uid else { return }
+        let productId = product.id
 
-            // Save rating to Firestore only if it's a new rating or changed
-            if userRating != newRating {
-                saveRatingToFirestore(newRating: newRating)
-                updateProductScoreInFirebase(newAverage: product.userRating, numberOfRatings: product.numberOfRatings)
-            }
-            
-            // Update local user rating
-            userRating = newRating
-            
-            // Add haptic feedback after updating the rating and Firestore calls
-            let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
-            feedbackGenerator.prepare()
-            feedbackGenerator.impactOccurred()
-        }
-    func updateProductScoreInFirebase(newAverage: Float, numberOfRatings: Int) {
-        guard let productId = product?.id else { return }
         
         let db = Firestore.firestore()
         let productRef = db.collection("products").document(productId)
+        let userRatingRef = productRef.collection("ratings").document(userId)
         
-        // Update the product document with the new average rating and number of ratings
-        productRef.updateData([
-            "userRating": newAverage,
-            "numberOfRatings": numberOfRatings
-        ]) { error in
-            if let error = error {
-                print("Error updating product score: \(error.localizedDescription)")
+        db.runTransaction({ (transaction, errorPointer) -> Any? in
+            let productDoc: DocumentSnapshot
+            do {
+                productDoc = try transaction.getDocument(productRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+            
+            var oldUserRating: Int? = nil
+            if let userRatingDoc = try? transaction.getDocument(userRatingRef),
+               userRatingDoc.exists,
+               let existingRating = userRatingDoc.data()?["rating"] as? Int {
+                oldUserRating = existingRating
+            }
+            
+            let oldAverage = productDoc.data()?["userRating"] as? Float ?? 0.0
+            let oldCount = productDoc.data()?["numberOfRatings"] as? Int ?? 0
+            
+            var newCount = oldCount
+            var newAverage: Float = oldAverage
+            
+            if let oldRating = oldUserRating {
+                newAverage = ((oldAverage * Float(oldCount)) - Float(oldRating) + Float(newRating)) / Float(oldCount)
             } else {
-                print("Product score updated successfully!")
+                newCount += 1
+                newAverage = ((oldAverage * Float(oldCount)) + Float(newRating)) / Float(newCount)
+            }
+            
+            transaction.updateData([
+                "userRating": newAverage,
+                "numberOfRatings": newCount
+            ], forDocument: productRef)
+            
+            transaction.setData([
+                "rating": newRating,
+                "timestamp": Timestamp()
+            ], forDocument: userRatingRef)
+            
+            return ["newAverage": newAverage, "newCount": newCount]
+        }) { (result, error) in
+            if let error = error {
+                print("Transaction error: \(error.localizedDescription)")
+            } else {
+                print("Rating updated successfully!")
+                if let result = result as? [String: Any],
+                   let newAverage = result["newAverage"] as? Float,
+                   let newCount = result["newCount"] as? Int {
+                    if var product = self.product {
+                        product.userRating = round(newAverage * 10) / 10.0
+                        product.numberOfRatings = newCount
+                        self.product = product
+                        DispatchQueue.main.async {
+                            self.setStarRating(product.userRating)
+                            self.NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
+                        }
+                    }
+                }
+                self.fetchUserRatingFromFirestore()
             }
         }
     }
-
-    func saveRatingToFirestore(newRating: Int) {
-        guard let productId = product?.id else { return }
-        guard let userId = Auth.auth().currentUser?.uid else { return }
-        
-        let db = Firestore.firestore()
-        
-        // Query to check if a rating already exists for this user and product
-        db.collection("ratings")
-            .whereField("productId", isEqualTo: productId)
-            .whereField("userId", isEqualTo: userId)
-            .getDocuments { [weak self] (querySnapshot, error) in
-                if let error = error {
-                    print("Firestore query error: \(error.localizedDescription)")
-                    return
-                }
-                
-                let ratingData: [String: Any] = [
-                    "productId": productId,
-                    "userId": userId,
-                    "rating": newRating
-                ]
-                
-                if let document = querySnapshot?.documents.first {
-                    // Update existing rating
-                    document.reference.updateData(ratingData) { error in
-                        if let error = error {
-                            print("Error updating rating: \(error.localizedDescription)")
-                        } else {
-                            print("Rating successfully updated!")
-                        }
-                    }
-                } else {
-                    // Add new rating
-                    db.collection("ratings").addDocument(data: ratingData) { error in
-                        if let error = error {
-                            print("Error saving rating: \(error.localizedDescription)")
-                        } else {
-                            print("Rating successfully saved!")
-                        }
-                    }
-                }
-            }
-    }
-
+    
     func fetchUserRatingFromFirestore() {
-        // Ensure productId and userId are available
-        guard let productId = product?.id else {
-            print("Error: Product ID is missing.")
+        guard let productId = product?.id,
+              let userId = Auth.auth().currentUser?.uid else {
+            print("Product ID or user not available")
             return
         }
-        guard let userId = Auth.auth().currentUser?.uid else {
-            print("User not logged in. Skipping rating fetch.")
-            return
-        }
-        
-        print("Fetching rating for product: \(productId), user: \(userId)")
         
         let db = Firestore.firestore()
+        let userRatingRef = db.collection("products").document(productId).collection("ratings").document(userId)
         
-        // Query the ratings collection for a document matching productId and userId
-        db.collection("ratings")
-            .whereField("productId", isEqualTo: productId)
-            .whereField("userId", isEqualTo: userId)
-            .getDocuments { [weak self] (querySnapshot, error) in
-                if let error = error {
-                    print("Firestore query error: \(error.localizedDescription)")
-                    return
+        userRatingRef.getDocument { (document, error) in
+            if let error = error {
+                print("Error fetching user rating: \(error.localizedDescription)")
+                return
+            }
+            
+            if let document = document, document.exists, let rating = document.data()?["rating"] as? Int {
+                DispatchQueue.main.async {
+                    self.userRating = rating
+                    self.updateUserRatingStars(rating)
                 }
-                
-                guard let documents = querySnapshot?.documents else {
-                    print("No matching documents found.")
-                    DispatchQueue.main.async {
-                        self?.userRating = 0
-                        self?.setupEmptyStars()
-                    }
-                    return
-                }
-                
-                // Check if a document was found
-                if let document = documents.first {
-                    print("Document found: \(document.documentID)")
-                    guard let rating = document.data()["rating"] as? Int else {
-                        print("Error: 'rating' field is missing or not an Int.")
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self?.userRating = rating
-                        self?.updateUserRatingStars(rating)
-                        print("Updated user rating to \(rating)")
-                    }
-                } else {
-                    print("No existing rating found for this user/product.")
-                    DispatchQueue.main.async {
-                        self?.userRating = 0
-                        self?.setupEmptyStars()
-                    }
+            } else {
+                DispatchQueue.main.async {
+                    self.userRating = 0
+                    self.setupEmptyStars()
                 }
             }
-    }
-    
-    // MARK: - Public Update Method
-    
-    /// Call this method from the parent view controller once the product is fetched.
-    func updateWithProduct(_ product: ProductData) {
-        self.product = product
-        
-        // Update UI on the main thread
-        DispatchQueue.main.async {
-            fetchUserData { user in
-                guard let user = user else {
-                    return
-                }
-                
-                self.productAnalysis = generateProsAndCons(product: product, user: user)
-            }
-            // Update star rating and number of ratings
-            self.setStarRating(product.userRating)
-            self.NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
-            
-            // Update table view height for pros & cons
-            self.updateSummaryTableHeight()
-            self.fetchUserRatingFromFirestore()
-            
-            // Reload the summary table view to reflect new data
-            self.SummaryTableView.reloadData()
-            self.compareAllergens()
-            self.compareDietaryRestrictions()
         }
     }
-
+    
+    // MARK: - Allergen and Dietary Restrictions Methods
     func fetchUserAllergensForSummary() {
         let defaults = UserDefaults.standard
         if let localAllergies = defaults.array(forKey: "localAllergies") as? [String], !localAllergies.isEmpty {
@@ -550,7 +444,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 if let document = document, document.exists,
                    let allergiesFromDB = document.get("allergies") as? [String] {
                     self?.userAllergens = allergiesFromDB.compactMap { Allergen(rawValue: $0) }
-                    defaults.set(allergiesFromDB, forKey: "localAllergies") // Cache to UserDefaults
+                    defaults.set(allergiesFromDB, forKey: "localAllergies")
                     self?.compareAllergens()
                 }
             }
@@ -563,9 +457,9 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             updateAlertView()
             return
         }
-
+        
         var alerts: [Allergen] = []
-
+        
         func checkForMatches(_ items: [String], against allergens: [Allergen]) -> [Allergen] {
             var matchedAllergens: [Allergen] = []
             for allergen in allergens {
@@ -584,25 +478,23 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
             return matchedAllergens
         }
-
-        // Check product.allergens (optional)
+        
         if let productAllergens = product.allergens {
             let allergenMatches = checkForMatches(productAllergens, against: userAllergens)
             alerts.append(contentsOf: allergenMatches)
         }
-
-        // Check product.ingredients (non-optional)
+        
         let ingredientMatches = checkForMatches(product.ingredients, against: userAllergens)
         for match in ingredientMatches {
             if !alerts.contains(match) {
                 alerts.append(match)
             }
         }
-
+        
         productAllergenAlerts = alerts
         updateAlertView()
     }
-
+    
     func updateAlertView() {
         let totalAlerts = productAllergenAlerts.count + dietaryRestrictionAlerts.count
         if totalAlerts == 0 {
@@ -613,7 +505,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         AlertTableView.reloadData()
     }
-
+    
     func fetchUserDietaryRestrictions() {
         let defaults = UserDefaults.standard
         if let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String], !localRestrictions.isEmpty {
@@ -626,13 +518,13 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 if let document = document, document.exists,
                    let restrictionsFromDB = document.get("dietaryRestrictions") as? [String] {
                     self?.userDietaryRestrictions = restrictionsFromDB.compactMap { dietaryRestrictionMapping[$0] }
-                    defaults.set(restrictionsFromDB, forKey: "localDietaryRestrictions") // Cache to UserDefaults
+                    defaults.set(restrictionsFromDB, forKey: "localDietaryRestrictions")
                     self?.compareDietaryRestrictions()
                 }
             }
         }
     }
-
+    
     func compareDietaryRestrictions() {
         guard let product = product else {
             dietaryRestrictionAlerts = []
@@ -647,5 +539,23 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         dietaryRestrictionAlerts = alerts
         updateAlertView()
+    }
+    
+    // MARK: - Product Update Method
+    func updateWithProduct(_ product: ProductData) {
+        self.product = product
+        DispatchQueue.main.async {
+            fetchUserData { user in
+                guard let user = user else { return }
+                self.productAnalysis = generateProsAndCons(product: product, user: user)
+            }
+            self.setStarRating(product.userRating)
+            self.NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
+            self.updateSummaryTableHeight()
+            self.fetchUserRatingFromFirestore()
+            self.SummaryTableView.reloadData()
+            self.compareAllergens()
+            self.compareDietaryRestrictions()
+        }
     }
 }
