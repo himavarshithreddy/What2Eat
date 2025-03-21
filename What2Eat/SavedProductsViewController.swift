@@ -8,7 +8,17 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
     @IBOutlet weak var SavedProductsTableView: UITableView!
     
     var listId: String?
-    
+    private let emptyStateLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Your saved list is hungry for products—feed it now!"
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = .gray
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     struct SavedProduct {
         let id: String
         let name: String
@@ -58,6 +68,16 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
         if let listId = listId {
             fetchSavedListAndProducts(for: listId)
         }
+        view.addSubview(emptyStateLabel)
+            
+            NSLayoutConstraint.activate([
+                emptyStateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                emptyStateLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+                emptyStateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                emptyStateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            ])
+            
+            emptyStateLabel.isHidden = true
         
         NotificationCenter.default.addObserver(
             self,
@@ -78,6 +98,10 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
             guard let data = snapshot?.data(),
                   let lists = data["savedLists"] as? [[String: Any]] else {
                 print("No saved lists found")
+                self.products = []
+                            DispatchQueue.main.async {
+                                self.updateUIForEmptyState()
+                            }
                 return
             }
             
@@ -90,10 +114,16 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
                 } else {
                     print("No products saved in this list")
                     self.products = []
-                    self.SavedProductsTableView.reloadData()
+                                   DispatchQueue.main.async {
+                                       self.updateUIForEmptyState()
+                                   }
                 }
             } else {
                 print("Saved list not found")
+                self.products = []
+                           DispatchQueue.main.async {
+                               self.updateUIForEmptyState()
+                           }
             }
         }
     }
@@ -287,4 +317,15 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
                 }
             }
         }
+    private func updateUIForEmptyState() {
+        if products.isEmpty {
+            emptyStateLabel.isHidden = false
+            SavedProductsTableView.isHidden = true
+        } else {
+            emptyStateLabel.isHidden = true
+            SavedProductsTableView.isHidden = false
+        }
+        SavedProductsTableView.reloadData()
+    }
+
 }

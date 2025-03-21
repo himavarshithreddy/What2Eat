@@ -20,7 +20,6 @@ class SearchResultsViewController: UIViewController, UITableViewDelegate, UITabl
         
         SearchResultsTableView.delegate = self
         SearchResultsTableView.dataSource = self
-        
         if let productIDs = productIDs {
             fetchProductsFromFirestore(productIDs: productIDs)
         }

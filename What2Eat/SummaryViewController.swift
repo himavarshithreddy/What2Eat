@@ -355,36 +355,40 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func updateProductRating(newRating: Int) {
-        guard var product = product else { return }
-        
-        var totalScore = product.userRating * Float(product.numberOfRatings)
-        
-        if userRating > 0 {
-            // User is updating an existing rating; subtract old rating
-            totalScore -= Float(userRating)
-        } else {
-            // User is rating for the first time; increase rating count
-            product.numberOfRatings += 1
-        }
-        
-        totalScore += Float(newRating)
-        let newAverage = totalScore / Float(product.numberOfRatings)
-        product.userRating = round(newAverage * 10) / 10.0
-        
-        self.product = product
-        setStarRating(product.userRating)
-        NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
+            guard var product = product else { return }
+            
+            var totalScore = product.userRating * Float(product.numberOfRatings)
+            
+            if userRating > 0 {
+                // User is updating an existing rating; subtract old rating
+                totalScore -= Float(userRating)
+            } else {
+                // User is rating for the first time; increase rating count
+                product.numberOfRatings += 1
+            }
+            
+            totalScore += Float(newRating)
+            let newAverage = totalScore / Float(product.numberOfRatings)
+            product.userRating = round(newAverage * 10) / 10.0
+            
+            self.product = product
+            setStarRating(product.userRating)
+            NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
 
-        // Save rating to Firestore only if it's a new rating or changed
-        if userRating != newRating {
-            saveRatingToFirestore(newRating: newRating)
-            updateProductScoreInFirebase(newAverage: product.userRating, numberOfRatings: product.numberOfRatings)
+            // Save rating to Firestore only if it's a new rating or changed
+            if userRating != newRating {
+                saveRatingToFirestore(newRating: newRating)
+                updateProductScoreInFirebase(newAverage: product.userRating, numberOfRatings: product.numberOfRatings)
+            }
+            
+            // Update local user rating
+            userRating = newRating
+            
+            // Add haptic feedback after updating the rating and Firestore calls
+            let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+            feedbackGenerator.prepare()
+            feedbackGenerator.impactOccurred()
         }
-        
-        // Update local user rating
-        userRating = newRating
-    }
-
     func updateProductScoreInFirebase(newAverage: Float, numberOfRatings: Int) {
         guard let productId = product?.id else { return }
         

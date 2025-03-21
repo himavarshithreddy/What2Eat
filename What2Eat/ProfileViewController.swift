@@ -286,39 +286,46 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     // MARK: - Sign Out Methods
 
     @IBAction func signOutButtonTapped(_ sender: UIButton) {
-     
-        if Auth.auth().currentUser != nil {
-     
-            do {
-                try Auth.auth().signOut()
-               
-                let defaults = UserDefaults.standard
-                            if let domain = Bundle.main.bundleIdentifier {
-                                defaults.removePersistentDomain(forName: domain)
-                            }
-                            defaults.synchronize()
-                signOutButton.setTitle("Sign In", for: .normal)
-                updateProfileAsGuest()
-            } catch let error as NSError {
-                print("ProfileViewController: Error signing out: \(error.localizedDescription)")
-            }
-        } else {
-            print("ProfileViewController: No user signed in, presenting login screen")
-            // Present login screen
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            if let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController") as? UIViewController {
-               
-                let transition = CATransition()
-                transition.duration = 0.5
-                transition.type = .fade
-                view.window?.layer.add(transition, forKey: kCATransition)
-                view.window?.rootViewController = loginVC
-                view.window?.makeKeyAndVisible()
+            if Auth.auth().currentUser != nil {
+                do {
+                    try Auth.auth().signOut()
+                    // Clear cached user data if needed
+                    let defaults = UserDefaults.standard
+                    if let domain = Bundle.main.bundleIdentifier {
+                        defaults.removePersistentDomain(forName: domain)
+                    }
+                    defaults.synchronize()
+                    
+                    // Instantiate and navigate to LoginViewController
+                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    if let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController") as? UIViewController {
+                        let transition = CATransition()
+                        transition.duration = 0.5
+                        transition.type = .fade
+                        view.window?.layer.add(transition, forKey: kCATransition)
+                        view.window?.rootViewController = loginVC
+                        view.window?.makeKeyAndVisible()
+                    } else {
+                        print("ProfileViewController: Failed to instantiate LoginViewController")
+                    }
+                } catch let error as NSError {
+                    print("ProfileViewController: Error signing out: \(error.localizedDescription)")
+                }
             } else {
-                print("ProfileViewController: Failed to instantiate LoginViewController")
+                // If no user is signed in, present the login screen.
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                if let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController") as? UIViewController {
+                    let transition = CATransition()
+                    transition.duration = 0.5
+                    transition.type = .fade
+                    view.window?.layer.add(transition, forKey: kCATransition)
+                    view.window?.rootViewController = loginVC
+                    view.window?.makeKeyAndVisible()
+                } else {
+                    print("ProfileViewController: Failed to instantiate LoginViewController")
+                }
             }
         }
-    }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 50
     }

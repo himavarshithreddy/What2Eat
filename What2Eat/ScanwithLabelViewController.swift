@@ -622,7 +622,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
                   • "Protein"
                   • "Total Fat" (instead of "Fat", "Total Fats", etc.)
                   • "Saturated Fat" (instead of "Saturated Fatty Acids", "Sat Fat", etc.)
-                  • "Carbohydrates" (instead of "Total Carbohydrates", "Carbs", etc.)
+                  • "Carbohydrates" (instead of "Carbohydrate", "Total Carbohydrates", "Carbs", "Carbohydrate" etc.), make sure this is always in plural like "Carbohydrates"
                   • "Fiber" (instead of "Dietary Fiber", etc.)
                   • "Sugars"
                   • "Calcium"

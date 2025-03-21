@@ -18,7 +18,7 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
         searchBar.delegate = self
         searchTableView.delegate = self
         searchTableView.dataSource = self
-        
+        searchTableView.keyboardDismissMode = .onDrag
         loadRecentSearches() // Load recent searches on launch
     }
     
