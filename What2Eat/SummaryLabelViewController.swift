@@ -10,6 +10,7 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
         didSet {
             if !userDietaryRestrictions.isEmpty{
                 compareDietaryRestrictions()
+                updateSummaryTableHeight()
             }
         }
     }
@@ -236,7 +237,7 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
             for row in 0..<product.pros.count {
                 let indexPath = IndexPath(row: row, section: 0)
                 let isExpanded = expandedIndexPaths[indexPath] ?? false
-                totalHeight += isExpanded ? 100 : 50
+                totalHeight += isExpanded ? 100 : 60
             }
         }
         if !product.cons.isEmpty {
@@ -245,7 +246,7 @@ class SummaryLabelViewController: UIViewController, UITableViewDataSource, UITab
             for row in 0..<product.cons.count {
                 let indexPath = IndexPath(row: row, section: section)
                 let isExpanded = expandedIndexPaths[indexPath] ?? false
-                totalHeight += isExpanded ? 100 : 50
+                totalHeight += isExpanded ? 100 : 60
             }
         }
         
