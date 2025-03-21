@@ -136,6 +136,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         setupProfileListener()
         fetchRecentScans {
             self.HomeHeight.constant = CGFloat(min(self.recentScansProducts.count, 4) * 75 + 950)
+            self.RecentScansTableView.reloadData()
         }
         fetchRecommendedProducts {
             self.collectionView.reloadData()
@@ -194,6 +195,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         setupProfileListener()
         fetchRecentScans {
             self.HomeHeight.constant = CGFloat(min(self.recentScansProducts.count, 4) * 75 + 950)
+            self.RecentScansTableView.reloadData()
         }
         updateUserName()
         self.navigationController?.navigationBar.isHidden = true

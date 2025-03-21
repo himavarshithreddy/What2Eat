@@ -20,9 +20,14 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
         super.viewDidLoad()
         SelectIconCV.delegate = self
         SelectIconCV.dataSource = self
+        SelectIconCV.alwaysBounceVertical = true
+        SelectIconCV.keyboardDismissMode = .onDrag
         saveButton.isEnabled = false
         ListNameText.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+            tapGesture.cancelsTouchesInView = false
+            view.addGestureRecognizer(tapGesture)
+
         // Get logged-in user ID
         if let currentUser = Auth.auth().currentUser {
             userId = currentUser.uid
@@ -34,6 +39,9 @@ class NewListViewController: UIViewController, UICollectionViewDelegate, UIColle
     @objc func textFieldDidChange() {
         saveButton.isEnabled = !(ListNameText.text?.isEmpty ?? true) && selectedIcon != nil
     }
+    @objc func dismissKeyboard() {
+           view.endEditing(true)
+       }
 
     // CollectionView: Number of items
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

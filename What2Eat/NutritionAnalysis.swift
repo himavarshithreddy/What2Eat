@@ -76,6 +76,7 @@ func getRDA(for user: Users) -> [String: Double] {
     rda["total fat"] = (rda["energy"]! * 0.25) / 9
     rda["saturated fat"] = (rda["energy"]! * 0.10) / 9
     rda["carbohydrates"] = (rda["energy"]! * 0.60) / 4
+    rda["carbohydrate"] = (rda["energy"]! * 0.60) / 4
     rda["fiber"] = (rda["energy"]! / 2000) * 30
     rda["sugars"] = (rda["energy"]! * 0.10) / 4
     
@@ -825,13 +826,52 @@ func fetchUserData(completion: @escaping (Users?) -> Void) {
         completion(user)
     }
 }
+let standardNutrientNames: [String: String] = [
+    "total fats": "total fat",
+    "fat": "total fat",
+    "saturated fats": "saturated fat",
+    "sat fat": "saturated fat",
+    "sat. fat": "saturated fat",
+    "total carbohydrates": "carbohydrates",
+    "carbohydrate": "carbohydrates",
+    "carbs": "carbohydrates",
+    "fibers": "fiber",
+    "dietary fiber": "fiber",
+    "sugars": "sugar",
+    "energy (kcal)": "energy",
+    "calories": "energy",
+    "vitamin b1": "thiamine",
+    "vitamin b2": "riboflavin",
+    "vitamin b3": "niacin",
+    "vitamin b6": "vitamin b6",
+    "vitamin b9": "folate",
+    "folic acid": "folate",
+    "vitamin b12": "vitamin b12",
+    "vitamin c (ascorbic acid)": "vitamin c",
+    "vitamin d3": "vitamin d",
+    "vitamin e (tocopherol)": "vitamin e",
+    "sodium chloride": "sodium",
+    "iodide": "iodine",
+    "selenium (se)": "selenium",
+    "copper (cu)": "copper",
+    "iron (fe)": "iron",
+    "zinc (zn)": "zinc",
+    "potassium (k)": "potassium",
+    "calcium (ca)": "calcium",
+    "magnesium (mg)": "magnesium",
+    "phosphorus (p)": "phosphorus"
+]
 func getRDAPercentages(product: ProductResponse, user: Users) -> [String: Double] {
     let rda = getRDA(for: user)
     var percentages: [String: Double] = [:]
-    
-    // Helper function to calculate percentage of DV/RDA (reused from your code)
+
+    // **Mapping for inconsistent nutrient names (handles OCR errors, singular/plural mismatches, etc.)**
+ 
+
+    // **Helper function to calculate RDA percentage**
     func calculatePercentage(nutrient: Nutrition, rdaValue: Double) -> Double {
         var value = Double(nutrient.value)
+        
         switch nutrient.unit.lowercased() {
         case "mg":
             if ["calcium", "magnesium", "iron", "zinc", "sodium", "potassium", "phosphorus", "vitamin c", "thiamine", "riboflavin", "niacin", "vitamin b6", "vitamin e"].contains(nutrient.name.lowercased()) {
@@ -859,44 +899,52 @@ func getRDAPercentages(product: ProductResponse, user: Users) -> [String: Double
         return (value / rdaValue) * 100
     }
     
-    // Process each nutrient in the product
+    // **Process each nutrient**
     for nutrient in product.nutrition {
         let nutrientKey = nutrient.name.lowercased()
-        if let rdaValue = rda[nutrientKey] {
+        
+        // **Standardize the nutrient name before lookup**
+        let correctedKey = standardNutrientNames[nutrientKey] ?? nutrientKey
+
+        if let rdaValue = rda[correctedKey] {
             let percentage = calculatePercentage(nutrient: nutrient, rdaValue: rdaValue)
-            percentages[nutrientKey] = percentage
+            percentages[correctedKey] = percentage
         }
     }
-    
+    print(percentages)
     return percentages
 }
+
 
 // Overloaded version for ProductData
 func getRDAPercentages(product: ProductData, user: Users) -> [String: Double] {
     let rda = getRDA(for: user)
     var percentages: [String: Double] = [:]
-    
-    // Helper function to calculate percentage of DV/RDA (reused from your code)
+
+    // **Mapping for inconsistent nutrient names (handles OCR errors, singular/plural mismatches, etc.)**
+  
+    // **Helper function to calculate RDA percentage**
     func calculatePercentage(nutrient: Nutrition, rdaValue: Double) -> Double {
         var value = Double(nutrient.value)
+        
         switch nutrient.unit.lowercased() {
         case "mg":
             if ["calcium", "magnesium", "iron", "zinc", "sodium", "potassium", "phosphorus", "vitamin c", "thiamine", "riboflavin", "niacin", "vitamin b6", "vitamin e"].contains(nutrient.name.lowercased()) {
                 break
             } else {
-                value /= 1000
+                value /= 1000 // Convert to grams if not in expected mg units
             }
         case "mcg", "μg":
             if ["iodine", "vitamin a", "vitamin d", "folate", "vitamin b12", "selenium", "copper"].contains(nutrient.name.lowercased()) {
                 break
             } else {
-                value /= 1000
+                value /= 1000 // Convert to mg if not in expected mcg units
             }
         case "g":
             if ["protein", "total fat", "saturated fat", "carbohydrates", "fiber", "sugars"].contains(nutrient.name.lowercased()) {
                 break
             } else {
-                value *= 1000
+                value *= 1000 // Convert to mg if not in expected g units
             }
         case "kcal":
             break
@@ -906,17 +954,22 @@ func getRDAPercentages(product: ProductData, user: Users) -> [String: Double] {
         return (value / rdaValue) * 100
     }
     
-    // Process each nutrient in the product
+    // **Process each nutrient**
     for nutrient in product.nutritionInfo {
         let nutrientKey = nutrient.name.lowercased()
-        if let rdaValue = rda[nutrientKey] {
+        
+        // **Standardize the nutrient name before lookup**
+        let correctedKey = standardNutrientNames[nutrientKey] ?? nutrientKey
+
+        if let rdaValue = rda[correctedKey] {
             let percentage = calculatePercentage(nutrient: nutrient, rdaValue: rdaValue)
-            percentages[nutrientKey] = percentage
+            percentages[correctedKey] = percentage
         }
     }
     
     return percentages
 }
+
 let dietaryRestrictionRules: [DietaryRestriction: (ProductData) -> Bool] = [
     .lowSodium: { product in
         if let sodium = product.nutritionInfo.first(where: { $0.name.lowercased() == "sodium" || $0.name.lowercased() == "salt" }) {

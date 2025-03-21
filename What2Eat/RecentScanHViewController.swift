@@ -26,7 +26,9 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
     // MARK: - Table View Data Source Methods
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print(recentScansProducts.count)
         return recentScansProducts.count
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -70,45 +72,60 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
     
     func fetchRecentScans() {
         let recentScans = ScanManager.getRecentScans()
-        if !recentScans.isEmpty {
+        
+        // Prevent duplicate fetching
+        if recentScansProducts.isEmpty {
             print("Fetching recent scans from local storage.")
             fetchProductsDetails(from: recentScans)
         } else {
-            print("No recent scans found in local storage.")
-            recentScansProducts.removeAll()
-            recentScanTableView.reloadData()
+            print("Already fetched, skipping redundant call.")
         }
     }
+
     
     func fetchProductsDetails(from scans: [[String: Any]]) {
         let dispatchGroup = DispatchGroup()
-        recentScansProducts.removeAll()
         
+        // ✅ Clear the array before adding new products
+        recentScansProducts.removeAll()
+        recentScanTableView.reloadData()  // Force UI refresh to avoid visual duplication
+
         for scan in scans {
             guard let type = scan["type"] as? String, let id = scan["id"] as? String else { continue }
             dispatchGroup.enter()
-            
+
             if type == "barcode" {
                 fetchProductDetailsFromFirebase(productId: id) { product in
                     if let product = product {
-                        self.recentScansProducts.append((id: product.id, name: product.name, healthScore: product.healthScore, imageURL: product.imageURL, type: "barcode"))
+                        DispatchQueue.main.async {
+                            if !self.recentScansProducts.contains(where: { $0.id == product.id }) {
+                                self.recentScansProducts.append((id: product.id, name: product.name, healthScore: product.healthScore, imageURL: product.imageURL, type: "barcode"))
+                            }
+                        }
                     }
                     dispatchGroup.leave()
                 }
             } else if type == "label" {
                 fetchLabelProductDetailsFromCoreData(labelId: id) { product in
                     if let product = product {
-                        self.recentScansProducts.append(product)
+                        DispatchQueue.main.async {
+                            if !self.recentScansProducts.contains(where: { $0.id == product.id }) {
+                                self.recentScansProducts.append(product)
+                            }
+                        }
                     }
                     dispatchGroup.leave()
                 }
             }
         }
-        
+
         dispatchGroup.notify(queue: .main) {
-            self.recentScanTableView.reloadData()
+            DispatchQueue.main.async {
+                self.recentScanTableView.reloadData()
+            }
         }
     }
+
     
     func fetchProductDetailsFromFirebase(productId: String, completion: @escaping ((id: String, name: String, healthScore: Int, imageURL: String)?) -> Void) {
         let db = Firestore.firestore()
@@ -217,8 +234,15 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
             ScanManager.deleteFromRecentScans(id: removedProduct.id)
             
             tableView.deleteRows(at: [indexPath], with: .fade)
+            if recentScansProducts.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
         }
     }
+
+
 }
 
 // MARK: - Core Data Manager Extension
