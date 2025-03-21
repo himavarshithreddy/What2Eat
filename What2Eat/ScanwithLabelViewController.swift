@@ -36,6 +36,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        showInstructionSheetIfNeeded()
         setupCamera()
         self.tabBarController?.tabBar.isHidden = true
         
@@ -859,10 +860,138 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
             
             task.resume()
         }
+    private let hasSeenInstructionsKey = "HasSeenLabelScanInstructions"
+    private let visitCountKey = "LabelScanVisitCount"
+    private let maxVisitsBeforeReshow = 5
     
+    private func showInstructionSheetIfNeeded() {
+        let hasSeenInstructions = UserDefaults.standard.bool(forKey: hasSeenInstructionsKey)
+        let visitCount = UserDefaults.standard.integer(forKey: visitCountKey)
+        
+        // Increment visit count
+        UserDefaults.standard.set(visitCount + 1, forKey: visitCountKey)
+        
+        // Show sheet if:
+        // 1. User hasn't seen it before, or
+        // 2. "Don't remind me" was selected and max visits reached
+        if !hasSeenInstructions || (hasSeenInstructions && visitCount >= maxVisitsBeforeReshow) {
+            presentInstructionSheet()
+            
+            // Reset visit count if we're re-showing after max visits
+            if visitCount >= maxVisitsBeforeReshow {
+                UserDefaults.standard.set(0, forKey: visitCountKey)
+            }
+        }
+    }// Show again after 5 visits if "Don't remind me" was selected
+    private let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)
+    private func presentInstructionSheet() {
+        // Create the sheet view controller
+        let sheetVC = UIViewController()
+        sheetVC.view.backgroundColor = .clear // Transparent background for the sheet
+        
+        // Configure as a bottom sheet
+        if let sheet = sheetVC.sheetPresentationController {
+            sheet.detents = [.medium()] // Medium height
+            sheet.prefersGrabberVisible = true // Show grabber at the top
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.preferredCornerRadius = 14
+        }
+        
+        // Container view for content with dark theme
+        let containerView = UIView()
+        containerView.backgroundColor = UIColor(red: 0.15, green: 0.15, blue: 0.15, alpha: 1.0) // Dark gray
+        containerView.layer.cornerRadius = 14
+
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        sheetVC.view.addSubview(containerView)
+        
+        // Title
+        let titleLabel = UILabel()
+        titleLabel.text = "How to Scan a Food Label"
+        titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
+        titleLabel.textColor = .white // White text for dark theme
+        titleLabel.textAlignment = .center
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(titleLabel)
+        
+        // Instruction text
+        let instructionText = UILabel()
+        instructionText.text = """
+        1. Position the label within the orange frame.
+        2. Ensure the ingredients list and nutrition table are clearly visible.
+        3. Keep the camera steady and well-lit for best results.
+        """
+        instructionText.numberOfLines = 0
+        instructionText.font = .systemFont(ofSize: 16, weight: .regular)
+        instructionText.textColor = .lightGray // Light gray for readability on dark background
+        instructionText.textAlignment = .left
+        instructionText.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(instructionText)
+        
+        // "Don't Remind Me Again" button
+        let dontRemindButton = UIButton(type: .system)
+        dontRemindButton.setTitle("Don't Remind Me Again", for: .normal)
+        dontRemindButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        dontRemindButton.setTitleColor(orangeColor, for: .normal) // Orange for contrast
+        dontRemindButton.translatesAutoresizingMaskIntoConstraints = false
+        dontRemindButton.addTarget(self, action: #selector(dontRemindTapped), for: .touchUpInside)
+        containerView.addSubview(dontRemindButton)
+        
+        // "Got It" button
+        let gotItButton = UIButton(type: .system)
+        gotItButton.setTitle("Got It", for: .normal)
+        gotItButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        gotItButton.setTitleColor(.black, for: .normal) // Black text for contrast on orange
+        gotItButton.backgroundColor = orangeColor // Orange button
+        gotItButton.layer.cornerRadius = 10
+        gotItButton.translatesAutoresizingMaskIntoConstraints = false
+        gotItButton.addTarget(self, action: #selector(dismissSheet), for: .touchUpInside)
+        containerView.addSubview(gotItButton)
+        
+        // Constraints
+        NSLayoutConstraint.activate([
+            containerView.leadingAnchor.constraint(equalTo: sheetVC.view.leadingAnchor, constant: 5),
+            containerView.trailingAnchor.constraint(equalTo: sheetVC.view.trailingAnchor, constant: -5),
+            containerView.topAnchor.constraint(equalTo: sheetVC.view.topAnchor, constant: 0), // Space for grabber
+            containerView.bottomAnchor.constraint(equalTo: sheetVC.view.bottomAnchor, constant: 0),
+            
+            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+            
+            instructionText.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 15),
+            instructionText.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+            instructionText.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+            
+            dontRemindButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -40),
+            dontRemindButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+            
+            gotItButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -40),
+            gotItButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+            gotItButton.widthAnchor.constraint(equalToConstant: 100),
+            gotItButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+        
+        // Present the sheet
+        present(sheetVC, animated: true, completion: nil)
+    }
+    @objc private func dontRemindTapped() {
+        UserDefaults.standard.set(true, forKey: hasSeenInstructionsKey)
+        UserDefaults.standard.set(0, forKey: visitCountKey) // Reset visit count
+        dismiss(animated: true, completion: nil)
+    }
+
+    @objc private func dismissSheet() {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func infoButtonTapped(_ sender: Any) {
+        presentInstructionSheet()
+    }
 }
 extension Task where Success == Never, Failure == Never {
     static func cancelAll() {
        
     }
+    
 }

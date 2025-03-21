@@ -19,6 +19,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var userDietaryRestrictions: [DietaryRestriction] = []
     var dietaryRestrictionAlerts: [DietaryRestriction] = []
     
+    @IBOutlet var RemoveRating: UILabel!
     @IBOutlet weak var UserRatingStarStack: UIStackView!
     @IBOutlet weak var AlertView: UIView!
     @IBOutlet weak var AlertTableView: UITableView!
@@ -39,7 +40,11 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         SummaryTableView.delegate = self
         AlertTableView.dataSource = self
         AlertTableView.delegate = self
-        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(removeUserRating))
+            
+            // Add gesture to the label
+        RemoveRating.addGestureRecognizer(tapGesture)
+        RemoveRating.isHidden = true
         AlertView.isHidden = true
         SummaryTableView.estimatedRowHeight = 30
         SummaryTableView.rowHeight = UITableView.automaticDimension
@@ -333,7 +338,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         guard let product = product, let userId = Auth.auth().currentUser?.uid else { return }
         let productId = product.id
 
-        
+        RemoveRating.isHidden = false
         let db = Firestore.firestore()
         let productRef = db.collection("products").document(productId)
         let userRatingRef = productRef.collection("ratings").document(userId)
@@ -420,6 +425,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             if let document = document, document.exists, let rating = document.data()?["rating"] as? Int {
                 DispatchQueue.main.async {
                     self.userRating = rating
+                    self.RemoveRating.isHidden = false
                     self.updateUserRatingStars(rating)
                 }
             } else {
@@ -558,4 +564,85 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             self.compareDietaryRestrictions()
         }
     }
+    @objc func removeUserRating() {
+        RemoveRating.isHidden = true
+        guard let product = product, let userId = Auth.auth().currentUser?.uid else { return }
+        let productId = product.id
+        let db = Firestore.firestore()
+        let productRef = db.collection("products").document(productId)
+        let userRatingRef = productRef.collection("ratings").document(userId)
+        
+        db.runTransaction({ (transaction, errorPointer) -> Any? in
+            // Get the product document
+            let productDoc: DocumentSnapshot
+            do {
+                productDoc = try transaction.getDocument(productRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+            
+            guard let oldAverage = productDoc.data()?["userRating"] as? Float,
+                  let oldCount = productDoc.data()?["numberOfRatings"] as? Int,
+                  oldCount > 0 else {
+                return nil
+            }
+            
+            // Get the user's rating document
+            let userRatingDoc: DocumentSnapshot
+            do {
+                userRatingDoc = try transaction.getDocument(userRatingRef)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+            
+            // Ensure the user had previously rated
+            guard let oldUserRating = userRatingDoc.data()?["rating"] as? Int else {
+                // Nothing to remove since no rating exists
+                return nil
+            }
+            
+            // Calculate new aggregate values after removal
+            let newCount = oldCount - 1
+            var newAverage: Float = 0.0
+            if newCount > 0 {
+                newAverage = ((oldAverage * Float(oldCount)) - Float(oldUserRating)) / Float(newCount)
+            }
+            
+            // Update the product document with new average and count
+            transaction.updateData([
+                "userRating": newAverage,
+                "numberOfRatings": newCount
+            ], forDocument: productRef)
+            
+            // Delete the user's rating document
+            transaction.deleteDocument(userRatingRef)
+            
+            return ["newAverage": newAverage, "newCount": newCount]
+            
+        }) { (result, error) in
+            if let error = error {
+                print("Failed to remove rating: \(error.localizedDescription)")
+            } else {
+                print("User rating removed successfully!")
+                if let result = result as? [String: Any],
+                   let newAverage = result["newAverage"] as? Float,
+                   let newCount = result["newCount"] as? Int {
+                    if var product = self.product {
+                        product.userRating = newAverage
+                        product.numberOfRatings = newCount
+                        self.product = product
+                        DispatchQueue.main.async {
+                            self.setStarRating(product.userRating)
+                            self.NumberOfRatings.text = "\(product.numberOfRatings) Ratings"
+                            self.setupEmptyStars()
+                        }
+                    }
+                }
+                self.fetchUserRatingFromFirestore()
+            }
+        }
+    }
+
 }
