@@ -33,7 +33,7 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupTableFooter()
         NutritionTableView.delegate = self
         NutritionTableView.dataSource = self
         fetchUserData { user in
@@ -48,7 +48,29 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
                     self.extractNutritionData()
                 }
     }
-    
+    func setupTableFooter() {
+            let footerView = UIView()
+            footerView.frame = CGRect(x: 0, y: 0, width: NutritionTableView.frame.width, height: 100)
+
+            let RDANoteLabel = UILabel()
+            RDANoteLabel.text = "Note: Recommended Dietary Allowance (RDA) is the daily nutrient intake based on your profile. The values shown here are personalized for you and may differ from those on the product label."
+            RDANoteLabel.font = UIFont.systemFont(ofSize: 14)
+            RDANoteLabel.textColor = .gray
+            RDANoteLabel.numberOfLines = 0
+            RDANoteLabel.textAlignment = .center
+            RDANoteLabel.translatesAutoresizingMaskIntoConstraints = false
+
+            footerView.addSubview(RDANoteLabel)
+
+            NSLayoutConstraint.activate([
+                RDANoteLabel.leadingAnchor.constraint(equalTo: footerView.leadingAnchor, constant: 0),
+                RDANoteLabel.trailingAnchor.constraint(equalTo: footerView.trailingAnchor, constant: 0),
+                RDANoteLabel.topAnchor.constraint(equalTo: footerView.topAnchor, constant: 0),
+                RDANoteLabel.bottomAnchor.constraint(equalTo: footerView.bottomAnchor, constant: 25)
+            ])
+
+            NutritionTableView.tableFooterView = footerView
+        }
     func updateWithProduct(_ product: ProductData) {
         print("[DEBUG] updateWithProduct called for: \(product.name)")
         self.product = product
@@ -64,7 +86,7 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
         let nutrition = nutritionData[indexPath.row]
         
         print("[DEBUG] Configuring cell for \(nutrition.name) - Value: \(nutrition.value)")
-        
+    
         cell.NutrientLabel.text = nutrition.name
         cell.NutrientGrams.text = nutrition.value
         cell.RDAPercentage.text = String(format: "%d%%", nutrition.rdaPercentage)
