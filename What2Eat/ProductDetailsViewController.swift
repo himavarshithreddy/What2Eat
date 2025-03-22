@@ -76,7 +76,7 @@ class ProductDetailsViewController: UIViewController {
             target: self,
             action: #selector(savedButtonTapped(_:))
         )
-        bookmarkButton.tintColor = .systemOrange
+        bookmarkButton.tintColor = orangeColor
         navigationItem.rightBarButtonItem = bookmarkButton
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -170,7 +170,7 @@ class ProductDetailsViewController: UIViewController {
         let clampedProgress = min(max(progress, 0), 1)
         progressLayer.strokeEnd = clampedProgress
         let percentage = Int(clampedProgress * 100)
-        progressLabel.text = "\(percentage)"
+        progressLabel.text = "\(product!.healthScore)"
         if let product = product {
             if product.healthScore < 40 {
                 progressLabel.textColor = .systemRed
@@ -422,7 +422,7 @@ class ProductDetailsViewController: UIViewController {
                 let numberOfRatings = data["numberOfRatings"] as? Int ?? 0
                 let categoryId = data["categoryId"] as? String ?? ""
                 let allergens = data["Allergens"] as? [String] ?? []
-                let healthScore = data["healthScore"] as? Double ?? 0.0
+                let healthScore = data["healthScore"] as? Int ?? 0
                 var nutritionInfo: [Nutrition] = []
                         if let nutritionArray = data["nutritionInfo"] as? [[String: Any]] {
                             nutritionInfo = nutritionArray.compactMap { nutritionDict in

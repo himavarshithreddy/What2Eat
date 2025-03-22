@@ -21,7 +21,7 @@ class EditProfileViewController: UIViewController {
     // Edit icon container with visual enhancements
     private let editIconContainer: UIView = {
         let container = UIView()
-        container.backgroundColor = .systemOrange
+        container.backgroundColor = orangeColor
         container.layer.cornerRadius = 15
         container.clipsToBounds = true
         container.translatesAutoresizingMaskIntoConstraints = false
@@ -375,7 +375,7 @@ extension EditProfileViewController: UITableViewDataSource {
         
         cell.accessoryType = .none
         cell.iconImage.image = UIImage(systemName: "square.and.pencil")
-        cell.iconImage.tintColor = .systemOrange
+        cell.iconImage.tintColor = orangeColor
         
         return cell
     }

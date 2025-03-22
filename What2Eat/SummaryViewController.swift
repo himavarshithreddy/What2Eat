@@ -314,7 +314,7 @@ class SummaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let alertController = UIAlertController(title: "Sign In Required",
                                                 message: "You need to be signed in to rate this product. Please sign in first.",
                                                 preferredStyle: .alert)
-        alertController.view.tintColor = .systemOrange
+        alertController.view.tintColor = orangeColor
         let cancelAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alertController.addAction(cancelAction)
         self.present(alertController, animated: true, completion: nil)

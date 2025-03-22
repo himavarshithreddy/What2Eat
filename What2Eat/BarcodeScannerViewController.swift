@@ -47,7 +47,7 @@ class BarcodeScannerViewController: UIViewController,UIImagePickerControllerDele
         scanningFrameView.layer.masksToBounds = true
         scanningFrameView.layer.borderWidth = 1.5
         scanningFrameView.clipsToBounds = true
-        scanningFrameView.layer.borderColor = UIColor.systemOrange.cgColor
+        scanningFrameView.layer.borderColor = orangeColor.cgColor
         SwitchScanButton.layer.cornerRadius=8
         SwitchScanButton.layer.masksToBounds = true
         SwitchScanButton.layer.borderWidth = 1.5

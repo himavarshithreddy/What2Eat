@@ -102,7 +102,7 @@ class DietaryViewController: UIViewController, UICollectionViewDelegate, UIColle
         }
         // Update UI for the tapped button
         sender.isSelected.toggle()
-        sender.backgroundColor = sender.isSelected ? .systemOrange : .clear
+        sender.backgroundColor = sender.isSelected ? orangeColor : .clear
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
