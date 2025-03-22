@@ -46,7 +46,7 @@ class LabelScanDetailsViewController: UIViewController {
             target: self,
             action: #selector(savedButtonTapped(_:))
         )
-        bookmarkButton.tintColor = .systemOrange
+        bookmarkButton.tintColor = orangeColor
         navigationItem.rightBarButtonItem = bookmarkButton
         
         self.view.bringSubviewToFront(SummarySegmentView)

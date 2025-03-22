@@ -62,7 +62,7 @@ struct ProductData: Codable {
     let allergens: [String]?
     let pros: [String]
     let cons: [String]
-    let healthScore: Double
+    let healthScore: Int
 }
 
 struct IngredientDetail {
@@ -263,3 +263,4 @@ class UserProfileData {
     var age: Int = 0
     var activityLevel: String = ""
 }
+let orangeColor = UIColor(red: 245/255, green: 105/255, blue: 0/255, alpha: 1)

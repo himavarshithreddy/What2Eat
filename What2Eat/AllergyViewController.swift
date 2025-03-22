@@ -89,7 +89,7 @@ class AllergyViewController: UIViewController, UICollectionViewDelegate, UIColle
         } else {
             selectedAllergens.append(canonicalAllergen)
             sender.isSelected = true
-            sender.backgroundColor = .systemOrange
+            sender.backgroundColor = orangeColor
         }
     }
     
