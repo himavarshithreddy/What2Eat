@@ -36,6 +36,7 @@ class LabelScanDetailsViewController: UIViewController {
                 return
             }
             self.user = user
+           self.productAnalysis = generateProsAndCons(product: self.productModel!, user: user)
             print("[DEBUG] User data fetched: \(user)")
         }
         setupProductDetails()
@@ -380,8 +381,8 @@ class LabelScanDetailsViewController: UIViewController {
         guard let product = productModel,
               let image = capturedImage,
               let id = productId,
-              let healthScore = healthScore,
-              let analysis = productAnalysis else {
+              let healthScore = healthScore
+            else {
             print("Missing data to save to Core Data")
             return
         }
@@ -390,7 +391,7 @@ class LabelScanDetailsViewController: UIViewController {
             product,
             image: image,
             healthScore: healthScore,
-            analysis: analysis,
+           
             id: id
         )
     }

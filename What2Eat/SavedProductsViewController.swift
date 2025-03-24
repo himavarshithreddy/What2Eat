@@ -307,10 +307,7 @@ class SavedProductsViewController: UIViewController, UITableViewDelegate, UITabl
                         
                         destinationVC.capturedImage = coreDataProduct.imageData != nil ? UIImage(data: coreDataProduct.imageData!) : nil
                         destinationVC.productId = selectedProduct.id // Set after saving, unlike initial scan
-                        if let analysisData = coreDataProduct.analysis,
-                                         let analysis = try? JSONDecoder().decode(ProductAnalysis.self, from: analysisData) {
-                                          destinationVC.productAnalysis = analysis
-                                      }
+                       
                     }
                 } catch {
                     print("Error fetching Core Data product for segue: \(error)")

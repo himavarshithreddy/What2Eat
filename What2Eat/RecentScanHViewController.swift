@@ -218,7 +218,7 @@ class RecentScanHViewController: UIViewController, UITableViewDelegate, UITableV
                 )
                 destinationVC.healthScore = Int(labelProduct.healthScore)
                 destinationVC.capturedImage = labelProduct.imageData.flatMap { UIImage(data: $0) }
-                destinationVC.productAnalysis = try? JSONDecoder().decode(ProductAnalysis.self, from: labelProduct.analysis ?? Data())
+               
             }
         }
     }

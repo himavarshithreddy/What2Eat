@@ -18,28 +18,44 @@ class CoreDataManager {
     var context: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
+    func countProducts() -> Int {
+            let fetchRequest: NSFetchRequest<ScanWithLabelProduct> = ScanWithLabelProduct.fetchRequest()
+            do {
+                let count = try context.count(for: fetchRequest)
+                return count
+            } catch {
+                print("Error counting products: \(error)")
+                return 0
+            }
+        }
     
     // MARK: - Save Scan
-    func saveScanWithLabelProduct(_ product: ProductResponse, image: UIImage?, healthScore: Int?, analysis: ProductAnalysis?, id: String, isRecent: Bool = true, isSaved: Bool = false) {
-        // Check if the product already exists to update it instead of duplicating
-        let fetchRequest: NSFetchRequest<ScanWithLabelProduct> = ScanWithLabelProduct.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "id == %@", id)
-        
-        do {
-            let results = try context.fetch(fetchRequest)
-            let scan: ScanWithLabelProduct
-            
-            if let existingScan = results.first {
-                // Update existing scan
-                scan = existingScan
-            } else {
-                // Create new scan
-                scan = ScanWithLabelProduct(context: context)
-                scan.id = id
+    func saveScanWithLabelProduct(_ product: ProductResponse, image: UIImage?, healthScore: Int?, id: String? = nil) -> String {
+        let initialCount = countProducts()
+            // Check for an existing match
+            if let existingScan = findMatchingProduct(product, image: image, healthScore: healthScore) {
+                // Update existing scan to mark as recent
+                existingScan.isRecent = true
+                do {
+                    try context.save()
+                    let updatedCount = countProducts()
+                                    print("Updated existing product with id: \(existingScan.id ?? ""), name: \(product.name ?? ""), new image. Products now: \(updatedCount)")
+                    cleanupIfNeeded()
+                    return existingScan.id ?? UUID().uuidString // Return existing ID
+                } catch {
+                    print("Failed to update existing product: \(error)")
+                    return existingScan.id ?? UUID().uuidString
+                }
             }
             
+            // No match found, save as new entry
+            let scanId = id ?? UUID().uuidString
+            let scan = ScanWithLabelProduct(context: context)
+            scan.id = scanId
             scan.name = product.name
             scan.healthScore = Int32(healthScore ?? 0)
+            scan.isRecent = true
+            scan.isSaved = false
             
             if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
                 scan.imageData = imageData
@@ -48,20 +64,18 @@ class CoreDataManager {
             let encoder = JSONEncoder()
             scan.ingredients = try? encoder.encode(product.ingredients)
             scan.nutrition = try? encoder.encode(product.nutrition)
-            if let analysis = analysis {
-                scan.analysis = try? encoder.encode(analysis)
+            
+            do {
+                try context.save()
+                let newCount = countProducts()
+                            print("New product saved with id: \(scanId). Products now: \(newCount)")
+                cleanupIfNeeded()
+                return scanId
+            } catch {
+                print("Failed to save new product: \(error)")
+                return scanId
             }
-            
-            // Set or update flags
-            scan.isRecent = isRecent
-            scan.isSaved = isSaved
-            
-            try context.save()
-            print("Product saved/updated successfully with id: \(id), isRecent: \(isRecent), isSaved: \(isSaved)")
-        } catch {
-            print("Failed to save product: \(error)")
         }
-    }
     
     // MARK: - Check Status
     func isProductSaved(withId id: String) -> Bool {
@@ -195,4 +209,45 @@ class CoreDataManager {
             print("Performed cleanup due to size limit: \(currentSize) bytes exceeded \(maxSizeBytes) bytes")
         }
     }
+    private func findMatchingProduct(_ product: ProductResponse, image: UIImage?, healthScore: Int?) -> ScanWithLabelProduct? {
+            let fetchRequest: NSFetchRequest<ScanWithLabelProduct> = ScanWithLabelProduct.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", product.name)
+            fetchRequest.returnsObjectsAsFaults = false
+            
+            do {
+                let scans = try context.fetch(fetchRequest)
+                let encoder = JSONEncoder()
+                let decoder = JSONDecoder()
+                
+                for scan in scans {
+                    // Decode stored data for comparison
+                    guard let storedIngredientsData = scan.ingredients,
+                          let storedNutritionData = scan.nutrition,
+                          let storedIngredients = try? decoder.decode([String].self, from: storedIngredientsData),
+                          let storedNutrition = try? decoder.decode([Nutrition].self, from: storedNutritionData) else {
+                        continue
+                    }
+                    
+                    _ = scan.analysis != nil ? try? decoder.decode(ProductAnalysis.self, from: scan.analysis!) : nil
+                    _ = try? encoder.encode(product.ingredients)
+                    _ = try? encoder.encode(product.nutrition)
+                  
+                    
+                    // Compare all fields
+                    let isMatch =
+                                  scan.healthScore == Int32(healthScore ?? 0) &&
+                                  storedIngredients == product.ingredients &&
+                                  storedNutrition.elementsEqual(product.nutrition, by: { $0.name == $1.name && $0.value == $1.value && $0.unit == $1.unit }) 
+                    
+                    if isMatch {
+                        return scan
+                    }
+                }
+                return nil
+            } catch {
+                print("Error checking for matching product: \(error)")
+                return nil
+            }
+        }
+    
 }

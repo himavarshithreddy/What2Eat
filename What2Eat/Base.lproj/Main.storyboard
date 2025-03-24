@@ -2392,7 +2392,7 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QC5-cY-uu9">
-                                <rect key="frame" x="89" y="755" width="212" height="40"/>
+                                <rect key="frame" x="89" y="760" width="212" height="40"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="6Xv-QB-WOl"/>
@@ -2462,7 +2462,7 @@
                             <constraint firstItem="UDg-cA-MZd" firstAttribute="leading" secondItem="u35-Oc-oR5" secondAttribute="leading" constant="16" id="Uhz-g3-0tx"/>
                             <constraint firstAttribute="trailing" secondItem="51R-Ng-ON1" secondAttribute="trailing" id="WaK-UR-dKn"/>
                             <constraint firstAttribute="trailing" secondItem="g2g-ea-ics" secondAttribute="trailing" id="Z0T-gX-PWx"/>
-                            <constraint firstItem="Zdx-l9-uR3" firstAttribute="bottom" secondItem="QC5-cY-uu9" secondAttribute="bottom" constant="15" id="jQI-Me-wge"/>
+                            <constraint firstItem="Zdx-l9-uR3" firstAttribute="bottom" secondItem="QC5-cY-uu9" secondAttribute="bottom" constant="10" id="jQI-Me-wge"/>
                             <constraint firstItem="UDg-cA-MZd" firstAttribute="top" secondItem="Zdx-l9-uR3" secondAttribute="top" constant="25" id="qCT-yK-pjp"/>
                         </constraints>
                     </view>

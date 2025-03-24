@@ -4,7 +4,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 // Struct to hold split components of pros and cons
-struct NutrientFeedback:Codable {
+struct NutrientFeedback:Codable,Equatable {
     let summaryPoint: String
     let value: Float
     let message: String
@@ -14,12 +14,62 @@ struct ProductAnalysis:Codable {
     let pros: [NutrientFeedback]
     let cons: [NutrientFeedback]
 }
+func fetchAndComputeRDAWithUnits(completion: @escaping ([String: (value: Double, unit: String)]?) -> Void) {
+    let nutrientUnits: [String: String] = [
+        "energy": "kcal",
+        "protein": "g",
+        "total fat": "g",
+        "saturated fat": "g",
+        "carbohydrates": "g",
+        "carbohydrate": "g",
+        "fiber": "g",
+        "sugars": "g",
+        "calcium": "mg",
+        "magnesium": "mg",
+        "iron": "mg",
+        "zinc": "mg",
+        "iodine": "mcg",
+        "sodium": "mg",
+        "potassium": "mg",
+        "phosphorus": "mg",
+        "copper": "mcg",
+        "selenium": "mcg",
+        "vitamin a": "mcg",
+        "vitamin c": "mg",
+        "vitamin d": "mcg",
+        "thiamine": "mg",
+        "riboflavin": "mg",
+        "niacin": "mg",
+        "vitamin b6": "mg",
+        "folate": "mcg",
+        "vitamin b12": "mcg",
+        "vitamin e": "mg"
+    ]
+    
+    fetchUserData { user in
+        guard let user = user else {
+            completion(nil) // Return nil if user data couldn't be fetched
+            return
+        }
+        
+        let rdaValues = getRDA(for: user)
+        var rdaWithUnits: [String: (value: Double, unit: String)] = [:]
+        
+        for (key, value) in rdaValues {
+            let unit = nutrientUnits[key] ?? ""
+            rdaWithUnits[key] = (value, unit)
+        }
+        
+        completion(rdaWithUnits)
+    }
+}
+
 
 // Function to calculate RDA based on user profile
 func getRDA(for user: Users) -> [String: Double] {
     let isMale = user.gender.lowercased() == "male"
     let age = user.age
-    let weight = user.weight
+    let weight = max(user.weight, 1.0)
     let activity = user.activityLevel.lowercased()
     var rda: [String: Double] = [:]
     
