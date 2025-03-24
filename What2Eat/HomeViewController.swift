@@ -120,6 +120,17 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     
     override func viewDidLoad() {
         super.viewDidLoad()
+//        fetchAndComputeRDAWithUnits { rdaWithUnits in
+//            if let rdaWithUnits = rdaWithUnits {
+//                for (nutrient, data) in rdaWithUnits {
+//                    print("\(nutrient): \(data.value) \(data.unit)")
+//                }
+//            } else {
+//                print("Failed to fetch user data or compute RDA.")
+//            }
+//        }
+        CoreDataManager.shared.cleanupOrphanedScans()
+
         requestNotificationPermission()
         markOnboardingComplete()
         HomeImage.transform = CGAffineTransform(rotationAngle: .pi * 1.845)
@@ -442,7 +453,7 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
                 )
                 destinationVC.healthScore = Int(labelProduct.healthScore)
                 destinationVC.capturedImage = labelProduct.imageData.flatMap { UIImage(data: $0) }
-                destinationVC.productAnalysis = try? JSONDecoder().decode(ProductAnalysis.self, from: labelProduct.analysis ?? Data())
+              
             }
         } else if segue.identifier == "showExploreProducts",
                   let destination = segue.destination as? ExploreProductsViewController,

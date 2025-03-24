@@ -34,8 +34,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         let defaults = UserDefaults.standard
         let localRestrictions = defaults.array(forKey: "localDietaryRestrictions") as? [String]
         let localAllergens = defaults.object(forKey: "localAllergies") as? [String]
-        print(localRestrictions)
-        print(localAllergens)
+       
     }
 
     override func viewWillDisappear(_ animated: Bool) {

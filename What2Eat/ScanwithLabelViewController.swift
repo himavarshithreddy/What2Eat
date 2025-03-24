@@ -342,7 +342,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         CaptureButton.layer.cornerRadius = 35
         
         let cameraPreviewHeight = cameraPreviewView.bounds.height
-        let scanningFrameHeight = CGFloat(cameraPreviewHeight * 0.75)
+        let scanningFrameHeight = CGFloat(cameraPreviewHeight * 0.7)
         ScanningViewFrameHeight.constant = scanningFrameHeight
         
         SwitchLabelButton.layer.cornerRadius = 8
@@ -743,7 +743,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         present(alert, animated: true)
     }
     
-    private func navigateToDetailsViewController(analysis: ProductAnalysis, labelScanId: String) {
+    private func navigateToDetailsViewController(labelScanId: String) {
             guard let detailsVC = storyboard?.instantiateViewController(withIdentifier: "LabelScanDetailsVC") as? LabelScanDetailsViewController else {
                 print("LabelScanDetailsViewController not found")
                 return
@@ -752,7 +752,7 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
             detailsVC.capturedImage = self.capturedImage
             detailsVC.productModel = self.productModel
             detailsVC.healthScore = self.computedHealthScore
-            detailsVC.productAnalysis = analysis
+        
         detailsVC.productId = labelScanId
             
             DispatchQueue.main.async {
@@ -769,54 +769,44 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
         do {
             let decodedProduct = try JSONDecoder().decode(ProductResponse.self, from: jsonData)
             
-            // Check if both ingredients and nutrition arrays are empty
             if decodedProduct.ingredients.isEmpty && decodedProduct.nutrition.isEmpty {
-                // Show error alert instead of proceeding
                 showErrorAlert(message: "Could not detect any ingredients or nutritional information. Please try again with a clearer image.")
                 return
             }
             
             self.productModel = decodedProduct
             fetchUserData { user in
-                            guard let user = user else {
-                                self.showErrorAlert(message: "Unable to fetch user data.")
-                                return
-                            }
-                            
-                            let analysis = generateProsAndCons(product: decodedProduct, user: user)
-                            print(user)
-                            
-                            self.fetchHealthScore(from: decodedProduct.healthscore) { [weak self] score in
-                                guard let self = self else { return }
-                                                    
-                                                    // Generate a unique ID for the label scan
-                                                    let labelScanId = UUID().uuidString
-                                                    
-                                                    // Save to Core Data immediately
-                                                    CoreDataManager.shared.saveScanWithLabelProduct(
-                                                        decodedProduct,
-                                                        image: self.capturedImage,
-                                                        healthScore: score,
-                                                        analysis: analysis,
-                                                        id: labelScanId,
-                                                        isRecent: true,
-                                                                isSaved: false
-                                                    )
-                                                    
-                                                    // Save to recentScans immediately after Core Data save
-                                                    ScanManager.saveToRecentScans(type: "label", id: labelScanId)
-                                
-                                DispatchQueue.main.async {
-                                    self.computedHealthScore = score
-                                    self.navigateToDetailsViewController(analysis: analysis, labelScanId: labelScanId)
-                                }
-                            }
-                        }
-                    } catch {
-                        print("Error parsing JSON: \(error)")
-                        showErrorAlert(message: "Error analyzing the product label. Please try again.")
+                guard let user = user else {
+                    self.showErrorAlert(message: "Unable to fetch user data.")
+                    return
+                }
+                
+                let analysis = generateProsAndCons(product: decodedProduct, user: user)
+                
+                self.fetchHealthScore(from: decodedProduct.healthscore) { [weak self] score in
+                    guard let self = self else { return }
+                    
+                    // Save or retrieve from Core Data
+                    let labelScanId = CoreDataManager.shared.saveScanWithLabelProduct(
+                        decodedProduct,
+                        image: self.capturedImage,
+                        healthScore: score
+                    )
+                    
+                    // Update recent scans
+                    ScanManager.saveToRecentScans(type: "label", id: labelScanId)
+                    
+                    DispatchQueue.main.async {
+                        self.computedHealthScore = score
+                        self.navigateToDetailsViewController(labelScanId: labelScanId)
                     }
                 }
+            }
+        } catch {
+            print("Error parsing JSON: \(error)")
+            showErrorAlert(message: "Error analyzing the product label. Please try again.")
+        }
+    }
     
     
     
