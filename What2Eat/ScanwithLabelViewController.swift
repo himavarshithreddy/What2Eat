@@ -4,6 +4,8 @@ import Vision
 import FirebaseVertexAI
 import Firebase
 import FirebaseAuth
+import WebKit
+import SDWebImage
 
 class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelegate, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     // Outlets connected in storyboard
@@ -878,170 +880,196 @@ class ScanWithLabelViewController: UIViewController, AVCapturePhotoCaptureDelega
     private func presentInstructionSheet() {
         // Create the sheet view controller
         let sheetVC = UIViewController()
-        sheetVC.view.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
        
-        
-        // Configure as a bottom sheet
-        if let sheet = sheetVC.sheetPresentationController {
-            sheet.detents = [.medium()] // Medium height
-            sheet.prefersGrabberVisible = true // Show grabber at the top
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-            sheet.preferredCornerRadius = 14 // Increased corner radius for modern look
-            sheet.largestUndimmedDetentIdentifier = .medium // Don't dim the background
-        }
-        
-        // Container with proper margins
-        let containerView = UIView()
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        sheetVC.view.addSubview(containerView)
-        
-        // Title with SF Symbol
-        let titleStack = UIStackView()
-        titleStack.axis = .horizontal
-        titleStack.alignment = .center
-        titleStack.spacing = 8
-        titleStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        let titleImageView = UIImageView(image: UIImage(systemName: "viewfinder"))
+                sheetVC.view.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
+                
+                // Configure as a bottom sheet with medium detent only
+                if let sheet = sheetVC.sheetPresentationController {
+                    sheet.detents = [.medium()] // Fixed to medium height
+                    sheet.prefersGrabberVisible = true
+                    sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+                    sheet.preferredCornerRadius = 20 // Slightly larger for modern look per HIG
+                }
+                
+                // Scroll view for content
+                let scrollView = UIScrollView()
+                scrollView.translatesAutoresizingMaskIntoConstraints = false
+                scrollView.alwaysBounceVertical = true
+                sheetVC.view.addSubview(scrollView)
+                
+                // Container view for content
+                let containerView = UIView()
+                containerView.translatesAutoresizingMaskIntoConstraints = false
+                scrollView.addSubview(containerView)
+                
+                // Title with SF Symbol
+                let titleStack = UIStackView()
+                titleStack.axis = .horizontal
+                titleStack.alignment = .center
+                titleStack.spacing = 8
+                titleStack.translatesAutoresizingMaskIntoConstraints = false
+                
+                let titleImageView = UIImageView(image: UIImage(systemName: "camera.viewfinder"))
         titleImageView.tintColor = orangeColor
-        titleImageView.contentMode = .scaleAspectFit
-        titleImageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+                titleImageView.contentMode = .scaleAspectFit
+                titleImageView.widthAnchor.constraint(equalToConstant: 28).isActive = true
+                titleImageView.heightAnchor.constraint(equalToConstant: 28).isActive = true
+                
+                let titleLabel = UILabel()
+                titleLabel.text = "How to Scan with Label"
+                titleLabel.font = .systemFont(ofSize: 20, weight: .bold) // HIG: Bold headline
+                titleLabel.textColor = .label // Adapts to light/dark mode
+                
+                titleStack.addArrangedSubview(titleImageView)
+                titleStack.addArrangedSubview(titleLabel)
+                containerView.addSubview(titleStack)
+                
+                // GIF Tutorial (WKWebView)
+                let gifWebView = SDAnimatedImageView()
+                gifWebView.translatesAutoresizingMaskIntoConstraints = false
+        gifWebView.contentMode = .scaleAspectFit
+                gifWebView.layer.cornerRadius = 12
+                gifWebView.clipsToBounds = true
+                
+                // Load GIF (assumes you have a local or remote GIF file)
+        if let gifPath = Bundle.main.path(forResource: "tutorial", ofType: "gif"),
+                   let gifData = try? Data(contentsOf: URL(fileURLWithPath: gifPath)),
+                   let gifImage = SDAnimatedImage(data: gifData) {
+            gifWebView.image = gifImage
+                } else {
+                    print("Failed to load scan_tutorial.gif from bundle")
+                }
+        containerView.addSubview(gifWebView)
+                
+                // Instructions container
+                let instructionsStack = UIStackView()
+                instructionsStack.axis = .vertical
+                instructionsStack.spacing = 16
+                instructionsStack.translatesAutoresizingMaskIntoConstraints = false
+                containerView.addSubview(instructionsStack)
+                
+                // Add instructions with icons
+                addInstructionRow(to: instructionsStack, icon: "rectangle.dashed", text: "Align the label within the orange frame.")
+                addInstructionRow(to: instructionsStack, icon: "text.magnifyingglass", text: "Make sure **Ingredients** and **Nutrition Info** are present and clear.")
+                addInstructionRow(to: instructionsStack, icon: "lightbulb.max", text: "Hold steady in good light for best results.")
+                
+                // Buttons container
+                let buttonStack = UIStackView()
+                buttonStack.axis = .horizontal
+                buttonStack.distribution = .fillEqually
+                buttonStack.spacing = 12
+                buttonStack.translatesAutoresizingMaskIntoConstraints = false
+                containerView.addSubview(buttonStack)
+                
+                // "Don't Remind Me" button
+                let dontRemindButton = UIButton(type: .system)
+                dontRemindButton.setTitle("Don’t Remind Me", for: .normal)
+                dontRemindButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .medium)
+        dontRemindButton.setTitleColor(.darkGray, for: .normal)
+                dontRemindButton.backgroundColor = .systemGray5
         
-        let titleLabel = UILabel()
-        titleLabel.text = "How to Scan a Food Label"
-        titleLabel.font = .systemFont(ofSize: 22, weight: .bold)
-        titleLabel.textColor = .black// System label color for dark/light mode
-        
-        titleStack.addArrangedSubview(titleImageView)
-        titleStack.addArrangedSubview(titleLabel)
-        containerView.addSubview(titleStack)
-        
-        // Divider
-        let divider = UIView()
-        divider.backgroundColor = .separator // System separator color
-        divider.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(divider)
-        
-        // Instructions container with icon and text pairs
-        let instructionsStack = UIStackView()
-        instructionsStack.axis = .vertical
-        instructionsStack.spacing = 16
-        instructionsStack.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(instructionsStack)
-        
-        // Add each instruction with icon
-        addInstructionRow(to: instructionsStack, icon: "square.dashed", text: "Position the label within the orange frame")
-        addInstructionRow(to: instructionsStack, icon: "text.viewfinder", text: "Ensure ingredients and nutrition info are clearly visible")
-        addInstructionRow(to: instructionsStack, icon: "camera.metering.center.weighted", text: "Keep the camera steady and well-lit for best results")
-        
-        // Buttons container with proper spacing
-        let buttonStack = UIStackView()
-        buttonStack.axis = .horizontal
-        buttonStack.distribution = .fillEqually
-        buttonStack.spacing = 16
-        buttonStack.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(buttonStack)
-        
-        // "Don't Remind Me" button
-        let dontRemindButton = UIButton(type: .system)
-        dontRemindButton.setTitle("Don't Remind Me", for: .normal)
-        dontRemindButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .medium)
-        dontRemindButton.backgroundColor = .secondarySystemBackground
-        dontRemindButton.setTitleColor(.secondaryLabel, for: .normal)
-        dontRemindButton.layer.cornerRadius = 14
-        dontRemindButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        dontRemindButton.addTarget(self, action: #selector(dontRemindTapped), for: .touchUpInside)
-        
-        // "Got It" button
-        let gotItButton = UIButton(type: .system)
-        gotItButton.setTitle("Got It", for: .normal)
-        gotItButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
-        gotItButton.backgroundColor = orangeColor
-        gotItButton.setTitleColor(.white, for: .normal)
-        gotItButton.layer.cornerRadius = 14
-        gotItButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        gotItButton.addTarget(self, action: #selector(dismissSheet), for: .touchUpInside)
-        
-        // Add buttons to stack
-        buttonStack.addArrangedSubview(dontRemindButton)
-        buttonStack.addArrangedSubview(gotItButton)
-        
-        // Constraints with dynamic spacing
-        NSLayoutConstraint.activate([
-            containerView.leadingAnchor.constraint(equalTo: sheetVC.view.leadingAnchor, constant: 24),
-            containerView.trailingAnchor.constraint(equalTo: sheetVC.view.trailingAnchor, constant: -24),
-            containerView.topAnchor.constraint(equalTo: sheetVC.view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            containerView.bottomAnchor.constraint(equalTo: sheetVC.view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                dontRemindButton.layer.cornerRadius = 12
+                dontRemindButton.heightAnchor.constraint(equalToConstant: 48).isActive = true // HIG: Min 44pt tappable area
+                dontRemindButton.addTarget(self, action: #selector(dontRemindTapped), for: .touchUpInside)
+                
+                // "Got It" button
+                let gotItButton = UIButton(type: .system)
+                gotItButton.setTitle("Got It", for: .normal)
+                gotItButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+                gotItButton.setTitleColor(.white, for: .normal)
+                gotItButton.backgroundColor = orangeColor
+                gotItButton.layer.cornerRadius = 12
+                gotItButton.heightAnchor.constraint(equalToConstant: 48).isActive = true
+                gotItButton.addTarget(self, action: #selector(dismissSheet), for: .touchUpInside)
+                
+                buttonStack.addArrangedSubview(dontRemindButton)
+                buttonStack.addArrangedSubview(gotItButton)
+                
+                // Constraints
+                NSLayoutConstraint.activate([
+                    scrollView.topAnchor.constraint(equalTo: sheetVC.view.safeAreaLayoutGuide.topAnchor),
+                    scrollView.leadingAnchor.constraint(equalTo: sheetVC.view.leadingAnchor),
+                    scrollView.trailingAnchor.constraint(equalTo: sheetVC.view.trailingAnchor),
+                    scrollView.bottomAnchor.constraint(equalTo: sheetVC.view.bottomAnchor),
+                    
+                    containerView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                    containerView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                    containerView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                    containerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                    containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                    
+                    titleStack.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+                    titleStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+                    titleStack.trailingAnchor.constraint(lessThanOrEqualTo: containerView.trailingAnchor, constant: -20),
+                    
+                    gifWebView.topAnchor.constraint(equalTo: titleStack.bottomAnchor, constant: 20),
+                    gifWebView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                    gifWebView.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 0.6),
+                    gifWebView.heightAnchor.constraint(equalToConstant: 170),
+                    
+                    instructionsStack.topAnchor.constraint(equalTo: gifWebView.bottomAnchor, constant: 20),
+                    instructionsStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+                    instructionsStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+                    
+                    buttonStack.topAnchor.constraint(equalTo: instructionsStack.bottomAnchor, constant: 20),
+                    buttonStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+                    buttonStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+                    buttonStack.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 10)
+                ])
+                
+                // Animation for presentation
+                containerView.alpha = 0
+                containerView.transform = CGAffineTransform(translationX: 0, y: 20)
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.prepare()
+                
+                present(sheetVC, animated: true) {
+                    generator.impactOccurred()
+                    UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+                        containerView.alpha = 1
+                        containerView.transform = .identity
+                    })
+                }
+            }
             
-            titleStack.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
-            titleStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            titleStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            
-            divider.topAnchor.constraint(equalTo: titleStack.bottomAnchor, constant: 16),
-            divider.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            divider.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            divider.heightAnchor.constraint(equalToConstant: 0.5),
-            
-            instructionsStack.topAnchor.constraint(equalTo: divider.bottomAnchor, constant: 24),
-            instructionsStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            instructionsStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            
-            buttonStack.topAnchor.constraint(greaterThanOrEqualTo: instructionsStack.bottomAnchor, constant: 32),
-            buttonStack.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            buttonStack.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            buttonStack.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
-        ])
+            // Helper method for instruction rows
+            private func addInstructionRow(to stackView: UIStackView, icon: String, text: String) {
+                let rowStack = UIStackView()
+                rowStack.axis = .horizontal
+                rowStack.spacing = 14
+                rowStack.alignment = .center
+                
+                let iconView = UIImageView(image: UIImage(systemName: icon))
+                iconView.tintColor = orangeColor
+                iconView.contentMode = .scaleAspectFit
+                iconView.widthAnchor.constraint(equalToConstant: 24).isActive = true
+                iconView.heightAnchor.constraint(equalToConstant: 24).isActive = true
+                
+                let label = UILabel()
+                label.text = text
+                label.font = .systemFont(ofSize: 16, weight: .regular) // HIG: Readable body text
+                label.textColor = .label
+                label.numberOfLines = 0
+                let attributedString = NSMutableAttributedString()
+                        let components = text.components(separatedBy: "**")
+                        for (index, component) in components.enumerated() {
+                            let font = index % 2 == 1 ?
+                                UIFont.systemFont(ofSize: 17, weight: .bold) :
+                                UIFont.systemFont(ofSize: 17, weight: .regular)
+                            let attributes: [NSAttributedString.Key: Any] = [
+                                .font: font,
+                                .foregroundColor: UIColor.label
+                            ]
+                            attributedString.append(NSAttributedString(string: component, attributes: attributes))
+                        }
+                label.attributedText = attributedString
+                
+                rowStack.addArrangedSubview(iconView)
+                rowStack.addArrangedSubview(label)
+                stackView.addArrangedSubview(rowStack)
+            }
         
-        // Add haptic feedback when opening the sheet
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.prepare()
-        
-        // Present the sheet
-        present(sheetVC, animated: true) {
-            generator.impactOccurred()
-        }
-    }
 
-    // Helper method to create instruction rows with icons
-    private func addInstructionRow(to stackView: UIStackView, icon: String, text: String) {
-        let rowStack = UIStackView()
-        rowStack.axis = .horizontal
-        rowStack.spacing = 16
-        rowStack.alignment = .top
-        
-        // Icon container with fixed width for alignment
-        let iconContainer = UIView()
-        iconContainer.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            iconContainer.widthAnchor.constraint(equalToConstant: 32),
-            iconContainer.heightAnchor.constraint(equalToConstant: 32)
-        ])
-        
-        let iconView = UIImageView(image: UIImage(systemName: icon))
-        iconView.tintColor = orangeColor
-        iconView.contentMode = .scaleAspectFit
-        iconView.translatesAutoresizingMaskIntoConstraints = false
-        iconContainer.addSubview(iconView)
-        
-        NSLayoutConstraint.activate([
-            iconView.centerXAnchor.constraint(equalTo: iconContainer.centerXAnchor),
-            iconView.centerYAnchor.constraint(equalTo: iconContainer.centerYAnchor),
-            iconView.widthAnchor.constraint(equalToConstant: 24),
-            iconView.heightAnchor.constraint(equalToConstant: 24)
-        ])
-        
-        // Instruction text
-        let instructionLabel = UILabel()
-        instructionLabel.text = text
-        instructionLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        instructionLabel.textColor = .black
-        instructionLabel.numberOfLines = 0
-        
-        rowStack.addArrangedSubview(iconContainer)
-        rowStack.addArrangedSubview(instructionLabel)
-        
-        stackView.addArrangedSubview(rowStack)
-    }
     @objc private func dontRemindTapped() {
         UserDefaults.standard.set(true, forKey: hasSeenInstructionsKey)
         UserDefaults.standard.set(0, forKey: visitCountKey) // Reset visit count
