@@ -6,8 +6,9 @@ import SDWebImage
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
+    @IBOutlet var RDAinfo: UIImageView!
     // Table view options and icons
-    let options = ["Edit Health Info", "Edit Personal Info", "Scoring Methodology", "Privacy Policy", "Terms & Conditions"]
+    let options = ["Edit Health Info", "Edit Personal Info", "About Scoring and Nutrition Guide", "Privacy Policy", "Terms & Conditions"]
     @IBOutlet var RDAView: UIView!
     let icons = ["square.and.pencil", "person.crop.circle.badge", "questionmark.circle", "lock.shield", "doc.text"]
     
@@ -29,14 +30,67 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupTooltip()
         configureUI()
         setupTableView()
         setupProfileListener()
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(infotapped))
+        RDAinfo.addGestureRecognizer(tapGesture)
         setupRDAView()
         fetchRDAData()
     }
-    
+    @objc private func infotapped() {
+        UIView.animate(withDuration: 0.3) {
+                self.tooltipView.isHidden = !self.tooltipView.isHidden
+            }
+            
+            // Auto-hide the tooltip after 3 seconds if it’s shown
+            if !tooltipView.isHidden {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    UIView.animate(withDuration: 0.3) {
+                        self.tooltipView.isHidden = true
+                    }
+                }
+            }
+        
+    }
+    private func setupTooltip() {
+            view.addSubview(tooltipView)
+            
+            // Constraints for tooltipView relative to infoButton
+            NSLayoutConstraint.activate([
+                tooltipView.topAnchor.constraint(equalTo: RDAinfo.bottomAnchor, constant: 8),
+                tooltipView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),// Position
+                tooltipView.widthAnchor.constraint(lessThanOrEqualToConstant: 250)              // Limit width for readability
+            ])
+        }
+    private lazy var tooltipView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white.withAlphaComponent(1)
+        view.layer.cornerRadius = 8
+        view.isHidden = true
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.lightGray.cgColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        let label = UILabel()
+        label.text = "This is your Recommended Daily Intake (RDI) based on factors like age, gender, weight, height, and activity level. Refer About Scoring and Nutrition Guide Section below for more information."
+        label.textColor = .black
+        label.font = .systemFont(ofSize: 14)
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(label)
+        
+        NSLayoutConstraint.activate([
+            label.topAnchor.constraint(equalTo: view.topAnchor, constant: 8),
+            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            label.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8)
+        ])
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -547,4 +601,5 @@ class ToggleCell: UICollectionViewCell {
     func configure(with text: String, isExpanded: Bool) {
         label.text = text
     }
+    
 }
