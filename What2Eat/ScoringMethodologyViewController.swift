@@ -8,7 +8,7 @@ class ScoringMethodologyViewController: UIViewController {
         navBar.barTintColor = .white
         navBar.isTranslucent = false
         
-        let navItem = UINavigationItem(title: "Health Scoring")
+        let navItem = UINavigationItem(title: "Scoring and Nutrition Guide")
         navItem.leftBarButtonItem = UIBarButtonItem(
             image: UIImage(systemName: "chevron.left"),
             style: .plain,
@@ -39,22 +39,34 @@ class ScoringMethodologyViewController: UIViewController {
     // Scoring Overview Section
     private lazy var scoringOverviewCard = createInformationCard(
         title: "Health Scoring Overview",
-        description: "Our innovative scoring system transforms complex nutritional information into a simple, intuitive 0-100 scale. This helps you quickly understand the nutritional value of your food choices."
+        description: NSAttributedString(string: "Our innovative scoring system transforms complex nutritional information into a simple, intuitive 0-100 scale. This helps you quickly understand the nutritional value of your food choices.")
     )
     
     // Calculation Method Section
     private lazy var calculationMethodCard = createInformationCard(
         title: "How We Calculate the Score",
-        description: "We analyze multiple nutritional factors:\n\n• Negative Factors (Deduct Points)\n- Calories\n- Sugar Content\n- Saturated Fat\n- Sodium Levels\n\n• Positive Factors (Add Points)\n- Dietary Fiber\n- Protein\n- Fruits & Vegetables\n- Nuts & Healthy Ingredients"
+        description: createCalculationMethodDescription()
+    )
+    
+    // Personalized Nutrition Section
+    private lazy var personalizedNutritionCard = createInformationCard(
+        title: "Personalized Nutrition Calculation",
+        description: createPersonalizedNutritionDescription()
     )
     
     // Score Interpretation Section
     private lazy var scoreInterpretationCard = createScoreInterpretationView()
     
+    // References Section
+    private lazy var referencesCard = createInformationCard(
+        title: "Citations and References",
+        description: createReferencesDescription()
+    )
+    
     // Disclaimer Section
     private let disclaimerLabel: UILabel = {
         let label = UILabel()
-        label.text = "Nutrition Scoring is a guide. Always consult with a healthcare professional for personalized dietary advice."
+        label.text = "Nutrition Scoring and Recommended Dietery Allowances (RDAs) is a guide. Always consult with a healthcare professional for personalized dietary advice."
         label.textColor = .gray
         label.font = .systemFont(ofSize: 12, weight: .light)
         label.textAlignment = .center
@@ -74,20 +86,19 @@ class ScoringMethodologyViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = UIColor(red: 0.97, green: 0.97, blue: 0.99, alpha: 1)
         
-        // Add subviews
         view.addSubview(navigationBar)
         view.addSubview(scrollView)
         scrollView.addSubview(contentStackView)
         
-        // Add content to stack view
         [
             scoringOverviewCard,
             calculationMethodCard,
+            personalizedNutritionCard,
             scoreInterpretationCard,
+            referencesCard,
             disclaimerLabel
         ].forEach { contentStackView.addArrangedSubview($0) }
         
-        // Setup Constraints
         setupConstraints()
     }
     
@@ -97,18 +108,15 @@ class ScoringMethodologyViewController: UIViewController {
         contentStackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            // Navigation Bar
             navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            // Scroll View
             scrollView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            // Content Stack View
             contentStackView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20),
             contentStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
@@ -119,7 +127,7 @@ class ScoringMethodologyViewController: UIViewController {
     
     // MARK: - Helper Methods
     
-    private func createInformationCard(title: String, description: String) -> UIView {
+    private func createInformationCard(title: String, description: NSAttributedString) -> UIView {
         let containerView = UIView()
         containerView.backgroundColor = .white
         containerView.layer.cornerRadius = 15
@@ -133,13 +141,17 @@ class ScoringMethodologyViewController: UIViewController {
         titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
         titleLabel.textColor = .black
         
-        let descriptionLabel = UILabel()
-        descriptionLabel.text = description
-        descriptionLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        descriptionLabel.textColor = .darkGray
-        descriptionLabel.numberOfLines = 0
+        let descriptionTextView = UITextView()
+        descriptionTextView.isEditable = false
+        descriptionTextView.isScrollEnabled = false
+        descriptionTextView.backgroundColor = .clear
+        descriptionTextView.attributedText = description
+        descriptionTextView.textColor = .darkGray
+        descriptionTextView.font = .systemFont(ofSize: 16, weight: .medium)
+        descriptionTextView.textContainerInset = .zero
+        descriptionTextView.textContainer.lineFragmentPadding = 0
         
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, descriptionLabel])
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, descriptionTextView])
         stackView.axis = .vertical
         stackView.spacing = 10
         
@@ -154,6 +166,57 @@ class ScoringMethodologyViewController: UIViewController {
         ])
         
         return containerView
+    }
+    
+    private func createCalculationMethodDescription() -> NSAttributedString {
+        let plainText = "We analyze multiple nutritional factors:\n\n• Negative Factors (Deduct Points)\n- Calories\n- Sugar Content\n- Saturated Fat\n- Sodium Levels\n\n• Positive Factors (Add Points)\n- Dietary Fiber\n- Protein\n- Fruits & Vegetables\n- Nuts & Healthy Ingredients\n\nOur scoring system is inspired by the Nutri Score labeling system, which rates food products on a scale from A to E based on their nutritional quality. "
+        let linkText = "Learn more about Nutri-Score"
+        let url = "https://pmc.ncbi.nlm.nih.gov/articles/PMC9421047/"
+        
+        let attributedString = NSMutableAttributedString(string: plainText)
+        let linkAttributedString = NSAttributedString(
+            string: linkText,
+            attributes: [.link: URL(string: url)!]
+        )
+        attributedString.append(linkAttributedString)
+        
+        return attributedString
+    }
+    
+    private func createPersonalizedNutritionDescription() -> NSAttributedString {
+        let plainText = "Recommended Dietary Allowance (RDA) is calculated based on individual factors such as gender, age, weight, height, and activity level to provide personalized nutrition recommendations. This calculation follows the guidelines set by the Indian Council of Medical Research (ICMR). "
+        let linkText = "ICMR Dietary Guidelines"
+        let url = "https://www.nin.res.in/rdabook/brief_note.pdf"
+        
+        let attributedString = NSMutableAttributedString(string: plainText)
+        let linkAttributedString = NSAttributedString(
+            string: linkText,
+            attributes: [.link: URL(string: url)!]
+        )
+        attributedString.append(linkAttributedString)
+        
+        return attributedString
+    }
+    
+    private func createReferencesDescription() -> NSAttributedString {
+        let references = [
+            ("Nutri Score: A labeling system rating food products based on nutritional quality.", "https://pmc.ncbi.nlm.nih.gov/articles/PMC9421047/"),
+            ("ICMR Dietary Guidelines: Recommended Dietary Allowances for the Indian population.", "https://www.nin.res.in/rdabook/brief_note.pdf")
+        ]
+        
+        let attributedString = NSMutableAttributedString()
+        for (index, (desc, url)) in references.enumerated() {
+            let refText = "\(index + 1). \(desc) "
+            let linkText = "(\(url))\n\n"
+            
+            attributedString.append(NSAttributedString(string: refText))
+            attributedString.append(NSAttributedString(
+                string: linkText,
+                attributes: [.link: URL(string: url)!]
+            ))
+        }
+        
+        return attributedString
     }
     
     private func createScoreInterpretationView() -> UIView {

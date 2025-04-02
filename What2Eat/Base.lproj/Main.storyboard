@@ -2850,11 +2850,19 @@
                                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="info.circle" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="LfE-Rf-9bT">
+                                                <rect key="frame" x="321" y="219.66666666666666" width="24" height="22.666666666666657"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="24" id="7Xq-hU-54j"/>
+                                                    <constraint firstAttribute="width" constant="24" id="gLQ-vG-AdJ"/>
+                                                </constraints>
+                                            </imageView>
                                         </subviews>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <constraints>
                                             <constraint firstItem="TZe-GF-uck" firstAttribute="top" secondItem="3UZ-3L-0pj" secondAttribute="bottom" constant="20" id="3bJ-OI-K87"/>
                                             <constraint firstItem="TZe-GF-uck" firstAttribute="leading" secondItem="zxq-rQ-rKP" secondAttribute="leading" constant="20" id="3v9-zv-Wjz"/>
+                                            <constraint firstItem="LfE-Rf-9bT" firstAttribute="leading" secondItem="48v-75-Ro5" secondAttribute="trailing" constant="5" id="4ap-ik-WIv"/>
                                             <constraint firstItem="p8n-35-Byc" firstAttribute="leading" secondItem="zxq-rQ-rKP" secondAttribute="leading" constant="20" id="5yq-dk-ysz"/>
                                             <constraint firstItem="48v-75-Ro5" firstAttribute="leading" secondItem="zxq-rQ-rKP" secondAttribute="leading" constant="20" id="MXv-pb-NQB"/>
                                             <constraint firstItem="3UZ-3L-0pj" firstAttribute="top" secondItem="zxq-rQ-rKP" secondAttribute="top" constant="20" id="O59-UX-vRA"/>
@@ -2869,6 +2877,7 @@
                                             <constraint firstAttribute="trailing" secondItem="TZe-GF-uck" secondAttribute="trailing" constant="20" id="l4j-0t-Ggi"/>
                                             <constraint firstItem="3UZ-3L-0pj" firstAttribute="centerX" secondItem="zxq-rQ-rKP" secondAttribute="centerX" id="oBE-Cd-CXA"/>
                                             <constraint firstItem="TZe-GF-uck" firstAttribute="centerX" secondItem="zxq-rQ-rKP" secondAttribute="centerX" id="qVx-Ae-RK8"/>
+                                            <constraint firstItem="LfE-Rf-9bT" firstAttribute="top" secondItem="48v-75-Ro5" secondAttribute="top" id="tbX-m8-ZEl"/>
                                             <constraint firstItem="q6M-De-Ebc" firstAttribute="top" secondItem="48v-75-Ro5" secondAttribute="bottom" constant="4" id="vQK-xW-LEG"/>
                                             <constraint firstItem="48v-75-Ro5" firstAttribute="top" secondItem="TZe-GF-uck" secondAttribute="bottom" constant="30" id="vod-DS-xpl"/>
                                         </constraints>
@@ -2897,6 +2906,7 @@
                     <navigationItem key="navigationItem" id="Vfx-Vg-rJf"/>
                     <connections>
                         <outlet property="RDAView" destination="q6M-De-Ebc" id="qvf-Vb-izp"/>
+                        <outlet property="RDAinfo" destination="LfE-Rf-9bT" id="93k-iH-0BW"/>
                         <outlet property="ScreenHeight" destination="Pnv-kY-uSP" id="Obl-V9-OVU"/>
                         <outlet property="profileImageView" destination="3UZ-3L-0pj" id="rUe-BL-67U"/>
                         <outlet property="rdaViewHeightConstraint" destination="Bcq-tw-qYJ" id="tu9-vC-J4S"/>
