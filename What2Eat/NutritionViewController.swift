@@ -90,13 +90,14 @@ class NutritionViewController: UIViewController, UITableViewDelegate, UITableVie
         cell.NutrientLabel.text = nutrition.name
         cell.NutrientGrams.text = nutrition.value
         cell.RDAPercentage.text = String(format: "%d%%", nutrition.rdaPercentage)
+        cell.minHeight = 60
         
         return cell
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 60
-    }
+//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        return 60
+//    }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let verticalPadding: CGFloat = 6
