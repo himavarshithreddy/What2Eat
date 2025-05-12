@@ -7,7 +7,7 @@ class CoreDataManager {
     let persistentContainer: NSPersistentContainer
     
     private init() {
-        persistentContainer = NSPersistentContainer(name: "What2Eat") // Ensure this matches your Core Data model file name
+        persistentContainer = NSPersistentContainer(name: "What2Eat")
         persistentContainer.loadPersistentStores { _, error in
             if let error = error {
                 print("Core Data failed to load: \(error)")
